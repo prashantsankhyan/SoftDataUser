@@ -1,0 +1,575 @@
+<div class="container-fluid">
+  <mat-dialog-content>
+
+    <form [formGroup]="addEditForm"  appEnterAsTab>
+      <div class="row g-3">
+
+        <!-- Sale Purchase A/C -->
+        <div class="col-sm-3">
+          <label class="form-label">Sale Purchase A.C Name *</label>
+          <!-- <select class="form-control" formControlName="salePurcAccountName">
+            <option value="" disabled>Select Group</option>
+            <option *ngFor="let g of listOfData" [value]="g.id">
+              {{ g.accountName }}
+            </option>
+          </select> -->
+
+          <mat-form-field appearance="outline" class="w-100 city-field" style="margin-top: -7px;" >
+  <!-- <mat-select
+     #groupSelect
+  formControlName="salePurcAccountName"
+     (keydown.enter)="handleMatSelectEnter($event, groupSelect, 'salePurcAccountName')"
+   
+    (selectionChange)="focusNextRegd(groupSelect)">
+ <mat-option value="" disabled>
+   Sale Purchase A.C Name *
+  </mat-option>
+    <mat-option *ngFor="let g of listOfData" [value]="g.id"
+                >
+        {{ g.accountName }}
+    </mat-option>
+
+  </mat-select> -->
+
+  
+  
+
+    <mat-select
+   
+    #groupSelect
+    formControlName="salePurcAccountName"
+     (openedChange)="onOpened('salePurchase', $event)"
+     (closed)="onDropdownClosed(groupSelect,'salePurcAccountName')"
+      (selectionChange)="onSelectionChange(groupSelect)"
+       (keydown.enter)="handleMatSelectEnter($event, groupSelect, 'salePurcAccountName')"
+    >
+
+  <mat-option>
+    <ngx-mat-select-search
+     
+      [formControl]="searchCtrl"
+      placeholderLabel="Search itemGroup"
+      noEntriesFoundLabel="No matching itemGroup"
+      >
+       
+    </ngx-mat-select-search>
+  </mat-option>
+
+  <mat-option
+      *ngFor="let u of filteredLists['salePurchase']"
+     [value]="u.id">
+    {{ u.accountName }}
+  </mat-option>
+
+</mat-select>  
+</mat-form-field>
+
+          <small class="text-danger"
+        *ngIf="addEditForm.get('salePurcAccountName')?.invalid && (submit || addEditForm.get('salePurcAccountName')?.touched)">
+        Sale Purchase A.C Name  is required
+      </small>
+        </div>
+
+        <!-- Select Type -->
+        <div class="col-sm-3">
+          <label class="form-label">Select Type *</label>
+<mat-form-field appearance="outline" class="w-100 city-field" style="margin-top: -7px;" >
+          <mat-select #select
+      formControlName="selectType"
+      (keydown.enter)="handleMatSelectEnter($event, select, 'selectType')"
+       (selectionChange)="focusNext(select)">
+ <mat-option value="" disabled>
+   Select Type
+  </mat-option>
+      <mat-option value="Purchase/Ex">
+        Purchase/Ex
+      </mat-option>
+
+      <mat-option value="Sale/In">
+        Sale/In
+      </mat-option>
+
+    </mat-select>
+    </mat-form-field>
+
+          <!-- <select class="form-control" formControlName="selectType">
+            <option value="" disabled>Select Type</option>
+            <option value="Purchase/Ex">Purchase/Ex</option>
+            <option value="Sale/In">Sale/In</option>
+          </select> -->
+            <small class="text-danger"
+        *ngIf="addEditForm.get('selectType')?.invalid && (submit || addEditForm.get('selectType')?.touched)">
+       Select Type  is required
+      </small>
+        </div>
+
+        <div class="col-sm-3"></div>
+        <div class="col-sm-3"></div>
+
+        <!-- ================= GST CENTRAL ================= -->
+        <div class="row g-1 align-items-end w-100">
+
+          <div class="col-sm-3">
+            <label class="form-label">GST Applicable Central</label>
+            <div class="card p-1">
+              <div class="row">
+               
+                <div class="col-6">
+                  <input type="radio" [value]="false"
+                  
+                         formControlName="gstApplicabeCentral" (selectionChange.enter)="onRadioEnter($event, 'gstApplicabeCentral')"> No
+                </div>
+                 <div class="col-6">
+                  <input type="radio" [value]="true"
+                         formControlName="gstApplicabeCentral"   (keydown.space)="onRadioEnter($event, 'gstApplicabeCentral')"> Yes
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-sm-3" *ngIf="addEditForm.get('gstApplicabeCentral')?.value">
+            <label class="form-label">Central GST Name *</label>
+             <mat-form-field appearance="outline" class="w-100 city-field" style="margin-top: -7px;" >
+             <!-- <mat-select
+    #gstApplicabeCentralName
+    formControlName="gstApplicabeCentralName"
+    (keydown.enter)="handleMatSelectEnter($event, gstApplicabeCentralName, 'gstApplicabeCentralName')"
+    (selectionChange)="focusNextRegd(gstApplicabeCentralName)">
+ <mat-option value="" disabled>
+   Central GST Name *
+  </mat-option>
+    <mat-option *ngFor="let g of liabilityList" [value]="g.id">
+         {{ g.accountName }}
+    </mat-option>
+
+  </mat-select> -->
+
+
+    <mat-select
+   
+    #gstApplicabeCentralName
+    formControlName="gstApplicabeCentralName"
+     (openedChange)="onOpened('gst', $event)"
+     (closed)="onDropdownClosed(gstApplicabeCentralName,'gstApplicabeCentralName')"
+      (selectionChange)="onSelectionChange(gstApplicabeCentralName)"
+       (keydown.enter)="handleMatSelectEnter($event, gstApplicabeCentralName, 'gstApplicabeCentralName')"
+    >
+
+<ngx-mat-select-search
+    [formControl]="centralSearchCtrl">
+</ngx-mat-select-search>
+
+<mat-option *ngFor="let item of filteredCentralGST"
+            [value]="item.id">
+    {{item.accountName}}
+</mat-option>
+
+</mat-select>
+  </mat-form-field>
+            <!-- <select class="form-control" formControlName="gstApplicabeCentralName">
+              <option value="" disabled>Select</option>
+              <option *ngFor="let g of liabilityList" [value]="g.id">
+                {{ g.accountName }}
+              </option>
+            </select> -->
+          </div>
+
+          <div class="col-sm-3" *ngIf="addEditForm.get('gstApplicabeCentral')?.value">
+            <label class="form-label">Rate *</label>
+            <input type="number" class="form-control"
+                   formControlName="gstApplicabeCentralRate" (focus)="clearZero($event)"
+  (blur)="restoreZero($event)">
+          </div>
+
+          <div class="col-sm-3" *ngIf="addEditForm.get('gstApplicabeCentral')?.value">
+            <label class="form-label">Calculate On *</label>
+            <mat-form-field appearance="outline" class="w-100 city-field" style="margin-top: -7px;">
+
+    <mat-select #gstApplicabeCentralCalculateOn
+      formControlName="gstApplicabeCentralCalculateOn"
+       (keydown.enter)="handleMatSelectEnter($event, gstApplicabeCentralCalculateOn, 'gstApplicabeCentralCalculateOn')"
+      (selectionChange)="focusNextRegd(gstApplicabeCentralCalculateOn)">
+ <mat-option value="" disabled>
+    Select
+  </mat-option>
+      <mat-option value="Taxable Amount">
+        Taxable Amount
+      </mat-option>
+
+      <mat-option value="Sub Total">
+        Sub Total
+      </mat-option>
+
+    </mat-select>
+
+  </mat-form-field>
+            <!-- <select class="form-control"
+                    formControlName="gstApplicabeCentralCalculateOn">
+              <option value="" disabled>Select</option>
+              <option value="Taxable Amount">Taxable Amount</option>
+              <option value="Sub Total">Sub Total</option>
+            </select> -->
+          </div>
+            <small class="text-danger"
+    *ngIf="addEditForm.get('gstApplicabeCentralCalculateOn')?.invalid
+      && (submit || addEditForm.get('gstApplicabeCentralCalculateOn')?.touched)">
+    Calculate On is required
+  </small>
+        </div>
+
+        <!-- ================= GST LOCAL ================= -->
+        <div class="row g-1 align-items-end w-100">
+
+          <div class="col-sm-3">
+            <label class="form-label">GST Applicable Local</label>
+            <div class="card p-1">
+              <div class="row">
+               
+                <div class="col-6">
+                  <input type="radio" [value]="false"
+                         formControlName="gstApplicabeLocal"
+                         
+                         (selectionChange.enter)="onRadioEnter($event, 'gstApplicabeLocal')"> No
+                </div>
+                 <div class="col-6">
+                  <input type="radio" [value]="true"
+                         formControlName="gstApplicabeLocal" (keydown.space)="onRadioEnter($event, 'gstApplicabeLocal')"> Yes
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-sm-3" *ngIf="addEditForm.get('gstApplicabeLocal')?.value">
+            <label class="form-label">Local GST Name *</label>
+             <mat-form-field appearance="outline" class="w-100 city-field" style="margin-top: -7px;" >
+   <!-- <mat-select
+    #gstApplicabeLocalName
+    formControlName="gstApplicabeLocalName"
+    (keydown.enter)="handleMatSelectEnter($event, gstApplicabeLocalName, 'gstApplicabeLocalName')"
+    (selectionChange)="focusNextRegd(gstApplicabeLocalName)">
+ <mat-option value="" disabled>
+   Local GST Name *
+  </mat-option>
+    <mat-option *ngFor="let g of liabilityList" [value]="g.id">
+         {{ g.accountName }}
+    </mat-option>
+
+  </mat-select> -->
+
+
+    <mat-select
+   
+    #gstApplicabeLocalName
+    formControlName="gstApplicabeLocalName"
+     (openedChange)="onOpened('gst', $event)"
+     (closed)="onDropdownClosed(gstApplicabeLocalName,'gstApplicabeLocalName')"
+      (selectionChange)="onSelectionChange(gstApplicabeLocalName)"
+       (keydown.enter)="handleMatSelectEnter($event, gstApplicabeLocalName, 'gstApplicabeLocalName')"
+    >
+<ngx-mat-select-search
+    [formControl]="localSearchCtrl">
+</ngx-mat-select-search>
+
+<mat-option *ngFor="let item of filteredLocalGST"
+            [value]="item.id">
+    {{item.accountName}}
+</mat-option>
+  
+
+</mat-select>
+  </mat-form-field>
+            <!-- <select class="form-control" formControlName="gstApplicabeLocalName">
+              <option value="" disabled>Select</option>
+              <option *ngFor="let g of liabilityList" [value]="g.id">
+                {{ g.accountName }}
+              </option>
+            </select> -->
+              <small class="text-danger"
+    *ngIf="addEditForm.get('gstApplicabeLocalName')?.invalid
+      && (submit || addEditForm.get('gstApplicabeLocalName')?.touched)">
+    Calculate On is required
+  </small>
+          </div>
+
+          <div class="col-sm-3" *ngIf="addEditForm.get('gstApplicabeLocal')?.value">
+            <label class="form-label">Rate *</label>
+            <input type="number" class="form-control"
+                   formControlName="gstApplicabeLocalRate" (focus)="clearZero($event)"
+  (blur)="restoreZero($event)">
+          </div>
+
+          <div class="col-sm-3" *ngIf="addEditForm.get('gstApplicabeLocal')?.value">
+            <label class="form-label">Calculate On *</label>
+                <mat-form-field appearance="outline" class="w-100 city-field" style="margin-top: -7px;">
+
+    <mat-select #gstApplicabeLocalCalculateOn
+      formControlName="gstApplicabeLocalCalculateOn" 
+       (keydown.enter)="handleMatSelectEnter($event, gstApplicabeLocalCalculateOn, 'gstApplicabeLocalCalculateOn')"
+      (selectionChange)="focusNextRegd(gstApplicabeLocalCalculateOn)">
+ <mat-option value="" disabled>
+    Select
+  </mat-option>
+      <mat-option value="Taxable Amount">
+        Taxable Amount
+      </mat-option>
+
+      <mat-option value="Sub Total">
+        Sub Total
+      </mat-option>
+
+    </mat-select>
+
+  </mat-form-field>
+            <!-- <select class="form-control"
+                    formControlName="gstApplicabeLocalCalculateOn">
+              <option value="" disabled>Select</option>
+              <option value="Taxable Amount">Taxable Amount</option>
+              <option value="Sub Total">Sub Total</option>
+            </select> -->
+          </div>
+        </div>
+
+        <!-- ================= TCS ================= -->
+        <div class="row g-1 align-items-end w-100">
+
+          <div class="col-sm-3">
+            <label class="form-label">TCS Applicable</label>
+            <div class="card p-1">
+              <div class="row">
+              
+                <div class="col-6">
+                  <input type="radio" [value]="false"
+                         formControlName="tcsApplicabe" (selectionChange.enter)="onRadioEnter($event, 'tcsApplicabe')"> No
+                </div>
+                  <div class="col-6">
+                  <input type="radio" [value]="true"
+                         formControlName="tcsApplicabe" (keydown.space)="onRadioEnter($event, 'tcsApplicabe')">  Yes
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-sm-3" *ngIf="addEditForm.get('tcsApplicabe')?.value">
+            <label class="form-label">TCS Name *</label>
+                 <mat-form-field appearance="outline" class="w-100 city-field" style="margin-top: -7px;" >
+   <!-- <mat-select
+    #tcsApplicabeName
+     formControlName="tcsApplicabeName"
+     (keydown.enter)="handleMatSelectEnter($event, tcsApplicabeName, 'tcsApplicabeName')"
+   
+    (selectionChange)="focusNextRegd(tcsApplicabeName)">
+ <mat-option value="" disabled>
+  TCS Name *
+  </mat-option>
+    <mat-option *ngFor="let g of liabilityList" [value]="g.id">
+         {{ g.accountName }}
+    </mat-option>
+
+  </mat-select> -->
+
+    <mat-select
+   
+    #tcsApplicabeName
+    formControlName="tcsApplicabeName"
+     
+     (closed)="onDropdownClosed(tcsApplicabeName,'tcsApplicabeName')"
+      (selectionChange)="onSelectionChange(tcsApplicabeName)"
+       (keydown.enter)="handleMatSelectEnter($event, tcsApplicabeName, 'tcsApplicabeName')"
+    >
+<ngx-mat-select-search
+    [formControl]="tcsSearchCtrl">
+</ngx-mat-select-search>
+
+<mat-option *ngFor="let item of filteredTCS"
+            [value]="item.id">
+    {{item.accountName}}
+</mat-option>
+
+</mat-select>
+  </mat-form-field>
+            <!-- <select class="form-control" formControlName="tcsApplicabeName">
+              <option value="" disabled>Select</option>
+              <option *ngFor="let g of liabilityList" [value]="g.id">
+                {{ g.accountName }}
+              </option>
+            </select> -->
+                <small class="text-danger"
+    *ngIf="addEditForm.get('tcsApplicabeName')?.invalid
+      && (submit || addEditForm.get('tcsApplicabeName')?.touched)">
+    Calculate On is required
+  </small>
+          </div>
+
+          <div class="col-sm-3" *ngIf="addEditForm.get('tcsApplicabe')?.value">
+            <label class="form-label">Rate *</label>
+            <input type="number" class="form-control"
+                   formControlName="tcsApplicabeRate" (focus)="clearZero($event)"
+  (blur)="restoreZero($event)">
+          </div>
+
+          <div class="col-sm-3" *ngIf="addEditForm.get('tcsApplicabe')?.value">
+            <label class="form-label">Calculate On *</label>
+      <mat-form-field appearance="outline" class="w-100 city-field" style="margin-top: -7px;">
+    <mat-select #tcsApplicabeCalculateOn
+      formControlName="tcsApplicabeCalculateOn"
+       (keydown.enter)="handleMatSelectEnter($event, tcsApplicabeCalculateOn, 'tcsApplicabeCalculateOn')"
+      (selectionChange)="focusNextRegd(tcsApplicabeCalculateOn)">
+ <mat-option value="" disabled>
+    Select
+  </mat-option>
+      <mat-option value="Taxable Amount">
+        Taxable Amount
+      </mat-option>
+
+      <mat-option value="Sub Total">
+        Sub Total
+      </mat-option>
+
+    </mat-select>
+
+  </mat-form-field>
+            <!-- <select class="form-control"
+                    formControlName="tcsApplicabeCalculateOn">
+              <option value="" disabled>Select</option>
+              <option value="Taxable Amount">Taxable Amount</option>
+              <option value="Sub Total">Sub Total</option>
+            </select> -->
+              <small class="text-danger"
+    *ngIf="addEditForm.get('tcsApplicabeCalculateOn')?.invalid
+      && (submit || addEditForm.get('tcsApplicabeCalculateOn')?.touched)">
+    Calculate On is required
+  </small>
+          </div>
+        </div>
+
+        <!-- ================= SWACH BHARAT ================= -->
+        <div class="row g-1 align-items-end w-100">
+
+          <div class="col-sm-3">
+            <label class="form-label">Swach Bharat Applicable</label>
+            <div class="card p-1">
+              <div class="row">
+                
+                <div class="col-6">
+                  <input type="radio" [value]="false"
+                         formControlName="swachBhartApplicable" (selectionChange.enter)="onRadioEnter($event, 'swachBhartApplicable')"> No
+                </div>
+                  <div class="col-6">
+                  <input type="radio" [value]="true"
+                         formControlName="swachBhartApplicable" (keydown.space)="onRadioEnter($event, 'swachBhartApplicable')">  Yes
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-sm-3" *ngIf="addEditForm.get('swachBhartApplicable')?.value">
+            <label class="form-label">Swach Bharat Name *</label>
+             <mat-form-field appearance="outline" class="w-100 city-field" style="margin-top: -7px;" >
+   <!-- <mat-select
+    #swachBhartApplicableName
+    formControlName="swachBhartApplicableName"
+    (keydown.enter)="handleMatSelectEnter($event, swachBhartApplicableName, 'swachBhartApplicableName')"
+    (selectionChange)="focusNextRegd(swachBhartApplicableName)">
+ <mat-option value="" disabled>
+  TCS Name *
+  </mat-option>
+    <mat-option *ngFor="let g of liabilityList" [value]="g.id">
+         {{ g.accountName }}
+    </mat-option> -->
+
+
+     <mat-select
+   
+    #swachBhartApplicableName
+    formControlName="swachBhartApplicableName"
+     
+     (closed)="onDropdownClosed(swachBhartApplicableName,'swachBhartApplicableName')"
+      (selectionChange)="onSelectionChange(swachBhartApplicableName)"
+       (keydown.enter)="handleMatSelectEnter($event, swachBhartApplicableName, 'swachBhartApplicableName')"
+    >
+<ngx-mat-select-search
+    [formControl]="swachSearchCtrl">
+</ngx-mat-select-search>
+
+<mat-option *ngFor="let item of filteredSwach"
+            [value]="item.id">
+    {{item.accountName}}
+</mat-option>
+
+
+  </mat-select>
+  </mat-form-field>
+            <!-- <select class="form-control"
+                    formControlName="swachBhartApplicableName">
+              <option value="" disabled>Select</option>
+              <option *ngFor="let g of liabilityList" [value]="g.id">
+                {{ g.accountName }}
+              </option>
+            </select> -->
+          </div>
+
+          <div class="col-sm-3" *ngIf="addEditForm.get('swachBhartApplicable')?.value">
+            <label class="form-label">Rate *</label>
+            <input type="number" class="form-control"
+                   formControlName="swachBhartApplicableRate" (focus)="clearZero($event)"
+  (blur)="restoreZero($event)">
+          </div>
+
+          <div class="col-sm-3" *ngIf="addEditForm.get('swachBhartApplicable')?.value">
+            <label class="form-label">Calculate On *</label>
+            <mat-form-field appearance="outline" class="w-100 city-field" style="margin-top: -7px;">
+    <mat-select #swachBhartApplicableCalculateOn
+      formControlName="swachBhartApplicableCalculateOn"
+      (keydown.enter)="handleMatSelectEnter($event, swachBhartApplicableCalculateOn, 'swachBhartApplicableCalculateOn')"
+      (selectionChange)="focusNextRegd(swachBhartApplicableCalculateOn)">
+ <mat-option value="" disabled>
+    Select
+  </mat-option>
+      <mat-option value="Taxable Amount">
+        Taxable Amount
+      </mat-option>
+
+      <mat-option value="Sub Total">
+        Sub Total
+      </mat-option>
+
+    </mat-select>
+
+  </mat-form-field>
+            
+            <!-- <select class="form-control"
+                    formControlName="swachBhartApplicableCalculateOn">
+              <option value="" disabled>Select</option>
+              <option value="Taxable Amount">Taxable Amount</option>
+              <option value="Sub Total">Sub Total</option>
+            </select> -->
+            <small class="text-danger"
+    *ngIf="addEditForm.get('swachBhartApplicable')?.invalid
+      && (submit || addEditForm.get('swachBhartApplicable')?.touched)">
+    Calculate On is required
+  </small>
+          </div>
+        </div>
+
+        <!-- TOTALS -->
+        <div class="col-sm-6">
+          <label class="form-label">Total Tax</label>
+          <input type="number" class="form-control" formControlName="totalax" readonly tabindex="-1">
+        </div>
+
+        <div class="col-sm-6">
+          <label class="form-label">Sub Total</label>
+          <input type="number" class="form-control" formControlName="subTotalTax" readonly tabindex="-1">
+        </div>
+
+      </div>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button class="btn btn-primary btn-sm" (click)="onSubmit()">
+      {{ isEditMode ? 'Update Tax Table' : 'Add Tax Table Master' }}
+    </button>
+    <button class="btn btn-danger btn-sm" mat-dialog-close>EXIT</button>
+  </mat-dialog-actions>
+</div>

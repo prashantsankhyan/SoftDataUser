@@ -1,0 +1,145 @@
+
+<div class="container-fluid">
+  <div class="row mt-2">
+    <div class="col-sm-6">
+<div class="mb-2">
+  <input
+    type="text"
+    class="form-control"
+    placeholder="Search Gst Vat By ..."
+    [(ngModel)]="searchText"
+    (input)="applyFilter()"
+    (keydown.enter)="openSelectedAccount()"
+  />
+</div>
+    </div>
+      <div class="col-sm-6" style="text-align: right;">
+<button type="button" class="btn btn-primary btn-m btn-block"(click)="addEditData($event)"> + ITEM  MASTER</button>
+    </div>
+    
+  </div>
+
+<div class="mb-3">
+  <button
+    *ngFor="let letter of alphabets"
+    class="btn btn-sm btn-outline-primary me-1 mb-1"
+    (click)="filterByAlphabet(letter)"
+  >
+    {{ letter }}
+  </button>
+
+  <button
+    class="btn btn-sm btn-outline-secondary ms-2"
+    (click)="resetFilter()"
+  >
+    All
+  </button>
+</div>
+
+
+<div class="table-scroll">
+      <table class="table table-bordered table-hover">
+  <thead class="table-light">
+    <tr>
+            <th>#</th>
+            <th> Item Name</th>
+            <th>Unit Name</th>
+            <th>Quantity</th>
+            <th  class="text-end">sale -purchase</th>
+
+            <th class="text-end"> Discount</th>
+            <th class="text-end">Mrp Rate</th>
+            <th class="text-end">opening Stock</th>
+
+            <th class="text-end">opening Stock Rate</th>
+            <th class="text-end">opening Stock Value</th>
+
+           
+           
+          
+
+            <th class="text-center" style="width:120px">Action</th>
+          </tr>
+  </thead>
+
+  <tbody>
+   <tr *ngFor="let item of listOfData; let i = index" (click)="addEditData(item)"[class.table-primary]="i === selectedRowIndex">
+
+            <td>{{ i + 1 }}</td>
+
+            <td class="fw-medium">
+              {{ item.itemName }}
+              <div class="text-muted small">{{ item.description }}</div>
+            </td>
+
+            <td>{{ item.unitName }}</td>
+
+            <td class="text-end">{{ (+item.quantity || 0) | number:'1.2-2' }}</td>
+
+            <td class="text-end">{{ (+item.saleRate || 0) | currency:'INR':'symbol':'1.2-2' }} -{{ (+item.purchaseRate || 0) | currency:'INR':'symbol':'1.2-2' }}</td>
+
+            <td class="text-end">
+             {{ (+item.discount || 0) | currency:'INR':'symbol':'1.2-2' }}
+            </td>
+
+            <td class="text-end">
+             {{ (+item.mrpRate || 0) | currency:'INR':'symbol':'1.2-2' }}
+            </td>
+
+            <td class="text-end">
+            {{ (+item.openingStock || 0) | currency:'INR':'symbol':'1.2-2' }}
+            </td>
+
+            <td class="text-end">
+             {{ (+item.openingStockRate || 0) | currency:'INR':'symbol':'1.2-2' }}
+            </td>
+
+            <td class="text-end">
+             {{ (+item.openingStockValue || 0) | currency:'INR':'symbol':'1.2-2' }}
+            </td>
+
+           
+
+           
+
+            
+            <td class="text-center">
+              <button
+                class="btn btn-sm btn-outline-primary me-1"
+                (click)="addEditData(item)"
+              >
+                <i class="fas fa-edit"></i>
+              </button>
+
+            <button
+  *ngIf="(+item.openingStock || 0) <= 0"
+  class="btn btn-sm btn-outline-danger"
+  (click)="deleteData(item) ; $event.stopPropagation()"
+>
+  <i class="fas fa-trash"></i>
+</button>
+<button
+  *ngIf="(+item.openingStock || 0) > 0 
+         && !(item.opBalance <= 0 && item.clsBalance <= 0)"
+  class="btn btn-sm btn-outline-danger"
+>
+  <i class="fas fa-lock"></i>
+</button>
+            </td>
+
+          </tr>
+
+
+    <tr *ngIf="listOfData.length === 0">
+      <td colspan="9" class="text-center text-muted">
+        No data found
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+</div>
+

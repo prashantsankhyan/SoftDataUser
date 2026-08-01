@@ -1,0 +1,42 @@
+.table-scroll {
+  max-height: 400px;   /* adjust height as needed */
+  overflow-y: auto;
+  border: 1px solid #dee2e6;
+}
+
+/* Keep table header fixed while scrolling */
+.table thead th {
+  position: sticky;
+  top: 0;
+  
+  z-index: 2;
+}
+
+.btn-light:hover {
+  background-color: #e0e0e0;
+  cursor: pointer;
+}
+
+.btn-light {
+  transition: all 0.2s ease;
+}
+
+.btn-light:hover {
+  background-color: #dcdcdc;
+  transform: scale(1.05);
+  cursor: pointer;
+}
+
+.curser {
+  background-color: #dcdcdc;
+  
+  cursor: pointer;
+}
+
+.selected-row td {
+  background-color: #cfe2ff !important;
+}
+
+.selected-row {
+  outline: 2px solid #0d6efd;
+}

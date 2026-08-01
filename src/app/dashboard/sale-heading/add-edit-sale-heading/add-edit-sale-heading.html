@@ -1,0 +1,132 @@
+<div class="container-fluid">
+  <mat-dialog-content>
+    <form [formGroup]="addEditForm" >
+
+      <!--Categiry Name-->
+      <div class="mb-2">
+        <label>Type Of Sale</label>
+        <input
+          type="text"
+          class="form-control mt-2"
+          formControlName="typeOfSale"
+ (keydown)="handleTitleCase($event, 'typeOfSale')"
+        />
+      <div class="text-danger mt-1" *ngIf="addEditForm.get('typeOfSale')?.invalid && (addEditForm.get('typeOfSale')?.touched || submit)">
+    typeOfSale Name is required
+  </div>
+ 
+      </div>
+
+      <!--Categiry Type -->
+      <div class="mb-2">
+        <label>Prefix</label>
+          <input
+          type="text"
+          class="form-control mt-2"
+          formControlName="prefix"
+ (keydown)="handleTitleCase($event, 'prefix')"
+        />
+      
+       
+         <div class="text-danger mt-1" *ngIf="addEditForm.get('prefix')?.invalid && (addEditForm.get('prefix')?.touched || submit)">
+   prefix is required
+  </div>
+      </div>
+
+       <div class="mb-2">
+        <label>Suffix</label>
+        <input
+          type="text"
+          class="form-control mt-2"
+          formControlName="suffix"
+ (keydown)="handleTitleCase($event, 'suffix')"
+        />
+      <div class="text-danger mt-1" *ngIf="addEditForm.get('suffix')?.invalid && (addEditForm.get('suffix')?.touched || submit)">
+    suffix Name is required
+  </div>
+ 
+      </div>
+
+      <!--Categiry Type -->
+      <div class="mb-2">
+        <label>Tax On Sale Type</label>
+          <input
+          type="text"
+          class="form-control mt-2"
+          formControlName="taxOnSaleType"
+ (keydown)="handleTitleCase($event, 'taxOnSaleType')"
+        />
+      
+       
+         <div class="text-danger mt-1" *ngIf="addEditForm.get('taxOnSaleType')?.invalid && (addEditForm.get('taxOnSaleType')?.touched || submit)">
+   taxOnSaleType is required
+  </div>
+      </div>
+
+          <div class="mb-2">
+        <label>Number Start From </label>
+          <input
+          type="text"
+          class="form-control mt-2"
+          formControlName="numberStartFrom"
+ (keydown)="handleTitleCase($event, 'numberStartFrom')"
+        />
+      
+       
+         <div class="text-danger mt-1" *ngIf="addEditForm.get('numberStartFrom')?.invalid && (addEditForm.get('numberStartFrom')?.touched || submit)">
+   numberStartFrom is required
+  </div>
+      </div>
+
+       <div class="mb-2">
+      <label class="form-label">Number Start From Manual Or Auto</label>
+      
+
+      <select class="form-select" formControlName="permission" aria-label="Default select example">
+  <option value="" disabled selected>Select Please</option>
+ 
+   <option value="1">Auto</option>
+    <option value="2">Manually</option>
+
+   
+
+</select>
+
+    <!-- <mat-form-field appearance="outline" class="w-100 city-field" style="margin-top: 2px;" >
+  <mat-select #permission  (selectionChange)="focusNext(permission)" formControlName="permission">
+    <mat-option [value]="1">
+      Auto
+      </mat-option>
+
+      <mat-option [value]="2">
+       Manually
+      </mat-option>
+
+  </mat-select>
+</mat-form-field> -->
+    </div>
+
+    
+    </form>
+  </mat-dialog-content>
+
+  <!-- Dialog Actions -->
+  <mat-dialog-actions class="mat-mdc-dialog-actions-align-end">
+   <button
+  type="submit"
+  class="btn btn-sm btn-primary me-2"
+ 
+  (click)="onSubmit()"
+  style="cursor: pointer;">
+  <i class="fas fa-check fa-sm text-white-50"></i>
+  {{ isEditMode ? 'Update Sale Heading Master' : 'Add Sale Heading Master' }}
+</button>
+
+    <button
+      type="button"
+      mat-dialog-close
+      class="btn btn-sm btn-danger">
+      <i class="fas fa-times fa-sm text-white-50"></i> Cancel
+    </button>
+  </mat-dialog-actions>
+</div>

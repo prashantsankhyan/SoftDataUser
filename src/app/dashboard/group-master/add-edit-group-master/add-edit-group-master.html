@@ -1,0 +1,173 @@
+<div class="container-fluid">
+  <mat-dialog-content>
+    <form [formGroup]="addEditForm" (ngSubmit)="onSubmit()" appEnterAsTab>
+
+      <!-- Group Name -->
+      <div class="mb-2">
+  <label>Group Name *</label>
+
+  <input
+    type="text"
+    class="form-control"
+    formControlName="groupName"
+    (blur)="checkDuplicateOnBlur()"
+    (keydown)="handleTitleCase($event, 'groupName')"
+    [class.is-invalid]="
+      f['groupName'].invalid &&
+      (submit || f['groupName'].touched)
+    "
+  />
+
+  <!-- Required -->
+  <small
+    class="text-danger"
+    *ngIf="
+      f['groupName']?.errors?.['required'] &&
+      (submit || f['groupName']?.touched)
+    "
+  >
+    Group Name is required
+  </small>
+
+  <!-- Duplicate -->
+  <small
+    class="text-danger"
+    *ngIf="
+      f['groupName']?.errors?.['duplicate'] &&
+      f['groupName']?.touched
+    "
+  >
+    Group Name already exists
+  </small>
+</div>
+
+      <!-- Category -->
+      <div class="mb-2">
+        <label>Category</label>
+         <mat-form-field appearance="outline" class="w-100 city-field" style="margin-top: 2px;" >
+  <mat-select
+   #groupCategory 
+   formControlName="groupCategory"
+   (keydown.enter)="handleMatSelectEnter(groupCategory, 'groupCategory')"
+   (selectionChange)="focusNext(groupCategory)" >
+ <mat-option [value]="null">
+    Select Category
+  </mat-option>
+  <mat-option *ngFor="let item of listOfData"
+                [value]="item.id">
+      {{ item.name }}
+    </mat-option>
+
+  </mat-select>
+</mat-form-field>
+       
+     
+         <div class="text-danger mt-1" *ngIf="addEditForm.get('groupCategory')?.invalid && (addEditForm.get('groupCategory')?.touched || submit)">
+    Category Name is required
+  </div>
+      </div>
+
+      <!-- Appear In -->
+      <div class="mb-2">
+        <label>Appear In</label>
+        <mat-form-field appearance="outline" class="w-100 city-field" style="margin-top: 2px;" >
+  <mat-select #appearIn  formControlName="appearIn" (keydown.enter)="handleMatSelectEnter(appearIn, 'appearIn')"
+   (selectionChange)="focusNext(appearIn)" >
+    <mat-option [value]="1">
+       Balance Sheet
+      </mat-option>
+
+      <mat-option [value]="2">
+       Trading A/c
+      </mat-option>
+      <mat-option [value]="3">
+        Profit & Loss A/c
+      </mat-option>
+       <mat-option [value]="4">
+       None
+      </mat-option>
+
+  </mat-select>
+</mat-form-field>
+    
+ <div *ngIf ="submit && f['appearIn'].errors" class="invalid-feedback">
+                         <div *ngIf ="f['appearIn'].errors">Appear is required</div>
+                     </div>
+ 
+      </div>
+
+     <!-- Under Group (ONLY when Appear In = None) -->
+<div class="mb-2" *ngIf="addEditForm.get('appearIn')?.value == 4">
+  <label>Under Group</label>
+  <!-- <select class="form-control" formControlName="underGroup">
+    <option value="" disabled>Select Under Group</option>
+    <option *ngFor="let item of listOfGroupData" [value]="item.groupId">
+      {{ item.groupName }}
+    </option>
+  </select> -->
+
+      <mat-form-field appearance="outline" class="w-100 city-field"  >
+  
+
+    <mat-select
+    #underGroup
+    formControlName="underGroup"
+     (openedChange)="onOpened('underGroup', $event)"
+     (closed)="onDropdownClosed(underGroup,'underGroup')"
+    >
+
+  <mat-option>
+    <ngx-mat-select-search
+     
+      [formControl]="searchCtrl"
+      placeholderLabel="Search itemGroup"
+      noEntriesFoundLabel="No matching itemGroup"
+      >
+       
+    </ngx-mat-select-search>
+  </mat-option>
+
+  <mat-option
+      *ngFor="let u of filteredLists['underGroup']"
+     [value]="u.groupId">
+    {{ u.groupName }}
+  </mat-option>
+
+</mat-select>  
+</mat-form-field>
+</div>
+
+      <!-- Annexure No -->
+      <div class="mb-2">
+        <label>Annexure No</label>
+        <input
+          type="text"
+          class="form-control"
+          formControlName="annexureNo"
+           (keydown)="handleTitleCase($event, 'annexureNo')"
+        />
+      </div>
+
+    </form>
+  </mat-dialog-content>
+
+  <!-- Dialog Actions -->
+  <mat-dialog-actions class="mat-mdc-dialog-actions-align-end">
+   <button
+  type="submit"
+  class="btn btn-sm btn-primary me-2"
+ 
+  (click)="onSubmit()"
+  style="cursor: pointer;">
+  <i class="fas fa-check fa-sm text-white-50"></i>
+  {{ isEditMode ? 'Update Group' : 'Add Group' }}
+</button>
+
+    <button
+      type="button"
+      mat-dialog-close
+      class="btn btn-sm btn-danger">
+      <i class="fas fa-times fa-sm text-white-50"></i> EXIT
+    </button>
+  </mat-dialog-actions>
+</div>

@@ -1,0 +1,308 @@
+<div class="container-fluid">
+ <mat-dialog-content>
+<form [formGroup]="addEditForm" >
+
+<!-- HEADER -->
+<div class="row mb-3">
+    <div class="col-sm-2">
+<label>Voucher Type</label>
+
+ <mat-form-field appearance="outline" class="w-100 city-field" >
+
+    <mat-select #voucherNo
+      formControlName="voucherNo"
+      (keydown.enter)="onVoucherEnter(voucherNo)" (selectionChange)="focusNextRegd(voucherNo)"
+      >
+ 
+      <mat-option value="Receipt">
+        Receipt
+      </mat-option>
+
+      <mat-option value="Payment">
+        Payment
+      </mat-option>
+
+    </mat-select>
+
+  </mat-form-field>
+ <!-- <select class="form-control" formControlName="voucherNo" >
+           <option value="Receipt">Receipt</option>
+<option value="Payment">Payment</option>
+
+           
+          </select> -->
+</div>
+
+<div class="col-sm-3">
+<label>Account Name</label>
+ <mat-form-field appearance="outline" class="w-100 city-field" >
+  <!-- <mat-select
+     #accout
+     
+    formControlName="accountName"
+    (keydown.enter)="handleMatSelectEnter(accout, 'accountName')"
+    (selectionChange)="focusNext(accout)"
+     (blur)="checkAccount(accout)">
+
+    <mat-option *ngFor="let g of listOfData" [value]="g.id">
+      {{g.accountName}} 
+    </mat-option>
+
+  </mat-select> -->
+
+   <mat-select
+    #account
+    formControlName="accountName"
+    (openedChange)="onOpened('account', $event)"
+    (keydown.enter)="handleMatSelectEnter(account, 'accountName')"
+     (closed)="onDropdownClosed(account,'accountName')">
+
+  <mat-option>
+    <ngx-mat-select-search
+     
+      [formControl]="searchCtrl"
+      placeholderLabel="Search Unit"
+      noEntriesFoundLabel="No matching unit"
+      >
+       
+    </ngx-mat-select-search>
+  </mat-option>
+
+  <mat-option
+      *ngFor="let u of filteredLists['account']"
+     [value]="u.id">
+   {{u.accountName}} 
+  </mat-option>
+
+</mat-select> 
+</mat-form-field>
+
+ <!-- <select
+    
+     #accout
+    class="form-control"
+    formControlName="accountName"
+    
+    (blur)="checkAccount(accout)">
+
+    <option value="" disabled >Select Account</option>
+
+    <option *ngFor="let g of listOfData" [value]="g.id">
+      {{g.accountName}} 
+    </option>
+
+  </select> -->
+</div>
+
+<div class="col-md-2">
+<label>Receipt Date</label>
+<input 
+  type="text"
+  #receiptDate
+  maxlength="10"
+  inputmode="numeric"
+  class="form-control"
+  formControlName="receiptDate"
+  (input)="formatDateInput($event)"
+  (keydown.enter)="focusNextInput(receiptDate)"
+  >
+</div>
+
+<div class="col-md-2">
+<label>Day</label>
+<input type="text" class="form-control" formControlName="dayName"readonly tabindex="-1">
+</div>
+
+
+
+<div class="col-sm-3">
+<label>Narration And Single A/C</label>
+<input #narrationForSingleAccount type="text" class="form-control" formControlName="narrationForSingleAccount" (keydown.enter)="focusNextInput(narrationForSingleAccount)">
+</div>
+
+</div>
+
+
+<!-- DETAILS TABLE -->
+
+<div formArrayName="details" class="mt-3">
+
+<div class="table-responsive">
+
+<table class="table table-bordered table-hover align-middle text-sm">
+
+<thead class="table-dark text-center">
+<tr>
+<th style="width:25%">Account</th>
+<th style="width:15%">Station</th>
+<th style="width:24%">Narration</th>
+<th style="width:12%">Amount</th>
+<th style="width:8%">Dr/Cr</th>
+<th style="width:7%"></th>
+</tr>
+</thead>
+
+<tbody>
+
+<tr *ngFor="let row of details.controls; let i=index" [formGroupName]="i"
+[attr.data-row]="i">
+
+<td>
+  <!-- <mat-form-field appearance="outline" class="w-100 city-field" >
+  <mat-select
+     #rowAccountSelect
+  formControlName="accountId"
+  (keydown.enter)="handleMatSelectEnterIndex($event, rowAccountSelect, i, 'accountId')"
+  (selectionChange)="onAccountChange(i); focusNext(rowAccountSelect)"
+  (closed)="checkRowAccount(i, rowAccountSelect)"
+     >
+    <mat-option  *ngFor="let g of listOfSale" [value]="g.id">
+      {{ g.accountName }}
+    </mat-option>
+
+  </mat-select>
+</mat-form-field> -->
+
+<mat-form-field appearance="outline" class="w-100 city-field">
+  <mat-select
+    #rowAccountSelect
+    formControlName="accountId"
+    (openedChange)="onRowOpened(i, $event)"
+    (keydown.enter)="handleMatSelectEnterIndex($event, rowAccountSelect, i, 'accountId')"
+    (selectionChange)="onAccountChange(i); focusNext(rowAccountSelect)"
+    (closed)="onItemClosed(rowAccountSelect, i)">
+
+    <mat-option>
+      <ngx-mat-select-search
+        [formControl]="rowSearchCtrls[i]"
+        placeholderLabel="Search Account"
+        noEntriesFoundLabel="No matching account">
+      </ngx-mat-select-search>
+    </mat-option>
+
+    <mat-option
+      *ngFor="let acc of filteredRowAccounts[i]"
+      [value]="acc.id">
+      {{ acc.accountName }}
+    </mat-option>
+
+  </mat-select>
+</mat-form-field>
+
+<!-- <select   #rowAccountSelect class="form-select form-select-sm" formControlName="accountId" (change)="onAccountChange(i)"  (blur)="checkRowAccount(i, rowAccountSelect)">
+<option value="" disabled>Select Account</option>
+<option *ngFor="let g of listOfSale" [value]="g.id">
+{{ g.accountName }}
+</option>
+</select> -->
+<small class="text-danger"
+            *ngIf="addEditForm.get('accountId')?.invalid && (submit || addEditForm.get('accountId')?.touched)">
+            Account Name is required
+          </small>
+</td>
+
+<td>
+<input #station type="text" class="form-control form-control-sm" formControlName="station"  (keydown.enter)="focusNextInput(station)">
+</td>
+<td>
+
+  <!-- ✅ DROPDOWN -->
+  <select
+    *ngIf="activeNarrationRow === i"
+    #rowNarrationSelect
+     [attr.id]="'narration-select-' + i"
+    class="form-select form-select-sm"
+    formControlName="narration"
+  >
+    <option value="">Select Narration</option>
+    <option *ngFor="let g of listOfNarration" [value]="g.narration">
+      {{ g.narration }}
+    </option>
+  </select>
+
+  <!-- ✅ INPUT -->
+  <input
+    *ngIf="activeNarrationRow !== i"
+    #rowNarrationInput
+
+    type="text"
+    class="form-control form-control-sm"
+    formControlName="narration"
+    placeholder="Type Narration"
+     (keydown.enter)="focusNextInput(rowNarrationInput)"
+  />
+
+</td>
+<td>
+<input #amount type="number" class="form-control form-control-sm text-end" formControlName="amount"
+  (keydown)="onAmountKeyDown($event, i)">
+<div class="text-danger"
+ *ngIf="details.at(i).get('amount')?.touched && details.at(i).get('amount')?.invalid">
+  add amount
+</div>
+</td>
+
+<td>
+<select class="form-select form-select-sm text-center" formControlName="crOrDr" style="pointer-events: none; background-color: #e9ecef;" tabindex="-1">
+<option value="DR">DR</option>
+<option value="CR">CR</option>
+</select>
+</td>
+
+<td class="text-center">
+    <button   #addBtn
+ type="button" class="btn btn-primary btn-sm" (keydown.shift)="addRowAndFocus(); $event.preventDefault()" (keydown.enter)="focusNextButton(addBtn)">
+<i class="fa fa-plus-circle" aria-hidden="true"></i>
+</button>
+<button type="button"
+#next
+class="btn btn-sm btn-danger"
+(keydown.shift)="removeRow(i)"
+(keydown.enter)="focusNextButtonNext()"
+tabindex="-1">
+<i class="fa fa-trash"></i>
+</button>
+
+
+
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+</div>
+
+<!-- ADD ROW -->
+
+
+
+
+<!-- BUTTONS -->
+
+
+</form>
+
+</mat-dialog-content>
+ <mat-dialog-actions class="mat-mdc-dialog-actions-align-end">
+<div class="text-end">
+
+<button  #saveBtn type="submit" class="btn btn-success" (click) ="onSubmit()">
+  {{ isEditMode ? 'Update Receipt' : 'Save Receipt' }}
+</button>
+
+<button type="button" class="btn btn-secondary ms-2" (click)="closeModel()">
+EXIT
+</button>
+
+</div>
+
+ </mat-dialog-actions>
+ 
+
+
+</div>

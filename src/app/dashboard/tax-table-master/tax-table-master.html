@@ -1,0 +1,118 @@
+
+<div class="container-fluid">
+  <div class="row mt-2">
+    <div class="col-sm-6">
+<div class="mb-2">
+  <input
+    type="text"
+    class="form-control"
+    placeholder="Search taxTable By ..."
+    [(ngModel)]="searchText"
+    (input)="applyFilter()"
+    (keydown.enter)="openSelectedAccount()"
+  />
+</div>
+    </div>
+      <div class="col-sm-6" style="text-align: right;">
+<button type="button" class="btn btn-primary btn-m btn-block"(click)="addEditData($event)"> + TaxTable  Master</button>
+    </div>
+    
+  </div>
+
+<div class="mb-3">
+  <button
+    *ngFor="let letter of alphabets"
+    class="btn btn-sm btn-outline-primary me-1 mb-1"
+    (click)="filterByAlphabet(letter)"
+  >
+    {{ letter }}
+  </button>
+
+  <button
+    class="btn btn-sm btn-outline-secondary ms-2"
+    (click)="resetFilter()"
+  >
+    All
+  </button>
+</div>
+
+
+<div class="table-scroll">
+      <table class="table table-bordered table-hover">
+  <thead class="table-light">
+    <tr>
+      <th>#</th>
+      <th> Name</th>
+      <th>Type</th>
+       <th>Center</th>
+        <th>Local</th>
+         <th>TCS</th>
+         <th>Swach Bhart</th>
+         <th>Tax & Sub Table</th>
+         
+      
+      
+      <th style="width: 100px;"> </th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr *ngFor="let item of listOfData; let i = index"[class.table-primary]="i === selectedRowIndex">
+      <td>{{ i + 1 }}</td>
+      <td>{{ item.salePurcAccountName}}</td>
+      <td>{{ item.selectType}}</td>
+    
+        <td style="font-weight: 500;font-family: system-ui;">
+           {{item.gstApplicabeCentralName}}<br/>
+           {{item.gstApplicabeCentralRate / 100 | percent}} <br/>
+           {{item.gstApplicabeCentralCalculateOn}}
+       </td>
+        <td style="font-weight: 500;font-family: system-ui;">
+           {{item.gstApplicabeLocalName}}<br/>
+           {{item.gstApplicabeLocalRate / 100 | percent}} <br/>
+           {{item.gstApplicabeLocalCalculateOn}}
+       </td>
+        <td style="font-weight: 500;font-family: system-ui;">
+           {{item.tcsApplicabeName}}<br/>
+           {{item.tcsApplicabeRate / 100 | percent}} <br/>
+           {{item.tcsApplicabeCalculateOn}}
+       </td>
+       <td style="font-weight: 500;font-family: system-ui;">
+           {{item.swachBhartApplicableName}}<br/>
+           {{item.swachBhartApplicableRate / 100 | percent}} <br/>
+           {{item.swachBhartApplicableCalculateOn}}
+       </td>
+     
+       <td style="font-weight: 500;font-family: system-ui;">
+         {{item.totalax / 100 | percent}} - {{item.subTotalTax / 100 | percent}}
+       </td>
+      
+      <td >
+           <button 
+      class="btn btn-sm btn-primary me-1"
+      (click)="addEditData(item)">
+      <i class="fas fa-edit"></i> 
+    </button>
+
+     <button 
+      class="btn btn-sm btn-danger me-1"
+      (click)="deleteData(item)">
+      <i class="fas fa-trash"></i> 
+    </button>
+      </td>
+    
+    </tr>
+
+    <tr *ngIf="listOfData.length === 0">
+      <td colspan="9" class="text-center text-muted">
+        No data found
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+</div>
+

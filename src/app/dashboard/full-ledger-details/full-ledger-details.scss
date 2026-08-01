@@ -1,0 +1,111 @@
+.blur-content {
+  filter: blur(2px);
+}
+
+.search-container {
+  width: 300px;
+  margin-bottom: 20px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.table-scroll {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.ledger-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ledger-header {
+  background-color: #f0f0f0;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.opening-balance {
+  background-color: #e8f4ff;
+  font-weight: bold;
+}
+
+.ledger-totals {
+  background-color: #f9f9f9;
+  font-weight: bold;
+}
+
+.text-danger {
+  color: #d9534f;
+}
+
+.text-success {
+  color: #28a745;
+}
+
+.spinner-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+.ledger-totals {
+  background-color: #f9f9f9;
+  font-weight: bold;
+  border-top: 2px solid #000; /* optional visual separation */
+}
+
+.spacer-row td {
+  height: 15px; /* space above totals */
+  background-color: transparent;
+}
+
+/* Make footer sticky if table scrolls */
+.table-scroll {
+  max-height: 500px;
+  overflow-y: auto;
+  position: relative;
+}
+
+.ledger-table tfoot tr {
+  display: table-row;
+}
+
+
+@media print {
+
+  body * {
+    visibility: hidden;
+  }
+
+  #print-section, #print-section * {
+    visibility: visible;
+  }
+
+  #print-section {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+
+  /* Hide buttons & filters */
+  .btn, mat-form-field {
+    display: none !important;
+  }
+
+  /* Table styling */
+  table {
+    font-size: 12px;
+  }
+}
+

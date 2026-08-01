@@ -1,0 +1,80 @@
+<div class="container-fluid">
+  <mat-dialog-content>
+    <form [formGroup]="addEditForm" (ngSubmit)="onSubmit()" appEnterAsTab>
+
+      <!--Unit Name-->
+      <div class="mb-2">
+        <label>Unit Name</label>
+        <input
+          type="text"
+          class="form-control"
+          formControlName="unitName"
+ (keydown)="handleTitleCase($event, 'unitName')"
+        />
+     <div class="text-danger mt-1"
+     *ngIf="f['unitName'].hasError('required') && (f['unitName'].touched || submit)">
+  Unit Name is required.
+</div>
+
+<!-- Duplicate -->
+<div class="text-danger mt-1"
+     *ngIf="isDuplicateUnitName">
+  Unit Name already exists.
+</div>
+      </div>
+
+      <!--Quantity -->
+      <div class="mb-2">
+        <label>quantity</label>
+         <input
+          type="text"
+          class="form-control"
+          formControlName="quantity"
+ (keydown)="handleTitleCase($event, 'quantity')"
+        />
+         <div class="text-danger mt-1" *ngIf="addEditForm.get('quantity')?.invalid && (addEditForm.get('quantity')?.touched || submit)">
+   quantity is required
+  </div>
+      </div>
+
+      <!-- //decimal// -->
+
+        <div class="mb-2">
+        <label>Decimal</label>
+        <input
+          type="text"
+          class="form-control"
+          formControlName="decimal"
+ (keydown)="handleTitleCase($event, 'decimal')"
+        />
+      <div class="text-danger mt-1" *ngIf="addEditForm.get('decimal')?.invalid && (addEditForm.get('decimal')?.touched || submit)">
+    decimal Name is required
+  </div>
+ 
+      </div>
+
+     
+
+    </form>
+  </mat-dialog-content>
+
+  <!-- Dialog Actions -->
+  <mat-dialog-actions class="mat-mdc-dialog-actions-align-end">
+   <button
+  type="submit"
+  class="btn btn-sm btn-primary me-2"
+ 
+  (click)="onSubmit()"
+  style="cursor: pointer;">
+  <i class="fas fa-check fa-sm text-white-50"></i>
+  {{ isEditMode ? 'Update Unit Master' : 'Add Unit Master' }}
+</button>
+
+    <button
+      type="button"
+      mat-dialog-close
+      class="btn btn-sm btn-danger">
+      <i class="fas fa-times fa-sm text-white-50"></i> Cancel
+    </button>
+  </mat-dialog-actions>
+</div>

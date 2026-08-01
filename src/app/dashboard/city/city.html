@@ -1,0 +1,52 @@
+<mat-dialog-content class="dialog-body">
+
+  <!-- Spinner -->
+  
+  <ng-container *ngIf="showSpiner; else formContent">
+    <div class="text-center my-3">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  </ng-container>
+
+  <ng-template #formContent>
+    <form [formGroup]="addEditForm" (ngSubmit)="onSubmit()">
+
+      <!-- City Name -->
+      <mat-form-field appearance="outline" class="w-100 mb-3">
+        <mat-label>City</mat-label>
+        <input matInput formControlName="city" placeholder="Enter city name">
+        <mat-error *ngIf="submit && f['city']?.errors?.['required']">
+          City name is required
+        </mat-error>
+      </mat-form-field>
+
+      <!-- State Select -->
+      <mat-form-field appearance="outline" class="w-100 mb-3">
+        <mat-label>State</mat-label>
+        <mat-select #state formControlName="state"  placeholder="Select state">
+          <mat-option *ngFor="let item of listOfData" [value]="item.id">
+            {{ item.state }} -{{item.stateCode}}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="submit && f['state']?.errors?.['required']">
+          State is required
+        </mat-error>
+      </mat-form-field>
+
+    </form>
+  </ng-template>
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-stroked-button color="warn" (click)="closeModel()">Cancel</button>
+
+  <button
+    mat-raised-button
+    color="primary"
+    [disabled]="addEditForm.invalid || showSpiner"
+    (click)="onSubmit()"
+  >
+    {{ cityId ? 'Update' : 'Save' }}
+  </button>
+</mat-dialog-actions>

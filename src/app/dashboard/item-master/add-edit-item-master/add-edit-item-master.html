@@ -1,0 +1,468 @@
+<div class="container-fluid">
+  <mat-dialog-content>
+    <form [formGroup]="addEditForm"  >
+
+  <div class="row" style="margin-top: -5px;">
+
+    <!-- Item Name -->
+  <div class="col-md-3">
+  <label class="form-label">Item Name *</label>
+
+  <input
+  #itemNameRef
+    type="text"
+    class="form-control"
+    formControlName="itemName"
+    (blur)="checkDuplicateOnBlur()"
+    (keydown)="handleTitleCase($event, 'itemName'); blockDuplicateItem($event)"
+    [class.is-invalid]="
+      f['itemName'].errors?.['required'] ||
+      f['itemName'].errors?.['duplicate']
+    "
+  />
+
+  <!-- Required -->
+  <small
+    class="text-danger"
+    *ngIf="
+      f['itemName'].errors?.['required'] &&
+      (submit || f['itemName'].touched)
+    "
+  >
+    Item Name is required
+  </small>
+
+  <!-- Duplicate -->
+  <small
+    class="text-danger"
+    *ngIf="
+      f['itemName'].errors?.['duplicate']
+    "
+  >
+    Item Name already exists
+  </small>
+</div>
+
+      <div class="col-md-3">
+      <label class="form-label">Unit</label>
+      
+
+        <mat-form-field appearance="outline" class="w-100 city-field" style="margin-top: -7px;" >
+  <!-- <mat-select
+    #unitSelect
+    formControlName="unitInt"
+    
+    (keydown.enter)="handleMatSelectEnter(unitSelect, 'unitInt')"
+    (selectionChange)="moveToNextDropdown('unit')">
+
+    <mat-option *ngFor="let u of listOfUnit"
+                [value]="u.id">
+        {{ u.unitName }}
+    </mat-option>
+
+  </mat-select> -->
+
+
+  <mat-select
+    #unitSelect
+    formControlName="unitInt"
+    (openedChange)="onOpened('unit', $event)"
+     (closed)="onDropdownClosed(unitSelect,'unitInt')">
+
+  <mat-option>
+    <ngx-mat-select-search
+     
+      [formControl]="searchCtrl"
+      placeholderLabel="Search Unit"
+      noEntriesFoundLabel="No matching unit"
+      >
+       
+    </ngx-mat-select-search>
+  </mat-option>
+
+  <mat-option
+      *ngFor="let u of filteredLists['unit']"
+     [value]="u.id">
+    {{ u.unitName }}
+  </mat-option>
+
+</mat-select>  
+</mat-form-field>
+       <small class="text-danger"
+        *ngIf="addEditForm.get('unitInt')?.invalid && (submit || addEditForm.get('unitInt')?.touched)">
+        unit Int Group is required
+      </small>
+    </div>
+
+    <!-- Item Group -->
+    <div class="col-md-3">
+      <label class="form-label">Item Group *</label>
+    
+         <mat-form-field appearance="outline" class="w-100 city-field" style="margin-top: -7px;" >
+  <!-- <mat-select
+    #itemGroupSelect
+    formControlName="itemGroupId"
+    (keydown.enter)="handleMatSelectEnter(itemGroupSelect, 'itemGroupId')"
+    (closed)="moveToNextDropdown('itemGroup')">
+  
+
+    <mat-option *ngFor="let g of listOfItmeGorup"
+                [value]="g.id">
+        {{ g.itemGroupName }}
+    </mat-option>
+
+  </mat-select> -->
+
+    <mat-select
+    #itemGroupSelect
+    formControlName="itemGroupId"
+     (openedChange)="onOpened('itemGroup', $event)"
+     (closed)="onDropdownClosed(itemGroupSelect,'itemGroupId')"
+    >
+
+  <mat-option>
+    <ngx-mat-select-search
+     
+      [formControl]="searchCtrl"
+      placeholderLabel="Search itemGroup"
+      noEntriesFoundLabel="No matching itemGroup"
+      >
+       
+    </ngx-mat-select-search>
+  </mat-option>
+
+  <mat-option
+      *ngFor="let u of filteredLists['itemGroup']"
+     [value]="u.id">
+    {{ u.itemGroupName }}
+  </mat-option>
+
+</mat-select>  
+</mat-form-field>
+      <small class="text-danger"
+        *ngIf="addEditForm.get('itemGroupId')?.invalid && (submit || addEditForm.get('itemGroupId')?.touched)">
+        Item Group is required
+      </small>
+    </div>
+
+    <!--Category-->
+     <div class="col-md-3">
+      <label class="form-label">Category *</label>
+          <mat-form-field appearance="outline" class="w-100 city-field" style="margin-top: -7px;" >
+  <mat-select
+  
+    #categoryId
+    formControlName="categoryId"
+    (keydown.enter)="handleMatSelectEnter(categoryId, 'categoryId')"
+     (closed)="moveToNextDropdown('category')">
+ <mat-option [value]="0">
+    Select Category
+  </mat-option>
+    <mat-option *ngFor="let ca of listOfCategory" [value]="ca.categoryId">
+        {{ ca.categoryName }}
+    </mat-option>
+
+  </mat-select>
+</mat-form-field>
+    
+    </div>
+
+    <!-- Description -->
+    <div class="col-md-3">
+      <label class="form-label">Description</label>
+      <input type="text" class="form-control" formControlName="description" (keydown)="handleTitleCase($event, 'description')">
+    </div>
+
+    <!-- Item Type -->
+    <div class="col-md-3">
+      <label class="form-label">Item Type</label>
+      <input type="text" class="form-control" formControlName="itemType" (keydown)="handleTitleCase($event, 'itemType')">
+    </div>
+
+    <!-- Unit -->
+  
+
+   
+    <!-- HSN -->
+    <div class="col-md-3">
+      <label class="form-label">HSN</label>
+      <input type="text" class="form-control" formControlName="hsn">
+    </div>
+
+    <!-- Sale Rate -->
+    <div class="col-md-3">
+      <label class="form-label">Sale Rate</label>
+      <input type="number" class="form-control text-end" formControlName="saleRate">
+    </div>
+
+     <div class="col-md-3">
+      <label class="form-label">Purchase Rate</label>
+      <input type="number" class="form-control text-end" formControlName="purchaseRate">
+    </div>
+
+    <!-- MRP Rate -->
+    <div class="col-md-3">
+      <label class="form-label">MRP Rate</label>
+      <input type="number" class="form-control text-end" formControlName="mrpRate">
+    </div>
+
+    <!-- Discount -->
+    <div class="col-md-3">
+      <label class="form-label">Discount</label>
+      <input type="number" class="form-control text-end" formControlName="discount">
+    </div>
+
+    <!-- Opening Stock -->
+    <div class="col-md-3">
+      <label class="form-label">Opening Stock</label>
+      <input type="number" class="form-control text-end" formControlName="openingStock">
+    </div>
+
+    <!-- Opening Stock Rate -->
+    <div class="col-md-3">
+      <label class="form-label">Opening Stock Rate</label>
+      <input type="number" class="form-control text-end" formControlName="openingStockRate">
+    </div>
+
+    <!-- Opening Stock Value -->
+    <div class="col-md-3">
+      <label class="form-label">Opening Stock Value</label>
+      <input type="number"  type="number"
+    class="form-control text-end"
+    formControlName="openingStockValue"
+    readonly
+    step="0.01">
+    </div>
+
+    <!-- Barcode Type -->
+    <div class="col-md-3">
+      <label class="form-label">Barcode Type</label>
+      <input type="text" class="form-control" formControlName="barCodeType">
+    </div>
+
+    <!-- Barcode / Part No -->
+    <div class="col-md-3">
+      <label class="form-label">Barcode / Part No</label>
+      <input type="text" class="form-control" formControlName="itemBarCodeOrPartNo">
+    </div>
+
+    <!-- GST Sale -->
+  <div class="col-md-3">
+  <label class="form-label">
+    CGST + SGST (Sale)
+  </label>
+<!-- 
+  <select
+  #cgstSgstSale
+    class="form-select"
+    formControlName="cgstSgstSale"
+     (selectionChange)="moveToNextDropdown('cgstSgstSale')"
+>
+
+    <option value="0">
+      Select CGST + SGST (Sale)
+    </option>
+
+    <option
+      *ngFor="let item of saleCgstSgstList"
+      [value]="item.id">
+
+      {{ item.salePurcAccountName }}
+      ({{ item.gstApplicabeCentralRate }}% +
+      {{ item.gstApplicabeLocalRate }}%)
+    </option>
+
+  </select> -->
+
+   <mat-form-field appearance="outline" class="w-100 city-field" style="margin-top: -7px;" >
+  <mat-select
+  
+     #cgstSgstSale
+    formControlName="cgstSgstSale"
+     (closed)="moveToNextDropdown('cgstSgstSale')">
+ <mat-option [value]="0">
+    Select Category
+  </mat-option>
+    <mat-option  *ngFor="let item of saleCgstSgstList"
+      [value]="item.id">
+        {{ item.salePurcAccountName }}
+      ({{ item.gstApplicabeCentralRate }}% +
+      {{ item.gstApplicabeLocalRate }}%)
+    </mat-option>
+
+  </mat-select>
+</mat-form-field>
+</div>
+
+   <div class="col-md-3">
+  <label class="form-label">
+    IGST (Sale)
+  </label>
+<!-- 
+  <select
+    class="form-select"
+    formControlName="igstSaleName">
+
+    <option value="0">
+      Select IGST (Sale)
+    </option>
+
+    <option
+      *ngFor="let item of saleIgstList"
+      [value]="item.id">
+
+      {{ item.salePurcAccountName }}
+      ({{ item.gstApplicabeCentralRate }}%)
+    </option>
+
+  </select> -->
+
+   <mat-form-field appearance="outline" class="w-100 city-field" style="margin-top: -7px;" >
+  <mat-select
+  
+     #igstSaleName
+    formControlName="igstSaleName"
+     (closed)="moveToNextDropdown('igstSaleName')">
+ <mat-option [value]="0">
+    Select Category
+  </mat-option>
+    <mat-option  *ngFor="let item of saleIgstList"
+      [value]="item.id">
+       {{ item.salePurcAccountName }}
+      ({{ item.gstApplicabeCentralRate }}%)
+    </mat-option>
+
+  </mat-select>
+</mat-form-field>
+</div>
+
+    <!-- GST Purchase -->
+  <div class="col-md-3">
+  <label class="form-label">
+    CGST + SGST (Purchase)
+  </label>
+
+  <!-- <select
+    class="form-select"
+    formControlName="cgstSgstPurchase">
+
+    <option value="0">
+      Select CGST + SGST (Purchase)
+    </option>
+
+    <option
+      *ngFor="let item of purchaseCgstSgstList"
+      [value]="item.id">
+
+      {{ item.salePurcAccountName }}
+      ({{ item.gstApplicabeCentralRate }}% +
+      {{ item.gstApplicabeLocalRate }}%)
+    </option>
+
+  </select> -->
+
+   <mat-form-field appearance="outline" class="w-100 city-field" style="margin-top: -7px;" >
+  <mat-select
+     #cgstSgstPurchase
+    formControlName="cgstSgstPurchase"
+     (closed)="moveToNextDropdown('cgstSgstPurchase')">
+ <mat-option [value]="0">
+    Select Category
+  </mat-option>
+    <mat-option   *ngFor="let item of purchaseCgstSgstList"
+      [value]="item.id">
+       {{ item.salePurcAccountName }}
+      ({{ item.gstApplicabeCentralRate }}% +
+      {{ item.gstApplicabeLocalRate }}%)
+    </mat-option>
+
+  </mat-select>
+</mat-form-field>
+</div>
+
+   <div class="col-md-3">
+  <label class="form-label">
+    IGST (Purchase)
+  </label>
+<!-- 
+  <select
+    class="form-select"
+    formControlName="igstPurchase">
+
+    <option value="">
+      Select IGST (Purchase)
+    </option>
+
+    <option
+      *ngFor="let item of purchaseIgstList"
+      [value]="item.id">
+
+      {{ item.salePurcAccountName }}
+      ({{ item.gstApplicabeCentralRate }}%)
+    </option>
+
+  </select> -->
+
+     <mat-form-field appearance="outline" class="w-100 city-field" style="margin-top: -7px;" >
+  <mat-select
+     #igstPurchase
+    formControlName="igstPurchase"
+     (closed)="moveToNextDropdown('igstPurchase')">
+ <mat-option [value]="0">
+    Select Category
+  </mat-option>
+    <mat-option   *ngFor="let item of purchaseIgstList"
+      [value]="item.id">
+       {{ item.salePurcAccountName }}
+      ({{ item.gstApplicabeCentralRate }}%)
+    </mat-option>
+
+  </mat-select>
+</mat-form-field>
+</div>
+
+    <!-- Tax -->
+    <div class="col-md-3">
+      <label class="form-label">Tax Rate (%)</label>
+      <input type="number" class="form-control" formControlName="taxRate">
+    </div>
+
+    <div class="col-md-3">
+      <label class="form-label">Cess Rate</label>
+      <input type="number" class="form-control" formControlName="cessRate">
+    </div>
+
+    <div class="col-md-3">
+      <label class="form-label">Cess Qty</label>
+      <input type="number" class="form-control" formControlName="cessQty">
+    </div>
+
+    <!-- Buttons -->
+    
+
+  </div>
+
+</form>
+
+  </mat-dialog-content>
+
+  <!-- Dialog Actions -->
+  <mat-dialog-actions class="mat-mdc-dialog-actions-align-end">
+   <button
+  type="submit"
+  class="btn btn-sm btn-primary me-2"
+ 
+  (click)="onSubmit()"
+  style="cursor: pointer;">
+  <i class="fas fa-check fa-sm text-white-50"></i>
+  {{ isEditMode ? 'Update Item  Master' : 'Add Item Master' }}
+</button>
+
+    <button
+      type="button"
+      mat-dialog-close
+      class="btn btn-sm btn-danger">
+      <i class="fas fa-times fa-sm text-white-50"></i> EXIT
+    </button>
+  </mat-dialog-actions>
+</div>

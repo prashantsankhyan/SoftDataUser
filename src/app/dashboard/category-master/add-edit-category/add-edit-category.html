@@ -1,0 +1,59 @@
+<div class="container-fluid">
+  <mat-dialog-content>
+    <form [formGroup]="addEditForm"  appEnterAsTab>
+
+      <!--Categiry Name-->
+      <div class="mb-2">
+        <label>Category Name</label>
+        <input
+          type="text"
+          class="form-control mt-2"
+          formControlName="categoryName"
+ (keydown)="handleTitleCase($event, 'categoryName')"
+        />
+      <div class="text-danger mt-1" *ngIf="addEditForm.get('categoryName')?.invalid && (addEditForm.get('categoryName')?.touched || submit)">
+    category Name is required
+  </div>
+ 
+      </div>
+
+      <!--Categiry Type -->
+      <div class="mb-2">
+        <label>Category Type</label>
+          <input
+          type="text"
+          class="form-control mt-2"
+          formControlName="categoryType"
+ (keydown)="handleTitleCase($event, 'categoryType')"
+        />
+      
+       
+         <div class="text-danger mt-1" *ngIf="addEditForm.get('categoryType')?.invalid && (addEditForm.get('categoryType')?.touched || submit)">
+   categoryType is required
+  </div>
+      </div>
+
+    
+    </form>
+  </mat-dialog-content>
+
+  <!-- Dialog Actions -->
+  <mat-dialog-actions class="mat-mdc-dialog-actions-align-end">
+   <button
+  type="submit"
+  class="btn btn-sm btn-primary me-2"
+ 
+  (click)="onSubmit()"
+  style="cursor: pointer;">
+  <i class="fas fa-check fa-sm text-white-50"></i>
+  {{ isEditMode ? 'Update Category Master' : 'Add Category Master' }}
+</button>
+
+    <button
+      type="button"
+      mat-dialog-close
+      class="btn btn-sm btn-danger">
+      <i class="fas fa-times fa-sm text-white-50"></i> Cancel
+    </button>
+  </mat-dialog-actions>
+</div>

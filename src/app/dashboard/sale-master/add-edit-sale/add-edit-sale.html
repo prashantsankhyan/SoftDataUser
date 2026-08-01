@@ -1,0 +1,1077 @@
+
+<div class="loading-overlay" *ngIf="isLoading">
+  <mat-spinner diameter="60"></mat-spinner>
+  <p>Loading Invoice...</p>
+</div>
+<div *ngIf="!isLoading" class="container-fluid" >
+ <div
+  *ngIf="showAddNewOption"
+  class="add-new-overlay"
+  (click)="showAddNewOption = false">
+
+  <div
+    class="add-new-box"
+    (click)="$event.stopPropagation()">
+
+    <h5>Invoice saved successfully</h5>
+
+    <p>
+      Press <b>Enter</b> to Add New or click outside to stay on this invoice.
+    </p>
+
+    <button
+      #addNewButton
+      type="button"
+      class="btn btn-primary px-4"
+      (click)="isEditMode ? switchToAddMode() : resetForm()"
+      (keydown)="onAddNewKeyDown($event)">
+      ADD NEW
+    </button>
+
+  </div>
+</div>
+ <mat-dialog-content style="margin-top: -10px;">
+  <form [formGroup]="addEditForm"  >
+
+    <!-- ===== HEADER INFO ===== -->
+    <div class="row">
+
+      <div class="col-md-2">
+        <label class="form-label">Invoice Heading</label>
+            <mat-form-field appearance="outline" class="w-100 city-field" >
+  <mat-select
+   #invoiceHeading
+    formControlName="invoiceHeadingInt"
+    (keydown.enter)="handleMatSelectEnter(invoiceHeading, 'invoiceHeadingInt')"
+     (selectionChange)="focusNextRegd(accountSelect)"
+    (change)="onHeadingSelect($event)"(keydown)="onHeadingKeyDown($event)"
+   >
+ <mat-option [value]="">
+    Select Heading
+  </mat-option>
+    <mat-option *ngFor="let c of listOfSaleHeadingData" [value]="c.id">
+   {{ c.typeOfSale }}
+    </mat-option>
+
+  </mat-select>
+</mat-form-field>
+      
+         <!-- <select #invoiceHeading class="form-control format" formControlName="invoiceHeadingInt" 
+         (keydown.enter)="handleMatSelectEnter(invoiceHeading, 'invoiceHeadingInt')"
+         (change)="onHeadingSelect($event)"(keydown)="onHeadingKeyDown($event)"  >
+           
+             <option value="" disabled selected>Select State</option>
+            <option *ngFor="let c of listOfSaleHeadingData" [value]="c.id">
+              {{ c.typeOfSale }}
+            </option>
+          </select> -->
+            <small class="text-danger"
+            *ngIf="addEditForm.get('invoiceHeadingInt')?.invalid && (submit || addEditForm.get('invoiceHeadingInt')?.touched)">
+            Invoice Heading required
+          </small>
+      </div>
+
+       <div class="col-md-2">
+        <label class="form-label">Invoice No</label>
+      
+       <input type="text" class="form-control format" formControlName="invoiceNo" 
+       [readonly]="headingPermission == '1'" 
+         tabindex="-1" />
+      </div>
+        <div class="col-md-2">
+        <label class="form-label">Invoice Date</label>
+       <input type="text" class="form-control format" formControlName="invoiceDate" (blur)="formatDateInput($event)"   />
+      </div>
+
+      <!-- <div class="col-md-3">
+  <label class="form-label">Party Name</label>
+
+  <mat-form-field appearance="outline" class="w-100 small-field">
+
+    <input matInput
+           type="text"
+           placeholder="Search Party Name"
+           [formControl]="partySearchControl"
+           [matAutocomplete]="auto"
+           (focus)="autocomplete.openPanel()" >
+
+    <mat-autocomplete #auto="matAutocomplete"
+                      (optionSelected)="onAccountSelect($event)">
+
+      <mat-option *ngFor="let a of filteredAccounts"
+                  [value]="a.accountName + ' - ' + a.cityName">
+
+        {{ a.accountName }} - {{ a.cityName }}
+
+      </mat-option>
+
+    </mat-autocomplete>
+
+  </mat-form-field>
+
+  <small class="text-danger"
+    *ngIf="addEditForm.get('accountId')?.invalid &&
+    (submit || addEditForm.get('accountId')?.touched)">
+    Party Name Required
+  </small>
+</div> -->
+
+    
+
+      <div class="col-md-3">
+        <label class="form-label">Party Name</label>
+         <mat-form-field appearance="outline" class="w-100 city-field" >
+  <!-- <mat-select
+   #accountSelect
+    formControlName="accountId"
+    (keydown.enter)="handleMatSelectEnter(accountSelect, 'accountId')"
+     (selectionChange)="focusNextRegd(accountSelect)"
+    (change)="onAccountChange($event)"
+       (keydown)="onPartyKeyDown($event)"
+   >
+ <mat-option [value]="">
+    Select Heading
+  </mat-option>
+    <mat-option *ngFor="let a of listOfAllAccount" [value]="a.id">
+    {{a.accountName }}- {{a.cityName}}
+    </mat-option>
+
+  </mat-select> -->
+
+  <mat-select
+    #accountSelect
+    formControlName="accountId"
+    (openedChange)="onOpened('party', $event)"
+    (closed)="onDropdownClosed(accountSelect, 'accountId')"
+    (selectionChange)="onAccountChange($event)"
+    (keydown)="onPartyKeyDown($event)">
+
+  <mat-option>
+    <ngx-mat-select-search
+     
+      [formControl]="searchCtrl"
+      placeholderLabel="Search Party"
+      noEntriesFoundLabel="No matching Party"
+     
+      >
+       
+    </ngx-mat-select-search>
+  </mat-option>
+
+  <mat-option
+      *ngFor="let u of filteredLists['party']"
+     [value]="u.id">
+      <ng-container *ngIf="getHighlightedParts(u.accountName) as p">
+  {{ p.before }}
+  <span class="highlight-search">{{ p.match }}</span>
+  {{ p.after }}
+ </ng-container>
+    <!-- {{ u.accountName }} - {{u.cityName}} -->
+  </mat-option>
+</mat-select>  
+</mat-form-field>
+        
+          <!-- <select class="form-control format" formControlName="accountId"  (change)="onAccountChange($event)" #accountSelect 
+           (keydown)="onPartyKeyDown($event)"
+          (keydown)="onPartyKeyDown($event)"
+           >
+           
+             <option value="" disabled selected>Select Party Name</option>
+            <option *ngFor="let a of listOfAllAccount" [value]="a.id">
+              {{a.accountName }}- {{a.cityName}}
+            </option>
+          </select> -->
+             <small class="text-danger"
+            *ngIf="addEditForm.get('accountId')?.invalid && (submit || addEditForm.get('accountId')?.touched)">
+           Party Name
+          </small>
+      </div>
+
+        <div class="col-md-3">
+        <label class="form-label">Ship  To</label>
+        
+          <select class="form-control format" formControlName="shipTo" #accountShipTo (keydown)="onPartyKeyDown($event)" >
+           
+               <option [ngValue]="0">Select Ship To</option>
+            <option *ngFor="let a of listOfShareTo" [value]="a.id">
+              {{a.accountName }}
+            </option>
+          </select>
+          
+      </div>
+      
+
+      <div class="col-md-3" *ngIf="false">
+        <label class="form-label">Claim Date</label>
+      <input type="text" class="form-control format" formControlName="claimDate" (blur)="formatDateInput($event)"    />
+      </div>
+       <div class="col-md-2" *ngIf="showTransportManual">
+        <label class="form-label">Transport</label>
+        
+          <select class="form-control format" #slectTransport formControlName="transport"   >
+           
+                <option [ngValue]="0">Select Transport</option>
+            <option *ngFor="let a of listOfTransport" [value]="a.transportId">
+              {{a.name }}
+            </option>
+          </select>
+      </div>
+
+        <div class="col-md-2" *ngIf="!showTransportManual">
+        <label class="form-label">Transport </label>
+        
+         
+          <input type="text" class="form-control format" formControlName="TransportNameManual" />
+      </div>
+      
+      <div class="col-md-2">
+        <label class="form-label">GR No</label>
+        <input type="text" class="form-control format" formControlName="grNo" />
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">Gr Date</label>
+        <input type="text" class="form-control format" formControlName="shippingBillNo" (blur)="formatDateInput($event)" />
+      </div>
+
+      <div class="col-md-2">
+       <div style="text-align: center;margin-top: 20px;">
+<input type="checkbox" id="invoiceToggle" class="popup-toggle" (change)="togglePopup()" />
+<label for="invoiceToggle" class="popup-link">Click For More Detail</label>
+ </div>
+      </div>
+
+     
+
+    </div>
+
+
+
+<!-- Click link -->
+
+
+    
+   <div class="popup-overlay" [class.active]="isPopupOpen">
+  <div class="popup-content">
+
+     
+
+   
+
+    <div class="row g-3">
+
+      <div class="col-sm-3">
+        <label class="form-label">Order No</label>
+        <input type="text" class="form-control" formControlName="orderNo">
+      </div>
+       <div class="col-sm-3">
+        <label class="form-label">Packing No</label>
+        <input type="text" class="form-control" formControlName="packingNo">
+      </div>
+  <div class="col-sm-3">
+        <label class="form-label">Credit Days</label>
+        <input type="text" class="form-control" formControlName="creditDays">
+      </div>
+      <div class="col-sm-3">
+        <label class="form-label">Vehicle</label>
+        <input type="text" class="form-control" formControlName="vehicle">
+      </div>
+
+      <div class="col-sm-3">
+        <label class="form-label">Form No</label>
+        <input type="text" class="form-control" formControlName="formNo">
+      </div>
+
+      <div class="col-sm-3">
+        <label class="form-label">Weight</label>
+        <input type="text" class="form-control" formControlName="weight">
+      </div>
+
+    
+
+     
+
+      <div class="col-sm-3">
+        <label class="form-label">Docu. Thru</label>
+        <input type="text" class="form-control" formControlName="docuThru">
+      </div>
+
+      <div class="col-sm-3">
+        <label class="form-label">Station</label>
+        <input type="text" class="form-control" formControlName="station">
+      </div>
+
+      <div class="col-sm-3">
+        <label class="form-label">RGP No</label>
+        <input type="text" class="form-control" formControlName="rgpNo">
+      </div>
+
+      <div class="col-sm-3">
+        <label class="form-label">Dated</label>
+        <input type="text" class="form-control" formControlName="dated">
+      </div>
+
+      <div class="col-sm-3">
+        <label class="form-label">Freight</label>
+        <input type="text" class="form-control" formControlName="freight">
+      </div>
+
+      <div class="col-sm-3">
+        <label class="form-label">Packages</label>
+        <input type="text" class="form-control" formControlName="packages">
+      </div>
+
+      <div class="col-sm-3">
+        <label class="form-label">Pvt. Mark</label>
+        <input type="text" class="form-control" formControlName="pvtMark">
+      </div>
+
+      <div class="col-sm-3">
+        <label class="form-label">Due Date</label>
+        <input type="text" class="form-control" formControlName="dueDate">
+      </div>
+
+      <div class="col-sm-3">
+        <label class="form-label">Ecom GSTIN</label>
+        <input type="text" class="form-control" formControlName="ecomGSTIN">
+      </div>
+
+      <div class="col-sm-3">
+        <label class="form-label">E-Way No</label>
+        <input type="text" class="form-control" formControlName="ewayNo">
+      </div>
+
+      <div class="col-sm-3">
+        <label class="form-label">Shipping Bill No</label>
+        <input type="text" class="form-control" formControlName="shBNo">
+      </div>
+
+      <div class="col-sm-3">
+        <label class="form-label">Ship Date</label>
+        <input type="text" class="form-control" formControlName="shipDate">
+      </div>
+
+      <div class="col-sm-3">
+        <label class="form-label">Ship Part No</label>
+        <input type="text" class="form-control" formControlName="shipPartNo">
+      </div>
+
+      <div class="col-sm-3">
+        <label class="form-label">Port Loading</label>
+        <input type="text" class="form-control" formControlName="portLoading">
+      </div>
+
+      <div class="col-sm-3">
+        <label class="form-label">Port Discharge</label>
+        <input type="text" class="form-control" formControlName="portDischarge">
+      </div>
+
+      <div class="col-sm-3">
+        <label class="form-label">Final Destination</label>
+        <input type="text" class="form-control" formControlName="finalDestination">
+      </div>
+       <div class="col-sm-3" style="margin-top: 30px;">
+      <label for="invoiceToggle" class="popup-close mt-4">❌</label>
+      </div>
+     
+
+
+    </div>
+
+  </div>
+</div>
+
+
+   
+
+
+      <!-- ===== SALE INVOICE DETAILS ===== -->
+  <div class="">
+
+  <div class="d-flex justify-content-between align-items-center mb-1">
+  
+  </div>
+
+  <div class="table-responsive custom-table">
+
+    <table class="table table-bordered align-middle mb-0 invoice-table">
+      <thead>
+        <tr>
+          <th class="sticky-col item-column">Item</th>
+
+          <th *ngIf="screenConfig?.barcodeSale">Barcode</th>
+          <th *ngIf="screenConfig?.remarksSale">Remarks</th>
+          <th *ngIf="screenConfig?.hsnsale">HSN</th>
+          <th *ngIf="screenConfig?.artSale">Art</th>
+          <th *ngIf="screenConfig?.sizeSale">Size</th>
+          <th *ngIf="screenConfig?.colorSale">Color</th>
+          <th *ngIf="screenConfig?.pack1Sale">Pack1</th>
+          <th *ngIf="screenConfig?.pack2Sale">Pack2</th>
+
+          <th>Qty</th>
+          <th>Unit</th>
+          <th>Rate</th>
+
+          <th *ngIf="screenConfig?.mRateSale">M.Rate</th>
+          <th *ngIf="screenConfig?.discPercentSale">Disc %</th>
+          <th *ngIf="screenConfig?.discountSale">Disc Amt</th>
+
+          <th >Taxable Amt</th>
+          <th class="item-column2">Account</th>
+          <th class="action-column">+</th>
+          <th class="action-column">-</th>
+        </tr>
+      </thead>
+
+      <tbody formArrayName="saleInvoiceDetails">
+        <tr
+          *ngFor="let detail of saleInvoiceDetails.controls; let i = index"
+          [formGroupName]="i"
+        >
+
+          <!-- ITEM -->
+
+          
+          <td class="sticky-col">
+             
+            <mat-form-field appearance="outline" class="w-100 city-field" >
+  <!-- <mat-select
+   #itemSelect
+    formControlName="itemId"
+   (keydown.enter)="handleMatSelectEnterIndex($event, itemSelect, i)"
+    (keydown)="onItemKeyDown($event, i)"
+     (blur)="onRowTotalBlur(i)"
+    (selectionChange)="onItemChange(i); focusNextRegd(itemSelect)">
+ 
+    <mat-option *ngFor="let it of listOfAllItem"
+                      [value]="it.itemId">
+    {{ it.itemName }}
+    </mat-option>
+
+  </mat-select> -->
+   <mat-select
+    #itemSelect
+     [id]="'itemSelect' + i"
+    formControlName="itemId"
+    (openedChange)="onOpened('item', $event)"
+    (closed)="onItemClosed(itemSelect, i)"
+    (selectionChange)="onItemChange(i)"
+    (blur)="onRowTotalBlur(i)"
+   >
+
+  <mat-option>
+ <ngx-mat-select-search
+    [formControl]="itemSearchCtrls[i]"
+    placeholderLabel="Search item"
+     (keydown.shift)="removeRowAndFocus(i)"
+    noEntriesFoundLabel="No matching item">
+</ngx-mat-select-search>
+
+  </mat-option>
+  
+ 
+  <mat-option
+  
+      *ngFor="let u of filteredItems[i]"
+     [value]="u.itemId">
+     <span   [title]="'Item : ' + u.itemName +
+           '\nRate : ' + u.saleRate +
+           '\nUnit : ' + u.unitName +
+           '\npurchase Rate : ' + u.purchaseRate +
+           '\nopening Stock : ' + u.openingStock +
+           '\nopening Stock Rate : ' + u.openingStockRate +
+           '\nopening Stock Value : ' + u.openingStockValue +
+           '\nPrice : ' + (u.salePrice | currency:'USD')">
+     
+       <ng-container
+      *ngIf="getHighlightedPartsItems(u.itemName, itemSearchCtrls[i].value || '') as p">
+    {{ p.before }}
+    <span class="highlight-search">{{ p.match }}</span>
+    {{ p.after }}
+  </ng-container>
+  </span>
+  </mat-option>
+</mat-select>  
+</mat-form-field>    
+            <!-- <select class="form-control compact-input"
+                    formControlName="itemId"
+                    (change)="onItemChange(i)" (keydown)="onItemKeyDown($event, i)" (blur)="onRowTotalBlur(i)">
+              <option value="0">Select Item</option>
+              <option *ngFor="let it of listOfAllItem"
+                      [value]="it.itemId">
+                {{ it.itemName }}
+              </option>
+            </select> -->
+<small class="text-danger" *ngIf="isRowInvalid(i,'itemId') && getRowControl(i,'itemId')?.value == 0">
+  Item is required
+</small>
+          </td>
+
+          <!-- DYNAMIC FIELDS -->
+          <td *ngIf="screenConfig?.barcodeSale">
+            <input type="text"
+                   class="form-control compact-input"
+                   formControlName="barcode">
+          </td>
+
+          <td *ngIf="screenConfig?.remarksSale">
+            <input type="text"
+                   class="form-control compact-input"
+                   formControlName="remarks">
+          </td>
+
+          <td *ngIf="screenConfig?.hsnsale">
+            <input type="text"
+                   class="form-control compact-input"
+                   formControlName="hsn"tabindex="-1">
+          </td>
+
+          <td *ngIf="screenConfig?.artSale">
+            <input type="text"
+                   class="form-control compact-input"
+                   formControlName="artNo">
+          </td>
+
+          <td *ngIf="screenConfig?.sizeSale">
+            <input type="text"
+                   class="form-control compact-input"
+                   formControlName="size">
+          </td>
+
+          <td *ngIf="screenConfig?.colorSale">
+            <input type="text"
+                   class="form-control compact-input"
+                   formControlName="color">
+          </td>
+
+          <td *ngIf="screenConfig?.pack1Sale">
+            <input type="text"
+                   class="form-control compact-input"
+                   formControlName="pack1">
+          </td>
+
+          <td *ngIf="screenConfig?.pack2Sale">
+            <input type="text"
+                   class="form-control compact-input"
+                   formControlName="pack2">
+          </td>
+
+          <!-- QTY -->
+          <td >
+            <input type="number"
+                   class="form-control compact-input text-end"
+                   formControlName="qty"
+                   (focus)="onQtyFocus(i)"
+                    (blur)="onQtyBlur(i)" (blur)="onRowTotalBlur(i)" >
+          </td>
+
+          <!-- UNIT -->
+          <td >
+            <select class="form-control compact-input"
+                    formControlName="unit" tabindex="-1" (blur)="formatQty(i)" (blur)="onRowTotalBlur(i)" >
+              <option value="0">Unit</option>
+              <option *ngFor="let u of listOfUnit"
+                      [value]="u.id">
+                {{ u.unitName }}
+              </option>
+            </select>
+          </td>
+
+          <!-- RATE -->
+          <td >
+            <input type="number"
+                   class="form-control compact-input text-end"  formControlName="rate" 
+                (focus)="clearRateZeroOnFocus(i, 'rate')"
+  (blur)="restoreZeroOnBlur(i, 'rate')"
+                   >
+          </td>
+
+          <td *ngIf="screenConfig?.mRateSale">
+            <input type="number"
+                   class="form-control compact-input text-end"
+                   formControlName="mRate">
+          </td>
+
+          <td *ngIf="screenConfig?.discPercentSale">
+            <input type="number"
+                   class="form-control compact-input text-end"
+                   formControlName="discPer"
+                    (focus)="onNumberFocus(i, 'discPer')"
+    (blur)="onNumberBlur(i, 'discPer')">
+          </td>
+
+          <td *ngIf="screenConfig?.discountSale">
+            <input type="number"
+                   class="form-control compact-input text-end"
+                   formControlName="discAmt"
+                    (focus)="onNumberFocus(i, 'discAmt')"
+    (blur)="onNumberBlur(i, 'discAmt')">
+          </td>
+
+          <!-- TOTAL -->
+            <td>
+              <input type="number"
+                    class="form-control compact-input2 text-end fw-bold"formControlName="rowTotal" 
+                    
+                 (focus)="onRowTotalFocus(i)"     (blur)="onRowTotalBlur(i)" (keydown)="onRateKeyDown($event, i)" tabindex="-1">
+            </td>
+
+          <!-- TAX -->
+          <td>
+            <!-- <select class="form-control compact-input2" 
+                   #slectTax formControlName="taxableValueId" (change)="onTaxChange(i)" (keydown)="onTaxDown($event,i)">
+              <option value="0">Select</option>
+              <option *ngFor="let tax of listOfTaxTableData"
+                      [value]="tax.id">
+                {{ tax.salePurcAccountName }}
+              </option>
+            </select> -->
+            <mat-form-field appearance="outline" class="w-100 city-field">
+
+    <mat-select
+      #taxSelect
+      formControlName="taxableValueId"
+      (openedChange)="onOpened('tax', $event)"
+      (selectionChange)="onTaxChange(i)"
+      (closed)="onTaxClosed(taxSelect, i)">
+
+      <mat-option>
+        <ngx-mat-select-search
+          [formControl]="taxSearchCtrls[i]"
+          placeholderLabel="Search Tax"
+          noEntriesFoundLabel="No matching tax">
+        </ngx-mat-select-search>
+      </mat-option>
+
+      <mat-option
+        *ngFor="let tax of filteredTaxes[i]"
+        [value]="tax.id">
+  <ng-container
+      *ngIf="getHighlightedPartsItems(tax.salePurcAccountName, taxSearchCtrls[i].value || '') as p">
+    {{ p.before }}
+    <span class="highlight-search">{{ p.match }}</span>
+    {{ p.after }}
+  </ng-container>
+        <!-- {{ tax.salePurcAccountName }} -->
+
+      </mat-option>
+
+       <!-- <mat-option
+       *ngFor="let tax of listOfTaxTableData"
+        [value]="tax.id">
+
+        {{ tax.salePurcAccountName }}
+
+      </mat-option> -->
+
+
+       
+
+    </mat-select>
+
+  </mat-form-field>
+ <small class="text-danger" *ngIf="isRowInvalid(i,'taxableValueId') && getRowControl(i,'taxableValueId')?.value == 0">
+  taxableValueId is required
+</small>
+          </td>
+
+        <td class="action-column">
+  <button
+    type="button"
+    class="btn btn-success btn-sm action-btn"
+    (keydown)="handleAddRowKeyDown($event, i)"> +
+  </button>
+</td>
+ <td style="display: none;">
+     <input type="text" [value]="detail.get('taxTableRowSubTotal')?.value?.toFixed(2) || '0.00'" style="display: none;">
+
+    </td>
+
+<td class="action-column">
+  <button
+
+   
+    type="button"
+    class="btn btn-danger btn-sm action-btn"tabindex="-1"
+    (click)="removeInvoiceDetailRow(i)" >
+    ×
+  </button>
+</td>
+
+        </tr>
+      </tbody>
+     <tfoot >
+    <tr>
+      <td class="col-item"></td>
+
+      <td *ngIf="screenConfig?.barcodeSale"></td>
+
+      <td *ngIf="screenConfig?.remarksSale"></td>
+
+      <td *ngIf="screenConfig?.hsnsale" class="col-small"></td>
+
+      <td *ngIf="screenConfig?.artSale"></td>
+
+      <td *ngIf="screenConfig?.sizeSale"></td>
+
+      <td *ngIf="screenConfig?.colorSale"></td>
+
+      <td *ngIf="screenConfig?.pack1Sale"></td>
+
+      <td *ngIf="screenConfig?.pack2Sale"></td>
+
+      <td style="text-align: right; font-weight: bold;">
+        {{ totalQty }}
+      </td>
+
+      <td class="col-small"></td>
+
+      <td></td>
+
+      <td *ngIf="screenConfig?.mRateSale"></td>
+
+      <td *ngIf="screenConfig?.discPercentSale"></td>
+
+      <td *ngIf="screenConfig?.discountSale"></td>
+
+      <td style="text-align: right; font-weight: bold;">
+        {{ totalAmount }}
+      </td>
+
+      <td colspan="3"></td>
+    </tr>
+  </tfoot>
+      
+    </table>
+
+  </div>
+</div>
+
+<div class="">
+  
+
+ 
+
+    <!-- GST Section -->
+    <div class="row">
+      <div class="col-sm-4">
+        <div class="row">
+          <div  class="col-sm-6">
+        <label class="form-label">Central GST</label>
+        <div class="row">
+           <!-- <div class="col-sm-4">
+           <tr *ngFor="let row of saleInvoiceDetails.controls; let i = index">
+           <td>
+            {{ getTaxRate(row.get('taxableValueId')?.value, 'central') }}%
+         </td>
+           </tr>
+          </div> -->
+          <div class="col-sm-8">
+          <input
+          type="number"
+          class="form-control text-end format"
+          formControlName="centralGst" readonly
+           tabindex="-1" 
+        />
+          </div>
+
+
+        </div>
+       
+         
+          </div>
+             <div class="col-sm-6">
+         <label class="form-label">Local GST</label>
+         <div class="row">
+          <!-- <div class="col-sm-4">
+            <tr *ngFor="let row of saleInvoiceDetails.controls; let i = index">
+         <td>
+          {{ getTaxRate(row.get('taxableValueId')?.value, 'local') }}%
+         </td>
+          </tr>
+          </div> -->
+            <div class="col-sm-8">
+            <input
+          type="number"
+          class="form-control text-end format"
+          formControlName="localGst"
+           readonly
+            tabindex="-1"
+        />
+          </div>
+
+         </div>
+      
+        
+          </div>
+          <div class="col-sm-6">
+             <label class="form-label">TCS</label>
+             <div class="row">
+              <!-- <div class="col-sm-4">
+                  <tr *ngFor="let row of saleInvoiceDetails.controls; let i = index">
+                    <td>
+                    {{ getTaxRate(row.get('taxableValueId')?.value, 'tcs') }}%
+                    </td>
+                     </tr>
+
+              </div> -->
+              <div class="col-sm-8">
+         <input
+          type="number"
+          class="form-control text-end format"
+          formControlName="tcs"
+           readonly
+           tabindex="-1"
+        />
+              </div>
+
+             </div>
+        
+          
+          </div>
+          <div class="col-sm-6">
+            
+  <label class="form-label">Swach Bharat</label>
+  <div class="row">
+    <!-- <div class="col-sm-4">
+ <tr *ngFor="let row of saleInvoiceDetails.controls; let i = index">
+  <td>
+    {{ getTaxRate(row.get('taxableValueId')?.value, 'swach') }}%
+  </td>
+</tr>
+    </div> -->
+    <div class="col-sm-8">
+   <input
+          type="number"
+          class="form-control text-end format"
+          formControlName="swachBharat"
+           readonly
+  tabindex="-1"
+        />
+    </div>
+
+            </div>
+     
+
+           
+          </div>
+
+        </div>
+
+      </div>
+      <div class="col-sm-4">
+        <div class="row">
+ <div class="col-sm-6">
+ <label class="form-label">Value</label>
+        <input
+         #valueInput
+          type="number"
+          class="form-control text-end format"
+          formControlName="value"
+          (focus)="clearZero('value')"
+  (blur)="restoreZero('value')"
+  (keydown.enter)="restoreZero('value')"
+        />
+        </div>
+
+        <div class="col-sm-6"  *ngIf="(addEditForm.get('value')?.value || 0) > 0">
+            <label class="form-label">Other Charge</label>
+        <!-- <select class="form-control format" formControlName="otherCharge" 
+         (keydown)="onOtherChargeTab($event)"
+        [disabled]="addEditForm.get('value')?.value == 0" [attr.tabindex]="getTabIndexBasedOnValue()">
+           
+             <option  value="0"  >Select Other Charge</option>
+            <option *ngFor="let a of otherValueAccount" [value]="a.id">
+              {{a.accountName }}
+            </option>
+          </select> -->
+
+           <mat-form-field appearance="outline"  class="w-100 city-field">
+  <mat-select
+    #otherChargeSelect
+    formControlName="otherCharge"
+    (selectionChange)="onOtherChargeSelected()"
+     (closed)="focusValue1()"
+    [disabled]="addEditForm.get('value')?.value == 0"
+    [attr.tabindex]="getTabIndexBasedOnValue()">
+
+    <!-- <mat-option [value]="''">
+      Select Heading
+    </mat-option> -->
+
+    <mat-option *ngFor="let c of otherValueAccount" [value]="c.id">
+      {{ c.accountName }}
+    </mat-option>
+
+  </mat-select>
+</mat-form-field>
+         <div class="text-danger" *ngIf="addEditForm.get('otherCharge')?.touched && addEditForm.get('otherCharge')?.invalid">
+  Please select 
+</div>
+        </div>
+         <div class="col-sm-6">
+ <label class="form-label">Value1</label>
+        <input
+          type="number"
+          class="form-control text-end format"
+          formControlName="value1"
+            (focus)="clearZero('value1')"
+  (blur)="restoreZero('value1')"
+   (keydown.enter)="onValue1Enter()"
+        />
+        </div>
+         <div class="col-sm-6"  *ngIf="(addEditForm.get('value1')?.value || 0) > 0">
+            <label class="form-label">Other Charge1</label>
+       
+           <!-- <select class="form-control format" formControlName="otherCharge1"  (keydown)="onOtherCharge1Tab($event)"  [disabled]="addEditForm.get('value1')?.value == 0" [attr.tabindex]="getTabIndexBasedOnValue1()">
+           
+             <option  value="0"  selected="">Select Other Charge 1</option>
+            <option *ngFor="let a of otherValueAccount" [value]="a.id">
+              {{a.accountName }}
+            </option>
+          </select> -->
+ <mat-form-field appearance="outline"  class="w-100 city-field">
+            <mat-select
+    #otherChargeSelect1
+    formControlName="otherCharge1"
+    (selectionChange)="onOtherCharge1Selected()"
+     (keydown.enter)="onOtherCharge1Enter()"
+    [disabled]="addEditForm.get('value1')?.value == 0"
+    [attr.tabindex]="getTabIndexBasedOnValue1()">
+
+    <!-- <mat-option [value]="''">
+      Select Heading
+    </mat-option> -->
+
+    <mat-option *ngFor="let c of otherValueAccount" [value]="c.id">
+      {{ c.accountName }}
+    </mat-option>
+
+  </mat-select>
+  </mat-form-field>
+          <div class="text-danger" *ngIf="addEditForm.get('otherCharge1')?.touched && addEditForm.get('otherCharge1')?.invalid">
+  Please select 
+</div>
+        </div>
+        </div>
+   
+      
+      </div>
+
+      <div class="col-md-4">
+        <div class="row">
+         <div class="col-md-6 col-sm-6">
+
+        </div>
+        <div class="col-md-6 col-sm-6">
+        <label class="form-label fw-bold">Sub Total</label>
+        <input
+          type="number"
+          class="form-control text-end fw-bold border-primary format"
+          formControlName="subTotal"
+            tabindex="-1"
+          readonly
+        />
+      </div>
+      <div class="col-md-6 col-sm-6">
+
+        </div>
+        <div class="col-md-6 col-sm-6">
+        <label class="form-label fw-bold">Round Total</label>
+        <input
+          type="number"
+          class="form-control text-end fw-bold border-primary format"
+          formControlName="roundAndTotal"
+            tabindex="-1"
+          readonly
+        />
+      </div>
+        </div>
+       
+       
+      </div>
+
+    
+     
+
+    
+   
+    </div>
+
+   <div class="row justify-content-end mt-4">
+      
+    </div>
+
+</div>
+
+
+
+
+
+    
+
+    <!-- ===== FORM ACTIONS ===== -->
+  
+
+  </form>
+ </mat-dialog-content>
+<mat-dialog-actions align="end">
+
+  <div class="d-flex flex-wrap justify-content-end gap-2 w-100">
+    
+    <button class="btn btn-secondary">
+      <i class="fas fa-envelope"></i>
+    </button>
+
+    <button class="btn btn-secondary">
+      <i class="fab fa-whatsapp"></i>
+    </button>
+
+    <button class="btn btn-secondary">
+      <i class="fas fa-file-excel"></i>
+    </button>
+
+    <button
+      class="btn btn-secondary"
+      (click)="openPdfModel()">
+      <i class="fa fa-file-pdf-o me-1"></i> PDF
+    </button>
+      <button
+    type="button"
+    class="btn btn-success px-4"
+    (click)="onSubmit()"
+   >
+    <i class="fa fa-save me-1"></i> UPDATE
+  </button>
+      <button
+    type="button"
+    class="btn btn-secondary px-4"
+     (click)="isEditMode ? switchToAddMode() : resetForm()">
+    <i class="fa fa-refresh me-1"></i>
+  {{ isEditMode ? 'ADD NEW' : 'ADD NEW' }}
+  </button>
+
+    <button
+      #saveButton
+      type="button"
+      class="btn btn-success px-4"
+        (click)="submitFromButton($event)"
+  (keydown.enter)="submitFromButton($event)">
+      <i class="fa fa-save me-1"></i> Save
+    </button>
+
+    <button
+      type="button"
+      class="btn btn-danger px-4"
+      (click)="closeModel()">
+      <i class="fa fa-times me-1"></i> Exit
+    </button>
+
+  </div>
+
+  
+
+</mat-dialog-actions>
+
+
+
+</div>

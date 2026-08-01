@@ -1,0 +1,12 @@
+<h2 mat-dialog-title>Delete Unit Master</h2>
+
+    <mat-dialog-content>
+      Are you sure you want to delete Agent Master?
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+      <button mat-stroked-button (click)="onNoClick()">Cancel</button>
+      <button mat-raised-button color="warn" (click)="deleteRecord()">
+        Delete
+      </button>
+    </mat-dialog-actions>

@@ -1,0 +1,192 @@
+<div [class.blur-content]="showSpinner">
+
+  <!-- 🔍 FILTER SECTION -->
+  <div class="row">
+
+    <!-- Account Search -->
+    <div class="col-md-3">
+      <mat-form-field appearance="fill" class="w-100">
+        <mat-label>Search Account</mat-label>
+        <input matInput
+               [(ngModel)]="accountSearchText"
+               [matAutocomplete]="auto"
+               (ngModelChange)="applyFilter()"
+               placeholder="Type to search..." />
+
+        <mat-autocomplete #auto="matAutocomplete"
+                          [displayWith]="displayAccount"
+                          (optionSelected)="onSelectAccount($event.option.value)">
+          <mat-option *ngFor="let account of listOfData" [value]="account">
+            {{ account.accountName }}
+          </mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
+    </div>
+
+    <!-- From Date -->
+    <div class="col-md-3">
+      <mat-form-field appearance="fill" class="w-100">
+        <mat-label>From Date</mat-label>
+        <input matInput [(ngModel)]="fromDate"
+               (input)="formatDateInput('from')"
+               maxlength="10"
+               placeholder="DD-MM-YYYY">
+      </mat-form-field>
+    </div>
+
+    <!-- To Date -->
+    <div class="col-md-3">
+      <mat-form-field appearance="fill" class="w-100">
+        <mat-label>To Date</mat-label>
+        <input matInput [(ngModel)]="toDate"
+               (input)="formatDateInput('to')"
+               (keyup.enter)="applyLedgerFilter()"
+               maxlength="10"
+               placeholder="DD-MM-YYYY">
+      </mat-form-field>
+    </div>
+
+    <!-- Ledger Search -->
+    <div class="col-md-3">
+      <mat-form-field appearance="fill" class="w-100">
+        <mat-label>Search Ledger</mat-label>
+       <input matInput
+       [(ngModel)]="ledgerSearchText"
+       (keyup.enter)="applyLedgerFilter()"
+       (ngModelChange)="onLedgerSearchChange()"
+       placeholder="Voucher / Narration">
+      </mat-form-field>
+    </div>
+
+    <!-- Buttons -->
+    <div class="col-md-12 d-flex gap-2 flex-wrap">
+
+      <button class="btn btn-secondary" (click)="clearLedgerFilter()">Reset</button>
+
+      <button class="btn btn-danger"
+              ngxPrint
+              printSectionId="print-section"
+              [useExistingCss]="true">
+        PDF
+      </button>
+
+      <button class="btn btn-success" (click)="exportToExcel()">Excel</button>
+
+    </div>
+  </div>
+
+  <!-- Spinner -->
+  <div *ngIf="showSpinner" class="spinner-overlay">
+    <mat-spinner diameter="50"></mat-spinner>
+  </div>
+
+  <!-- 📊 LEDGER TABLE -->
+  <div id="print-section" class="table-scroll mt-3" *ngIf="!showSpinner">
+
+    <table class="table table-bordered ledger-table">
+
+      <thead>
+        <tr class="ledger-header">
+          <th>Date</th>
+          <th>Particulars</th>
+          <th>Vch.Type</th>
+          <th>Debit</th>
+          <th>Credit</th>
+          <th>Balance</th>
+          <th>Type</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <!-- Opening Balance -->
+        <tr class="opening-row"
+            (click)="addEditData({ _id: _id, accountName: accountName })">
+
+          <td>-</td>
+          <td><b>Opening Balance - {{ accountName }}</b></td>
+          <td>-</td>
+
+          <td class="text-danger">
+            {{ openingType === 'DR' ? (openingBalance | number:'1.2-2') : '' }}
+          </td>
+
+          <td class="text-success">
+            {{ openingType === 'CR' ? (openingBalance | number:'1.2-2') : '' }}
+          </td>
+
+          <td>{{ openingBalance | number:'1.2-2' }}</td>
+          <td>{{ openingType }}</td>
+        </tr>
+
+        <!-- Ledger Rows -->
+     <ng-container *ngFor="let item of listOfReceiptData; trackBy: trackByLedger">
+
+  <!-- MAIN ROW -->
+  <tr
+    [ngClass]="{
+      'non-editable': item.RowTotal,
+      'clickable': !item.RowTotal
+    }"
+    (click)="!item.RowTotal && addEditPayment(item)">
+
+    <td>{{ item.ReceiptDate | date:'dd-MM-yyyy' }}</td>
+
+    <td>
+      {{ item.Narration || '---' }}
+    </td>
+
+    <td>{{ item.VoucherNo }}</td>
+
+    <td class="text-danger">
+      {{ item.Debit > 0 ? (item.Debit | number:'1.2-2') : '' }}
+    </td>
+
+    <td class="text-success">
+      {{ item.Credit > 0 ? (item.Credit | number:'1.2-2') : '' }}
+    </td>
+
+    <td>{{ item.Balance | number:'1.2-2' }}</td>
+    <td>{{ item.BalanceType }}</td>
+  </tr>
+
+  <!-- GST CHILD ROWS -->
+  <tr *ngFor="let gst of item.GSTDetails; trackBy: trackByGST" class="gst-row" class="gst-row">
+
+    <td></td>
+
+   <td class="ps-4 d-flex justify-content-between">
+  <span>{{ gst.Narration }}</span>
+  <span>₹ {{ gst.RowTotal | number:'1.2-2' }}</span>
+</td>
+
+    <td></td>
+
+    <td></td>
+
+    <td class="text-success">
+    
+    </td>
+
+    <td> {{ item.Balance | number:'1.2-2' }}</td>
+    <td>{{ item.BalanceType }}</td>
+  </tr>
+
+</ng-container>
+
+      </tbody>
+
+      <!-- FOOTER -->
+      <tfoot>
+        <tr class="ledger-total">
+          <td colspan="3" class="text-end"><b>Total</b></td>
+          <td><b>{{ totalDR | number:'1.2-2' }}</b></td>
+          <td><b>{{ totalCR | number:'1.2-2' }}</b></td>
+          <td><b>{{ closingBalance | number:'1.2-2' }}</b></td>
+          <td><b>{{ closingType }}</b></td>
+        </tr>
+      </tfoot>
+
+    </table>
+  </div>
+</div>

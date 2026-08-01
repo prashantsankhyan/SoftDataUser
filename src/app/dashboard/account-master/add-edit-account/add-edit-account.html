@@ -1,0 +1,723 @@
+<div class="container-fluid">
+  <mat-dialog-content>
+
+    <form [formGroup]="addEditForm"  appEnterAsTab>
+
+      <div class="row " style="margin-top: -18px;">
+<div class="col-sm-3" style="margin-top: -20px;">
+  <label class="form-label">Account Name *</label>
+
+  <input
+    #accountNameRef
+    appEnterAsTab
+    type="text"
+    class="form-control"
+    formControlName="accountName"
+    (blur)="checkDuplicateOnBlur()"
+    (keydown)="handleTitleCase($event, 'accountName'); blockDuplicateAccount($event)"
+    [class.is-invalid]="addEditForm.get('accountName')?.errors?.['duplicate']">
+
+  <small
+    class="text-danger"
+    *ngIf="f['accountName'].hasError('required') &&
+           (submit || f['accountName'].touched)">
+    Account Name is required
+  </small>
+
+  <small
+    class="text-danger"
+    *ngIf="addEditForm.get('accountName')?.errors?.['duplicate']">
+    Account already exists
+  </small>
+ <small
+  class="text-danger"
+  *ngIf="f['accountName'].hasError('duplicate')">
+  Account already exists
+</small>
+</div>
+        <!-- Account Name -->
+        <!-- <div class="col-sm-3" style="margin-top: -20px;">
+          <label class="form-label">Account Name *</label>
+          <input type="text" class="form-control"  #accountNameRef formControlName="accountName"
+          (blur)="checkDuplicateOnBlur()"
+          (keydown)="handleTitleCase($event, 'accountName')" [class.is-invalid]="
+      addEditForm.get('accountName')?.errors?.['duplicate']
+    ">
+         <small class="text-danger"
+    *ngIf="f['accountName'].hasError('required') &&
+          (submit || f['accountName'].touched)">
+    Account Name is required
+  </small>
+           <small
+  class="text-danger"
+  *ngIf="
+    addEditForm.get('accountName')?.errors?.['duplicate']
+  "
+>
+  Account already exists
+</small>
+        </div> -->
+
+        <!-- Group -->
+        <div class="col-sm-3" style="margin-top: -20px;">
+          <label class="form-label">Group *</label>
+          <!-- <select class="form-control" #groupSelect formControlName="groupId">
+              <option value="" disabled selected>Select Group</option>
+            <option *ngFor="let g of listOfGorupMaster" [value]="g.groupId">
+              {{ g.groupName }}
+            </option>
+          </select> -->
+          
+      <!-- <mat-form-field appearance="outline" class="w-100 city-field" style="margin-top: -7px;" >
+  <mat-select
+    #groupSelect
+    formControlName="groupId"
+      (keydown.enter)="handleMatSelectEnter(groupSelect, 'groupId')"
+    (selectionChange)="focusNext(groupSelect)">
+
+    <mat-option *ngFor="let g of listOfGorupMaster"
+                [value]="g.groupId">
+      {{ g.groupName }}
+    </mat-option>
+
+  </mat-select>
+</mat-form-field> -->
+<mat-form-field appearance="outline" class="w-100 city-field" style="margin-top: -7px;" >
+<mat-select
+    #groupSelect
+    formControlName="groupId"
+    (openedChange)="onOpened('group', $event)"
+     (closed)="onGroupClosed(groupSelect)">
+
+  <mat-option>
+    <ngx-mat-select-search
+     #groupSelect
+      [formControl]="searchCtrl"
+      placeholderLabel="Search Group"
+      noEntriesFoundLabel="No matching group"
+      >
+       
+    </ngx-mat-select-search>
+  </mat-option>
+
+ <mat-option *ngFor="let g of filteredLists['group']"
+            [value]="g.groupId">
+
+  <!-- <ng-container *ngIf="getHighlightedParts(g.groupName) as p">
+    {{ p.before }}
+    <span class="highlight-search">{{ p.match }}</span>
+    {{ p.after }}
+  </ng-container> -->
+  <ng-container *ngIf="getHighlightedParts(g.groupName) as p">
+  {{ p.before }}
+  <span class="highlight-search">{{ p.match }}</span>
+  {{ p.after }}
+</ng-container>
+ 
+
+</mat-option>
+
+</mat-select>  
+</mat-form-field>        
+<small class="text-danger"
+            *ngIf="addEditForm.get('groupId')?.invalid && (submit || addEditForm.get('groupId')?.touched)">
+            Group Name is required
+          </small>
+        </div>
+        <div class="col-sm-3" style="margin-top: -20px;">
+  <label class="form-label">Use In Gst/Vat Return</label>
+
+  <div class="card" style="margin-top: -7px;">
+    <div class="row mt-2">
+
+      <div class="col-6">
+        <div class="form-check">
+          <input
+            type="radio"
+            class="form-check-input "
+            [value]="true"
+            formControlName="gstVatReturn"
+            style="margin-left: 2px;">
+          <label class="form-check-label" style="margin-left: 5px;">Yes</label>
+        </div>
+      </div>
+
+      <div class="col-6">
+        <div class="form-check">
+          <input
+            type="radio"
+            class="form-check-input"
+            [value]="false"
+            formControlName="gstVatReturn"
+            (keydown)="focusOpeningBalance($event)">
+          <label class="form-check-label">No</label>
+        </div>
+      </div>
+
+    </div>
+  </div>
+        </div>  
+
+       <div class="col-sm-3" style="margin-top: -20px;">
+  <label class="form-label">GST Heading</label>
+ <mat-form-field appearance="outline" class="w-100 city-field"  style="margin-top: -7px;">
+  <mat-select
+    #gstVatMaster
+    formControlName="gstVat"
+     (keydown.enter)="handleMatSelectEnter(gstVatMaster, 'gstVat')"
+    (selectionChange)="focusNextRegd(gstVatMaster)">
+ <mat-option [value]="0">
+    Select Heading
+  </mat-option>
+    <mat-option *ngFor="let gst of listOfVATGSTData" [value]="gst.id">
+     {{ gst.className }} - {{ gst.rate }}
+    </mat-option>
+
+  </mat-select>
+</mat-form-field>
+  <!-- <select
+  #gstVatMaster
+    formControlName="gstVat"
+    
+     (selectionChange)="focusNextRegd(gstVatMaster)"
+    class="form-select" style="margin-top: -7px;">
+    
+    <option value="0">Select GST/VAT Number</option>
+    <option *ngFor="let gst of listOfVATGSTData" [value]="gst.id">
+      {{ gst.className }} - {{ gst.rate }}
+    </option>
+  </select> -->
+  <small class="text-danger"
+  *ngIf="submit && addEditForm.get('gstVat')?.invalid">
+  GST/VAT Number is required
+</small>
+      </div>
+
+        <div class="col-md-2" style="margin-top: -20px;">
+          <label class="form-label">Opening Balance</label>
+          <input #openingBalanceRefs type="number" class="form-control text-end" formControlName="opBalance" 
+          (keydown)="blockIfTypeNotSelected($event)"
+          
+  (blur)="forceTypeSelection()"
+  > 
+<small class="text-danger"
+  *ngIf="
+    
+    addEditForm.get('opBalance')?.touched &&
+    addEditForm.get('opBalance')?.errors?.['required']
+  ">
+  Opening Balance is required for Sundry group
+</small>
+
+<small class="text-danger"
+  *ngIf="
+    
+    (addEditForm.get('opBalance')?.touched || submit) &&
+    addEditForm.get('opBalance')?.errors?.['min']
+  ">
+  Opening Balance must be greater than 0
+</small>
+
+
+
+        </div>
+
+        <div class="col-md-1 " style="margin-top: -5px;">
+          <label class="form-label"> </label>
+          <select class="form-control"#openingBalanceTypeRef formControlName="openingBalanceType"(blur)="forceTypeSelection()" [class.is-invalid]="submit && addEditForm.get('openingBalanceType')?.errors">
+              <option value="" disabled>Select</option>
+            <option value="Cr">CR</option>
+            <option value="Dr">Dr</option>
+          </select>
+        </div>
+
+        <!-- Closing Balance -->
+        <div class="col-md-2" style="margin-top: -20px;">
+          <label class="form-label">Closing Balance</label>
+          <input type="number" class="form-control text-end" formControlName="clsBalance" readonly>
+        </div>
+
+        <div class="col-md-1"  style="margin-top: -5px;">
+          <label class="form-label"> </label>
+          <select class="form-control" formControlName="closingBalanceType" [class.is-invalid]="submit && addEditForm.get('closingBalanceType')?.errors" readonly>
+             <option value="" disabled>Select</option>
+            <option value="Cr">CR</option>
+            <option value="Dr">DR</option>
+          </select>
+        </div>
+
+  <div class="col-md-3"style="margin-top: -20px;">
+  <label class="form-label">Maint Bill Wise</label>
+
+  <div class="card" style="margin-top: -8px;">
+    <div class="row mt-2">
+
+      <div class="col-6">
+        <div class="form-check">
+          <input
+            type="radio"
+            class="form-check-input"
+            [value]="true"
+            formControlName="maintBillWise" style="margin-left: 4px;">
+          <label class="form-check-label" style="margin-left: 2px;">Yes</label>
+        </div>
+      </div>
+
+      <div class="col-6">
+        <div class="form-check">
+          <input
+            type="radio"
+            class="form-check-input"
+            [value]="false"
+            formControlName="maintBillWise">
+          <label class="form-check-label">No</label>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div> 
+
+    <div class="col-md-3 " style="margin-top: -20px;">
+          <label class="form-label">Agent Details*</label>
+        
+ <mat-form-field appearance="outline" class="w-100 city-field"  style="margin-top: -7px;">
+  <mat-select
+    #agentMaster
+    formControlName="agentId"
+     (keydown.enter)="handleMatSelectEnter(agentMaster, 'agentId')"
+    (selectionChange)="focusNext(agentMaster)">
+ <mat-option [value]="0" >
+    Select Agent
+  </mat-option>
+    <mat-option *ngFor="let a of listOfAgentData" [value]="a.id">
+      {{a.agentName}}
+    </mat-option>
+
+  </mat-select>
+</mat-form-field>
+
+            
+        </div>
+
+<div class="col-md-3" style="margin-top: -20px;">
+  <label class="form-label">Is TCS Compulsory</label>
+
+  <div class="card">
+    <div class="row mt-1">
+
+      <div class="col-6">
+        <div class="form-check">
+          <input
+            type="radio"
+            class="form-check-input"
+            [value]="true"
+            formControlName="isTcsCompulsary" style="margin-left: 5px;">
+          <label class="form-check-label" style="margin-left: 2px;">Yes</label>
+        </div>
+      </div>
+
+      <div class="col-6">
+        <div class="form-check">
+          <input
+            type="radio"
+            class="form-check-input"
+            [value]="false"
+            formControlName="isTcsCompulsary">
+          <label class="form-check-label">No</label>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+ 
+
+
+     
+ 
+         
+
+<div class="col-md-3" style="margin-top: -20px;">
+  <label class="form-label">Tds Applicabe</label>
+
+  <div class="card">
+    <div class="row mt-1">
+
+      <div class="col-6">
+        <div class="form-check">
+          <input
+            type="radio"
+            class="form-check-input"
+            [value]="true"
+            formControlName="tdsApplicabe"
+            style="margin-left: 5px;">
+          <label class="form-check-label">Yes</label>
+        </div>
+      </div>
+
+      <div class="col-6">
+        <div class="form-check">
+          <input
+            type="radio"
+            class="form-check-input"
+            [value]="false"
+            formControlName="tdsApplicabe">
+          <label class="form-check-label">No</label>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+          <div class="col-md-3" style="margin-top: -20px;">
+          <label class="form-label">Address</label>
+          <textarea class="form-control" formControlName="address"   rows="2" (keydown)="handleTitleCase($event, 'address')"></textarea>
+         
+        </div>
+
+       <div class="col-md-3" style="margin-top: -20px;">
+  <label class="form-label">City *</label>
+
+ <mat-form-field appearance="outline" class="w-100 city-field"  style="margin-top: -7px;">
+  <!-- <mat-select
+    #city
+    formControlName="cityId"
+    (keydown.enter)="handleMatSelectEnter(city, 'cityId')"
+    (selectionChange)="focusNext(city)">
+ <mat-option [value]="0">
+    Select CITY
+  </mat-option>
+    <mat-option *ngFor="let c of listOfCity" [value]="c.cityId">
+      {{ c.cityName }} ({{ c.stateName }}) ({{ c.stateCode }})
+    </mat-option>
+
+  </mat-select> -->
+
+ 
+<mat-select
+   #city
+    formControlName="cityId"
+    (openedChange)="onOpened('city', $event)"
+     (closed)="onGroupClosed(city)">
+
+  <mat-option>
+    <ngx-mat-select-search
+     #groupSelect
+      [formControl]="searchCtrl"
+      placeholderLabel="Search Group"
+      noEntriesFoundLabel="No matching group"
+      >
+       
+    </ngx-mat-select-search>
+  </mat-option>
+ <mat-option *ngIf="!searchCtrl.value" [value]="0" [value]="0">
+    Select CITY
+  </mat-option>
+  <!-- <mat-option
+      *ngFor="let c of filteredLists['city']"
+      [value]="c.cityId">
+      
+    {{ c.cityName }} ({{ c.stateName }}) ({{ c.stateCode }})
+  </mat-option> -->
+  <mat-option
+    *ngFor="let c of filteredLists['city']"
+    [value]="c.cityId">
+
+ <ng-container *ngIf="getHighlightedParts(c.cityName) as p">
+  {{ p.before }}
+  <span class="highlight-search">{{ p.match }}</span>
+  {{ p.after }}
+ </ng-container>
+
+  ({{ c.stateName }}) ({{ c.stateCode }})
+
+</mat-option>
+
+</mat-select>  
+  
+</mat-form-field>
+
+  <small class="text-danger"
+         *ngIf="submit && addEditForm.get('cityId')?.errors?.['required']">
+    City is required for Sundry accounts
+  </small>
+</div>
+
+         <!-- <div class="col-sm-3" style="margin-top: -15px;">
+          <label class="form-label">State *</label>
+          <select class="form-control" formControlName="state">
+           
+             <option  value="0"  selected="">Select State</option>
+            <option *ngFor="let c of listOfCity" [value]="c.cityId">
+              {{ c.cityName }}
+            </option>
+          </select>
+        </div> -->
+         <div class="col-md-3" style="margin-top: -20px;">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control" formControlName="email">
+        </div>
+
+      
+        <div class="col-md-3" style="margin-top: -20px;">
+          <label class="form-label">Phone</label>
+          <input type="text" class="form-control" formControlName="phone">
+        </div>
+
+      
+        <div class="col-md-3" style="margin-top: -20px;">
+          <label class="form-label">ZIP Code</label>
+          <input type="text" class="form-control" formControlName="zipCode">
+        </div>
+
+     
+        <div class="col-md-3" style="margin-top: -20px;">
+          <label class="form-label">GST No</label>
+          <input type="text" class="form-control" formControlName="gst">
+        </div>
+
+        <!-- PAN -->
+        <div class="col-md-3" style="margin-top: -20px;">
+          <label class="form-label">PAN</label>
+          <input type="text" class="form-control" formControlName="pan" (keydown)="handleTitleCase($event, 'pan')">
+        </div>
+
+        <!-- Aadhaar -->
+        <div class="col-sm-3" style="margin-top: -20px;">
+          <label class="form-label">Aadhaar</label>
+          <input type="text" class="form-control" formControlName="adharNo">
+        </div>
+
+         <div class="col-sm-3" style="margin-top: -20px;">
+          <label class="form-label">Contact Name</label>
+          <input type="text" class="form-control" formControlName="adharNo">
+        </div>
+
+          <div class="col-sm-3" style="margin-top: -20px;">
+          <label class="form-label">Contact No</label>
+          <input type="text" class="form-control" formControlName="adharNo">
+        </div>
+
+      
+         
+          
+           <div class="col-sm-3" style="margin-top: -20px;">
+          <label class="form-label">Tan No</label>
+          <input type="text" class="form-control text-end" formControlName="tanNo">
+        </div>
+
+       <div class="col-sm-3" style="margin-top: -20px;">
+  <label class="form-label">Regd.Type</label>
+
+   <mat-form-field appearance="outline" class="w-100 city-field"  style="margin-top: -7px;">
+  <mat-select
+    #registerType
+    formControlName="registrationTypeId"
+    (keydown.enter)="handleMatSelectEnter(registerType, 'registrationTypeId')"
+    (selectionChange)="focusNextRegd(registerType)">
+ <mat-option [value]="0">
+    Select Regd.Typ
+  </mat-option>
+    <mat-option *ngFor="let re of listOfRegisterTyeData" [value]="re.id">
+       {{re.registerType}}
+    </mat-option>
+
+  </mat-select>
+</mat-form-field>
+
+
+</div>
+
+
+
+
+
+        <div class="col-sm-3" style="margin-top: -20px;">
+            <label class="form-label">Tcs Limit</label>
+            <input type="text" formcontrolname="tcsLimit" class="form-control ">
+        </div>
+
+        <div class="col-sm-3" style="margin-top: -20px;">
+            <label class="form-label">Bank Details(Bank Name) </label>
+            <input type="text" formcontrolname="bankName" class="form-control">
+        </div>
+
+        <div class="col-sm-3" style="margin-top: -20px;">
+            <label class="form-label">IFSC Code</label>
+            <input type="text" formcontrolname="ifscCode" class="form-control">
+        </div>
+        
+      
+<div class="col-sm-3" style="margin-top: -20px;">
+    <label class="form-label">Credit Day</label>
+    <input type="text" formcontrolname="creditDay" class="form-control">
+</div>
+
+  <div class="col-sm-3" style="margin-top: -20px;">
+  <label class="form-label">Is It Transport</label>
+
+  <div class="card" style="margin-top: -8px;">
+    <div class="row mt-2">
+
+      <div class="col-6">
+        <div class="form-check">
+          <input
+            type="radio"
+            class="form-check-input ml-2"
+            [value]="true"
+            formControlName="isItTransport" style="margin-left: 5px;">
+          <label class="form-check-label" style="margin-left: 2px;">Yes</label>
+        </div>
+      </div>
+
+      <div class="col-6">
+        <div class="form-check">
+          <input
+            type="radio"
+            class="form-check-input"
+            [value]="false"
+            formControlName="isItTransport">
+          <label class="form-check-label">No</label>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+        <!-- Transport -->
+     
+
+        <div class="col-sm-3" style="margin-top: -20px;">
+          <label class="form-label">Transport Mode</label>
+           <mat-form-field appearance="outline" class="w-100 city-field" style="margin-top: -7px;">
+
+    <mat-select #transportMode
+      formControlName="transportMode"
+        (keydown)="onTransportModeKeyTransperDown($event, transportMode)"
+       (selectionChange)="focusNextRegd(transportMode)">
+ <mat-option value="null">
+    Select Transport
+  </mat-option>
+      <mat-option value="By Road">
+        By Road
+      </mat-option>
+
+      <mat-option value="By Train">
+        By Train
+      </mat-option>
+      <mat-option value="By Air">
+        By Air
+      </mat-option>
+       <mat-option value="By Ship">
+        By Ship
+      </mat-option>
+
+    </mat-select>
+
+  </mat-form-field>
+          
+           
+        </div>
+
+
+           <div class="col-sm-3" style="margin-top: -20px;">
+          <label class="form-label">Transport Name*</label>
+
+
+           <mat-form-field appearance="outline" class="w-100 city-field"  style="margin-top: -7px;">
+  <mat-select
+    #transportMaster
+    formControlName="transportId"
+    (keydown.enter)="handleMatSelectEnter(transportMaster, 'transportId')"
+    (selectionChange)="focusNextRegd(transportMaster)">
+<mat-option value="0">
+    Select Transport
+  </mat-option>
+    <mat-option *ngFor="let a of listOfTransport" [value]="a.transportId">
+       {{a.name}}
+    </mat-option>
+
+  </mat-select>
+</mat-form-field>
+        
+
+             <!-- <select class="form-control" #transportMaster formControlName="transportId">
+           
+              <option  value="0"  selected="">Select Transport</option>
+            
+            <option *ngFor="let a of listOfTransport" [value]="a.transportId">
+              {{a.name}}
+            </option>
+          </select> -->
+        </div>
+
+        <div class="col-sm-3" style="margin-top: -20px;">
+          <label class="form-label">Transport Rate</label>
+          <input type="number" class="form-control text-end" formControlName="transportRate">
+        </div>
+
+        <div class="col-sm-3" style="margin-top: -20px;">
+            <label class="form-label">E-Com No</label>
+            <input type="text" formcontrolname="eComNo" class="form-control">
+        </div>
+        <div class="col-sm-3" style="margin-top: -20px;"><label class="form-label">Exp.HSN Code</label>
+            <input type="text" formcontrolname="expHsnCode" class="form-control">
+        </div>
+        <div class="col-sm-3" style="margin-top: -20px;"><label class="form-label">CIN No</label>
+            <input type="text" formcontrolname="cinNo" class="form-control">
+        </div>
+        <div class="col-sm-3" style="margin-top: -20px;"><label class="form-label">IE Code No</label>
+            <input type="text" formcontrolname="ieCodeNo" class="form-control">
+        </div>
+        <div class="col-sm-3" style="margin-top: -20px;"><label class="form-label">Credit Limit</label>
+            <input type="text" formcontrolname="creditLimit" class="form-control">
+        </div>
+        <div class="col-sm-3" style="margin-top: -20px;"><label class="form-label">Intt.Rate</label>
+            <input type="text" formcontrolname="inttRate" class="form-control">
+        </div>
+        <div class="col-sm-3" style="margin-top: -20px;">
+            <label class="form-label">Bassic Limit1</label>
+            <input type="text" formcontrolname="basicLimit" class="form-control ">
+        </div>
+
+        <div class="col-sm-3" style="margin-top: -20px;">
+            <label class="form-label">Tax Form Name</label>
+            <input type="text" formcontrolname="taxFormName" class="form-control">
+        </div>
+      
+        <div class="col-sm-3" style="margin-top: -20px;">
+            <label class="form-label">Trade Type</label>
+            <input type="text" formcontrolname="tradeType" class="form-control">
+        </div>
+
+          <div class="col-sm-3" style="margin-top: -20px;">
+            <label class="form-label">Comment</label>
+       
+          <textarea class="form-control" formControlName="comments" rows="1" (keydown)="handleTitleCase($event, 'address')"></textarea>
+        </div>
+
+      
+
+       
+
+      </div>
+
+    </form>
+
+  </mat-dialog-content>
+
+  <!-- Actions -->
+  <mat-dialog-actions align="end">
+    <button class="btn btn-primary btn-sm" (click)="onSubmit()">
+      {{ isEditMode ? 'Update Account Master' : 'Add Account Master' }}
+    </button>
+
+    <button class="btn btn-danger btn-sm"  mat-dialog-close>
+      EXIT
+    </button>
+  </mat-dialog-actions>
+</div>

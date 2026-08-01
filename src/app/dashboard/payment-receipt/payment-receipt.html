@@ -1,0 +1,158 @@
+<div class="container-fluid">
+
+  <div class="row mb-3 align-items-center">
+    <div class="col-md-6">
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Search by Al Name..."
+        [(ngModel)]="searchText"
+        (input)="applyFilter()"
+        (keydown.enter)="openSelectedAccount()"
+      />
+    </div>
+
+
+
+
+    <div class="col-md-6 text-end">
+ 
+     
+
+        
+<button type="button" class="btn btn-primary btn-m btn-block"(click)="addEditData($event)"> + Payment Receipt  MASTER</button>
+ 
+
+
+      
+
+    </div>
+  </div>
+
+    <div class="mb-3">
+    <button
+      *ngFor="let letter of alphabets"
+      class="btn btn-outline-primary btn-sm me-1 mb-1"
+      (click)="filterByAlphabet(letter)">
+      {{ letter }}
+    </button>
+
+    <button class="btn btn-outline-secondary btn-sm ms-2" (click)="resetFilter()">
+      Reset
+    </button>
+  </div>
+  <div class="table-scroll">
+ <div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle">
+
+      <thead class="table-dark">
+        <tr>
+           
+          <th style="width:50px"></th>
+          <th>Receipt </th>
+           <th>VoucherNo</th>
+          <th>Account Name</th>
+          <th>Party  Name</th>
+         
+          <th>Day Name </th>
+         
+          
+          <th></th>
+           <th></th>
+          
+          
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <ng-container *ngFor="let row of listOfData; let i = index" >
+
+          
+          <!-- Parent Row -->
+          <tr  [class.table-primary]="i === selectedRowIndex">
+             
+            <td class="text-center">
+              <button
+                class="btn btn-sm btn-light"
+                (click)="row.expanded = !row.expanded">
+                <i class="bi" [ngClass]="row.expanded ? 'bi-dash' : 'bi-plus'"></i>
+              </button>
+            </td>
+            <td>{{row.ReceiptDate }}</td>
+             <td>{{ row.VoucherNo  }}</td>
+            <td>{{row.AccountNameText}}</td>
+             <td>
+<ng-container *ngFor="let d of row.Details; let i = index">
+    {{ d.AccountNameText }}<span *ngIf="i < row.Details.length - 1">, </span>
+  </ng-container>
+             </td>  
+
+            
+
+            <td >{{ row.DayName  }}</td>
+          
+           
+           
+              <td  style="text-align: right;">
+              {{ row.Total | number:'1.2-2' }}
+            </td>
+
+            
+
+            <td>
+              <button
+                class="btn btn-sm btn-outline-primary me-1"
+                (click)="addEditData(row)">
+                <i class="bi bi-pencil"></i>
+              </button>
+
+              <button
+                class="btn btn-sm btn-outline-danger"
+                (click)="deleteData(row)">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+
+          <!-- Expanded Details -->
+          <tr *ngIf="row.expanded">
+            <td colspan="8" class="bg-light">
+
+              <table class="table table-sm table-bordered mb-0">
+                <thead class="table-secondary">
+                  <tr>
+                    <th>Name</th>
+                    <th class="text-end">station</th>
+                    <th class="text-end">Narration</th>
+                    <th class="text-end">Amount</th>
+                    <th class="text-end"></th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr *ngFor="let d of row.details">
+                    <td>{{ d.Name }}</td>
+                    <td class="text-end">{{ d.station }}</td>
+                    <td class="text-end">{{ d.Narration }}</td>
+                    <td class="text-end fw-semibold">
+                      {{ d.Amount | number:'1.2-2' }}
+                    </td>
+                    <td >{{ d.CrOrDr }}</td>
+                  </tr>
+                </tbody>
+              </table>
+
+            </td>
+          </tr>
+
+        </ng-container>
+
+      </tbody>
+
+    </table>
+  </div>
+  </div>
+ 
+
+</div>

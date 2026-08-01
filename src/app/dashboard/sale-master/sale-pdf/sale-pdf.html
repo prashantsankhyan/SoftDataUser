@@ -1,0 +1,355 @@
+
+<div class="container-fluid">
+  
+
+
+
+ 
+</div>
+<div class="scroll">
+
+<div class="page " id="print-section" style="background-color: white;">
+
+    <!-- ORIGINAL COPY -->
+    <div class="invoice">
+        <div class="center title">TAX INVOICE</div>
+        <div class="copy-title">Original for Buyer</div>
+         <div class="copy-title">{{screenConfig?.whatWeDoInSale}}</div>
+
+        <table class="no-border" >
+            <tr>
+                <td class="left">
+                    <div class="company">{{header.companyName}}</div>
+                
+                    ({{header.stateCode}}-{{header.stateName}})
+                    
+                </td>
+                <td class="right">
+                    <b>Invoice No:</b> {{header.invoiceNo}}<br>
+                    <b>Date:</b>{{header.invoiceDate|date :'dd/MM/yyyy'}}
+                </td>
+            </tr>
+        </table>
+
+        <!-- Party & Transport -->
+        <table class="no-border"> 
+            <tr>
+                <td width="60%" style="border-top: 1px solid black;">
+                    <b>Bill To:</b><br>
+                    {{header.shipToName}}<br>
+                    ADD1<br>
+                    {{header.cityName}}<br>
+                    STATE:  ({{header.stateCode}}-{{header.stateName}})<br>
+                    Phone:  {{header.companyPhone}}
+                </td>
+                <td width="60%" style="border-top: 1px solid black;border-left: 1px solid black;">
+                    <b>Order No:</b>{{header.orderNo}}<br>
+                    <b>GR/RR No:</b>{{header.grNo}}<br>
+                    <b>Transport:</b>{{header.transportName}}<br>
+                    <b>Vehicle:</b><br>
+                    <b>Due Date:</b> {{header.shippingBillNo}}
+                </td>
+            </tr>
+        </table>
+
+        <!-- Item Table -->
+        <table class="no-line-table" >
+            <thead>
+              <tr  >
+    <th rowspan="2" style="border-left: 1px solid white;border-right: 1px solid white;">Sr.</th>
+    <th rowspan="2"class="text-center">Description</th>
+     <th rowspan="2"class="text-center"*ngIf="showBarcode" >barcode</th>
+    
+     <th rowspan="2" *ngIf="showRemarks">Remakrs</th>
+     <th rowspan="2" *ngIf="showHsn" class="text-center">HSN</th>
+    <th rowspan="2" *ngIf="showColor" class="text-center">Color</th>
+     <th rowspan="2" *ngIf="showArt" class="text-center">artNo</th>
+     <th rowspan="2" *ngIf="showPack1" class="text-center">pack1</th>
+     <th rowspan="2" *ngIf="showPack2" class="text-center">pack2</th>
+     
+     
+    <th rowspan="2"  class="text-center">Qty</th>
+    <th rowspan="2"class="text-center">Rate</th>
+    
+    
+    <th rowspan="2" *ngIf="showDiscPer" class="text-center">Disc%</th>
+    
+    <th colspan="3" style="text-align: center;">Rate of GST (%)</th>
+    <th rowspan="2"class="text-center">Amount</th>
+</tr>
+<tr>
+    <th>IGST%</th>
+    <th>CGST%</th>
+    <th>SGST%</th>
+</tr>
+            </thead>
+            <tbody>
+                <tr *ngFor ="let data of details;let i = index">
+                    <td style="border-left: 1px solid white;">{{ i + 1 }}</td>
+                    <td style="text-align: center;">{{data.itemName}}</td>
+                     <td *ngIf="showBarcode">{{data.barcode}}</td>
+                    <td *ngIf="showRemarks">{{data.remarks}}</td>
+                    <td *ngIf="showHsn">{{data.hsn}}</td>
+                    <td *ngIf="showColor">{{data.color}}</td>
+                    <td *ngIf="showArt">{{data.artNo}}</td>
+                    <td *ngIf="showPack1">{{data.pack1}}</td>
+                    <td *ngIf="showPack2">{{data.pack2}}</td>
+
+                    
+                    
+                   
+                   <td class="text-end">{{ data.qty | number:'1.3-3' }}</td>
+<td class="text-end">{{ data.rate | number:'1.2-2' }}</td>
+<td class="text-end" *ngIf="showDiscPer">{{ data.discPer | number:'1.2-2' }}</td>
+<td class="text-end">
+  {{ getFirstGstRate(data) | number:'1.2-2' }}
+</td>
+<td class="text-end">
+  {{ getCentralRate(data) | number:'1.2-2' }}
+</td>
+<td class="text-end">
+  {{ getLocalRate(data) | number:'1.2-2' }}
+</td>
+<td class="text-end">{{ data.rowTotal | number:'1.2-2' }}</td>
+                    
+                </tr>
+                <!-- <tr>
+    <td colspan="4"style="text-align: right;border-top: 1px solid black;border-left: 1px solid white;">
+      {{ totalQty | number:'1.3-3' }}
+    </td>
+
+   
+
+    <td  colspan="6" style="text-align: right;border-top: 1px solid black ;">
+    <strong>Total </strong> = {{ totalRowAmount | number:'1.3-3' }}
+    </td>
+  </tr> -->
+  <tr>
+  <td
+    [attr.colspan]="leftColspan"
+    style="text-align:right;border-top:1px solid black;border-left:1px solid white;">
+    {{ totalQty | number:'1.3-3' }}
+  </td>
+
+  <td
+    [attr.colspan]="rightColspan"
+    style="text-align:right;border-top:1px solid black;">
+    <strong>Total</strong> = {{ totalRowAmount | number:'1.3-3' }}
+  </td>
+</tr>
+              
+            </tbody>
+        </table>
+
+        <!-- Totals -->
+        <table>
+  
+</table>
+    
+
+<div class="row g-0">
+    <div class="col-sm-9">
+<table class="no-line-table" style="border-bottom: 1px solid black;">
+
+  <!-- Top Total Row -->
+
+
+  <!-- Header Row -->
+  <tr >
+    <th style="border-left: 1px solid white;">HSN<br>Code</th>
+    <th>Taxable<br>Amount</th>
+    <th>Qty.</th>
+    <th>Tax<br>Rate %</th>
+    <th>SGST<br>Amount</th>
+    <th>CGST<br>Amount</th>
+    <th>IGST<br>Amount</th>
+  </tr>
+
+<tr *ngFor="let gst of groupedGstData" >
+  <td style="border-left: 1px solid white;">{{ gst.hsn }}</td>
+  <td class="right">{{ gst.taxableAmount | number:'1.2-2' }}</td>
+  <td class="right">{{ gst.qty | number:'1.3-3' }}</td>
+  <td class="right">{{ gst.taxRate | number:'1.2-2' }}</td>
+  <td class="right">{{ gst.sgst | number:'1.2-2' }}</td>
+  <td class="right">{{ gst.cgst | number:'1.2-2' }}</td>
+  <td class="right" >{{ gst.igst | number:'1.2-2' }}</td>
+</tr>
+</table>
+    </div>
+    <div class="col-sm-3">
+  <table >
+            <!-- <tr >
+                <td class="right" style=" border-bottom: 1px solid black;border-top: 1px solid black;border-left: 1px solid white;">Taxable Amount</td>
+                <td class="right"style=" border-bottom: 1px solid black;border-top: 1px solid black;border-right: 1px solid white;">  {{ totalRowAmount | number:'1.2-2' }}</td>
+            </tr> -->
+            <tr>
+                <td class="right" style="font-size:smaller;">Total CGST</td>
+                <td class="right"  >{{header.localGst | number:'1.2-2'}}</td>
+            </tr>
+            <tr>
+                <td class="right"style="border-left: 1px solid ;font-size:smaller;">Total SGST</td>
+                <td class="right" >{{header.centralGst | number:'1.2-2'}}</td>
+            </tr>
+             <tr>
+                <td style="height: 28px;font-size:smaller">{{header.otherChargeName}}</td>
+                <td class="right" >{{header.value| number:'1.2-2'}}</td>
+            </tr>
+             <tr>
+                <td class="right" style="height: 28px;font-size:smaller">{{header.otherCharge1Name}}</td>
+                <td class="right" >{{header.value1 | number:'1.2-2'}}</td>
+            </tr>
+             <tr>
+                <td class="right"style="height: 28px;"></td>
+                <td class="right" ></td>
+            </tr>
+             <tr>
+                <td class="right"style="height: 28px;"></td>
+                <td class="right" ></td>
+            </tr>
+             <tr>
+               
+            </tr>
+             <tr>
+               
+            </tr>
+             <tr>
+                
+            </tr>
+
+            <tr>
+                <td class="right"style=" border-bottom: 1px solid black;border-top: 1px solid black; "><b>Net Amount</b></td>
+                <td class="right terms"style=" border-bottom: 1px solid black;border-top: 1px solid black;"><b>{{header.subTotal | number:'1.2-2'}}</b></td>
+            </tr>
+        </table> 
+    </div>
+
+</div>
+
+        
+        <div class="terms">
+            <b>Amount in words:</b><br>
+           <b>{{ numberToWords(header.subTotal) }}</b>
+            <br><br>
+            <b>Terms & Conditions:</b><br>
+            {{ screenConfig?.termAndConditionSale }}
+        </div>
+
+        <div class="signature">
+            For DEMO<br>
+            Authorized Signatory
+        </div>
+    </div>
+    </div>
+</div>
+<div class="row"></div>
+
+<div class="d-flex justify-content-end mt-2  mb-2" style="margin-right: 20px;">
+   <div class="d-flex justify-content-end mt-2 mb-2 gap-2" style="margin-right:20px;">
+
+  <!-- <button class="btn btn-danger"
+    ngxPrint
+    printSectionId="print-section"
+    [useExistingCss]="true">
+    <i class="fas fa-file-pdf"></i>
+  </button> -->
+  <button
+  #printBtn
+  class="btn btn-danger"
+  ngxPrint
+  printSectionId="print-section"
+  [useExistingCss]="true">
+  <i class="fas fa-file-pdf"></i>
+</button>
+
+  <button class="btn btn-primary">
+    <i class="fas fa-print"></i>
+  </button>
+
+  <button class="btn btn-success" (click)="exportToExcel()">
+    <i class="fas fa-file-excel"></i>
+  </button>
+
+  <button class="btn btn-success">
+    <i class="fab fa-whatsapp"></i>
+  </button>
+
+  <button class="btn btn-secondary">
+    <i class="fas fa-envelope"></i>
+  </button>
+
+  <button class="btn btn-danger" (click)="closeModel()">
+    <span class="arrow">✖</span> Close
+  </button>
+
+</div>
+</div>
+<!-- TAX SUMMARY SECTION -->
+<!-- <table style="margin-top:10px;">
+    <tr>
+       
+        <td style="width:70%; vertical-align:top; padding:0;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>HSN Code</th>
+                        <th>Taxable Amount</th>
+                        <th>Qty.</th>
+                        <th>Tax Rate %</th>
+                        <th>SGST Amount</th>
+                        <th>CGST Amount</th>
+                        <th>IGST Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td></td>
+                        <td>750.00</td>
+                        <td>5.000 KGS</td>
+                        <td>2.50</td>
+                        <td>18.75</td>
+                        <td>18.75</td>
+                        <td>0.00</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>575.00</td>
+                        <td>7.000 KGS</td>
+                        <td>9.00</td>
+                        <td>51.75</td>
+                        <td>51.75</td>
+                        <td>0.00</td>
+                    </tr>
+                </tbody>
+            </table>
+        </td>
+
+      
+        <td style="width:30%; vertical-align:top; padding:0;">
+            <table>
+                <tr>
+                    <td><b>Total</b></td>
+                    <td class="right">1,325.00</td>
+                </tr>
+                <tr>
+                    <td>Total CGST</td>
+                    <td class="right">70.50</td>
+                </tr>
+                <tr>
+                    <td>Total SGST</td>
+                    <td class="right">70.50</td>
+                </tr>
+                <tr>
+                    <td style="height:40px;"></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><b>Net Amount</b></td>
+                    <td class="right"><b>1,466.00</b></td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table> -->
+
+
+

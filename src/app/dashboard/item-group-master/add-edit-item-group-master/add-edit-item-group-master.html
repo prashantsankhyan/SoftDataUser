@@ -1,0 +1,86 @@
+<div class="container-fluid">
+  
+    <form [formGroup]="addEditForm"  appEnterAsTab>
+      <mat-dialog-content>
+
+      <!--Item Group Name -->
+      <div class="mb-2">
+        <label>Item Group Name</label>
+        <input
+          type="text"
+          class="form-control"
+          formControlName="itemGroupName"
+ (keydown)="handleTitleCase($event, 'itemGroupName')"
+
+  (keydown)="checkItemGroupExists()"
+        />
+     <div class="text-danger mt-1"
+       *ngIf="addEditForm.get('itemGroupName')?.hasError('required')
+       && (addEditForm.get('itemGroupName')?.touched || submit)">
+    Item Group Name is required.
+  </div>
+  <div class="text-danger mt-1"
+       *ngIf="addEditForm.get('itemGroupName')?.hasError('duplicate')">
+    Item Group Name already exists.
+  </div>
+ 
+      </div>
+
+      <!--Under Item Group Name -->
+      <div class="mb-2">
+        <label>-Under Item Group</label>
+        
+
+ <mat-form-field appearance="outline" class="w-100 city-field"  >
+  <mat-select
+    #itemGroup
+    formControlName="itemGroup"
+     (selectionChange)="focusNext()">
+ <mat-option [value]="null">
+    Select Item Group
+  </mat-option>
+    <mat-option *ngFor="let item of listOfData" [value]="item.id">
+       {{item.itemGroupName}}
+    </mat-option>
+
+  </mat-select>
+</mat-form-field>
+        
+        <!-- <select class="form-control" formControlName="itemGroup">
+          <option value="" disabled>Select Category</option>
+          <option *ngFor="let item of listOfData" [value]="item.id">
+            {{ item.itemGroupName }}
+          </option>
+        </select> -->
+         <div class="text-danger mt-1" *ngIf="addEditForm.get('itemGroup')?.invalid && (addEditForm.get('itemGroup')?.touched || submit)">
+    item Group is required
+  </div>
+      </div>
+ </mat-dialog-content>
+     <mat-dialog-actions class="mat-mdc-dialog-actions-align-end">
+   <button
+       #saveBtn
+
+    (click)="onSubmit()"
+  class="btn btn-sm btn-primary me-2"
+ 
+  style="cursor: pointer;">
+  <i class="fas fa-check fa-sm text-white-50"></i>
+  {{ isEditMode ? 'Update Item Group' : 'Add Item Group' }}
+</button>
+
+    <button
+      
+      mat-dialog-close
+      class="btn btn-sm btn-danger" >
+      <i class="fas fa-times fa-sm text-white-50"></i> EXIT
+    </button>
+  </mat-dialog-actions>
+
+    </form>
+    
+ 
+ 
+  <!-- Dialog Actions -->
+ 
+</div>

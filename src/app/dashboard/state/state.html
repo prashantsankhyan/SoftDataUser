@@ -1,0 +1,56 @@
+<h2 mat-dialog-title>
+  {{ id ? 'Edit State' : 'Add State' }}
+</h2>
+
+<mat-dialog-content class="dialog-body">
+
+  <!-- Spinner -->
+
+
+  <form [formGroup]="addEditForm" (ngSubmit)="onSubmit()" >
+
+    <!-- State Name -->
+    <mat-form-field appearance="outline" class="w-100 mb-3">
+      <mat-label>State Name</mat-label>
+      <input matInput formControlName="state" placeholder="Enter state name">
+
+      <mat-error *ngIf="submit && f['state']?.errors?.['required']">
+        State name is required
+      </mat-error>
+    </mat-form-field>
+
+    <!-- State Code -->
+    <mat-form-field appearance="outline" class="w-100 mb-3">
+      <mat-label>State Code</mat-label>
+      <input matInput formControlName="stateCode" placeholder="Enter state code">
+
+      <mat-error *ngIf="submit && f['stateCode']?.errors?.['required']">
+        State code is required
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Success Alert -->
+    <div class="alert alert-success mt-2" *ngIf="alertMessage">
+      {{ alertMessage }}
+    </div>
+
+  </form>
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+
+  <button mat-stroked-button color="warn" (click)="closeModel()">
+    Cancel
+  </button>
+
+  <button
+    mat-raised-button
+    color="primary"
+    [disabled]="addEditForm.invalid"
+    (click)="onSubmit()"
+  >
+    {{ id ? 'Update' : 'Save' }}
+  </button>
+
+</mat-dialog-actions>
