@@ -1681,4 +1681,282 @@ openCity(data?: any) {
     this.changeLocation()
    
   }
+@HostListener('document:keydown', ['$event'])
+onArrowLeftBack(event: KeyboardEvent): void {
+
+  // =====================================================
+  // ONLY ARROW LEFT
+  // =====================================================
+
+  if (event.key !== 'ArrowLeft') {
+    return;
+  }
+
+  const active =
+    document.activeElement as HTMLElement | null;
+
+  if (!active) {
+    return;
+  }
+
+  // =====================================================
+  // IGNORE TEXTAREA WHEN CURSOR IS INSIDE TEXT
+  // =====================================================
+
+  if (active.tagName.toLowerCase() === 'textarea') {
+
+    const textarea =
+      active as HTMLTextAreaElement;
+
+    // If cursor is not at beginning,
+    // allow normal ArrowLeft movement.
+    if (
+      textarea.selectionStart !== null &&
+      textarea.selectionStart > 0
+    ) {
+      return;
+    }
+  }
+
+  // =====================================================
+  // FIND CURRENT MAT-SELECT
+  // =====================================================
+
+  const matSelect =
+    active.closest(
+      'mat-select'
+    ) as HTMLElement | null;
+
+  // =====================================================
+  // FIND CURRENT RADIO
+  // =====================================================
+
+  const radio =
+    active instanceof HTMLInputElement &&
+    active.type === 'radio'
+      ? active
+      : null;
+
+  // =====================================================
+  // CURRENT CONTROL
+  // =====================================================
+
+  let current: HTMLElement | null =
+    matSelect || radio || active;
+
+  // =====================================================
+  // FIND FORM
+  // =====================================================
+
+  const form =
+    current.closest('form') as HTMLFormElement | null;
+
+  if (!form) {
+    return;
+  }
+
+  // =====================================================
+  // GET ALL FORM CONTROLS
+  // =====================================================
+
+  const allControls =
+    Array.from(
+      form.querySelectorAll(
+        'input:not([type="hidden"]):not([disabled]):not([readonly]), ' +
+        'textarea:not([disabled]):not([readonly]), ' +
+        'select:not([disabled]):not([readonly]), ' +
+        'button:not([disabled]), ' +
+        'mat-select'
+      )
+    ) as HTMLElement[];
+
+  // =====================================================
+  // BUILD NAVIGATION LIST
+  // =====================================================
+
+  const navigation: HTMLElement[] = [];
+
+  for (const control of allControls) {
+
+    // ===================================================
+    // RADIO
+    // ===================================================
+
+    if (
+      control instanceof HTMLInputElement &&
+      control.type === 'radio'
+    ) {
+
+      const radioName =
+        control.getAttribute('name');
+
+      // If same radio group already exists,
+      // don't add another radio.
+      if (
+        radioName &&
+        navigation.some(
+          x =>
+            x instanceof HTMLInputElement &&
+            x.type === 'radio' &&
+            x.getAttribute('name') === radioName
+        )
+      ) {
+        continue;
+      }
+    }
+
+    navigation.push(control);
+  }
+
+  // =====================================================
+  // FIND CURRENT INDEX
+  // =====================================================
+
+  let currentIndex =
+    navigation.indexOf(current);
+
+  // =====================================================
+  // RADIO GROUP
+  // =====================================================
+
+  if (
+    currentIndex === -1 &&
+    radio
+  ) {
+
+    const radioName =
+      radio.getAttribute('name');
+
+    if (radioName) {
+
+      currentIndex =
+        navigation.findIndex(
+          control =>
+            control instanceof HTMLInputElement &&
+            control.type === 'radio' &&
+            control.getAttribute('name') === radioName
+        );
+    }
+  }
+
+  // =====================================================
+  // MAT SELECT
+  // =====================================================
+
+  if (
+    currentIndex === -1 &&
+    matSelect
+  ) {
+
+    currentIndex =
+      navigation.indexOf(matSelect);
+  }
+
+  if (currentIndex === -1) {
+    return;
+  }
+
+  // =====================================================
+  // PREVIOUS CONTROL
+  // =====================================================
+
+  const previous =
+    navigation[currentIndex - 1];
+
+  if (!previous) {
+    return;
+  }
+
+  // =====================================================
+  // STOP EVERYTHING
+  // IMPORTANT FOR RADIO + MAT-SELECT
+  // =====================================================
+
+  event.preventDefault();
+  event.stopPropagation();
+  event.stopImmediatePropagation();
+
+  // =====================================================
+  // MOVE BACK
+  // =====================================================
+
+  setTimeout(() => {
+
+    // ===================================================
+    // IF CURRENT IS MAT-SELECT
+    // ===================================================
+
+    if (matSelect) {
+
+      /*
+       * DO NOT change selected value.
+       * DO NOT call setValue().
+       * DO NOT call selectionChange().
+       *
+       * Just remove focus and move backward.
+       */
+
+      (document.activeElement as HTMLElement | null)
+        ?.blur();
+
+      previous.focus();
+
+      return;
+    }
+
+    // ===================================================
+    // IF CURRENT IS RADIO
+    // ===================================================
+
+    if (radio) {
+
+      /*
+       * IMPORTANT:
+       * Do not click or change radio.
+       * Only move focus.
+       */
+
+      radio.blur();
+
+      previous.focus();
+
+      return;
+    }
+
+    // ===================================================
+    // NORMAL CONTROL
+    // ===================================================
+
+    previous.focus();
+
+    // ===================================================
+    // PUT CURSOR AT END
+    // ===================================================
+
+    if (
+      previous instanceof HTMLInputElement &&
+      (
+        previous.type === 'text' ||
+        previous.type === 'email' ||
+        previous.type === 'number'
+      )
+    ) {
+
+      try {
+
+        const length =
+          previous.value?.length || 0;
+
+        previous.setSelectionRange(
+          length,
+          length
+        );
+
+      } catch {
+        // Ignore
+      }
+    }
+
+  }, 0);
+}
 }

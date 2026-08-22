@@ -1,0 +1,25 @@
+<h2 mat-dialog-title>{{ data.title }}</h2>
+
+<mat-dialog-content>
+  {{ data.message }}
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button
+    #cancelBtn
+    mat-button
+    (click)="onCancel()"
+    (keydown.arrowright)="deleteBtn.focus()">
+    Cancel
+  </button>
+
+  <button
+    #deleteBtn
+    mat-raised-button
+    color="warn"
+    cdkFocusInitial
+    (click)="onConfirm()"
+    (keydown.arrowleft)="cancelBtn.focus()">
+    Delete
+  </button>
+</mat-dialog-actions>

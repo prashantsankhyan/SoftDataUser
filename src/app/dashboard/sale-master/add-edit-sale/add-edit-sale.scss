@@ -365,3 +365,90 @@ input[type="number"] {
   text-align: center;
   box-shadow: 0 4px 20px rgba(0,0,0,.3);
 }
+
+#pdfButton:focus {
+  background-color: green;
+  border-color: green;
+  color: #fff;
+  outline: none;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+
+/* Make item dropdown wider */
+.item-dropdown-panel {
+  min-width: 450px !important;
+  width: 450px !important;
+  max-width: 90vw !important;
+}
+
+/* Make the overlay itself wider */
+.cdk-overlay-pane:has(.item-dropdown-panel) {
+  width: 450px !important;
+  max-width: 90vw !important;
+}
+
+.item-full-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+
+  padding: 0 8px;
+  gap: 6px;
+
+  box-sizing: border-box;
+}
+
+.item-name {
+  flex: 1 1 auto;
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+
+  font-size: 14px;
+  font-weight: 500;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item-icon {
+  flex: 0 0 auto;
+  font-size: 12px;
+  margin-right: 4px;
+}
+
+.item-unit {
+  flex: 0 0 auto;
+
+  display: flex;
+  align-items: center;
+
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.unit-icon {
+  font-size: 10px;
+  margin-right: 2px;
+}
+
+.item-rate {
+  flex: 0 0 auto;
+
+  display: flex;
+  align-items: center;
+
+  white-space: nowrap;
+
+  font-size: 12px;
+  font-weight: 600;
+  color: #198754;
+}
+
+.rate-icon {
+  font-size: 10px;
+  margin-right: 2px;
+}

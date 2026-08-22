@@ -22,6 +22,7 @@ import { SalePdf } from '../sale-pdf/sale-pdf';
 import { MatSelect } from '@angular/material/select';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { ConfirmItemDelete } from '../confirm-item-delete/confirm-item-delete';
 
 @Component({
   selector: 'app-add-edit-sale',
@@ -157,6 +158,8 @@ focusNextRegd(select: MatSelect) {
 }
   @ViewChild(MatAutocompleteTrigger)
 autocomplete!: MatAutocompleteTrigger;
+@ViewChildren(MatSelect)
+matSelects!: QueryList<MatSelect>;
 @ViewChildren('itemSelect') itemSelects!: QueryList<ElementRef>;
  @ViewChild('accountSelect') accountSelect!: MatSelect;
  
@@ -179,6 +182,10 @@ value1Input!: ElementRef<HTMLInputElement>;
 @ViewChild('otherChargeSelect1') otherChargeSelect1!: MatSelect;
 @ViewChild('addNewButton')
 addNewButton!: ElementRef<HTMLButtonElement>;
+@ViewChild('invoiceDateInput')
+invoiceDateInput!: ElementRef<HTMLInputElement>;
+@ViewChildren('taxSelect')
+taxSelects!: QueryList<MatSelect>;
  isSaving = false;
  showSpiner = true;
   submit = false ;
@@ -228,6 +235,9 @@ taxSearchCtrls: { [key: number]: FormControl } = {};
 filteredTaxes: { [key: number]: any[] } = {};
 currentRow = -1;
 showAddNewOption = false;
+
+private itemArrowLeftBack = false;
+private itemEnterNavigation = false;
   constructor(@Inject(MAT_DIALOG_DATA) public data:any,private fb: FormBuilder,private titleCase: TitleCasePipe ,private http:AllApiService,private cRouter:ActivatedRoute,
   private router: Router,private ngZone: NgZone,public dialog: MatDialog,
   private snackBar: MatSnackBar,
@@ -374,16 +384,48 @@ break;
 }
 
 
-onItemClosed(select: MatSelect, index: number) {
+onItemClosed(select: MatSelect, index: number): void {
 
-  const value = this.saleInvoiceDetails.at(index).get('itemId')?.value;
+  // =====================================================
+  // ARROW LEFT -> BACK
+  // =====================================================
+
+  if (this.itemArrowLeftBack) {
+
+    this.itemArrowLeftBack = false;
+
+    return;
+  }
+
+  // =====================================================
+  // ENTER ALREADY HANDLED
+  // DON'T MOVE FORWARD AGAIN
+  // =====================================================
+
+  if (this.itemEnterNavigation) {
+
+    this.itemEnterNavigation = false;
+
+    return;
+  }
+
+  // =====================================================
+  // NORMAL CLOSE
+  // =====================================================
+
+  const value =
+    this.saleInvoiceDetails
+      .at(index)
+      .get('itemId')
+      ?.value;
 
   if (value && value != 0) {
 
     setTimeout(() => {
-      this.focusNextRegd(select);
-    }, 100);
 
+      this.focusNextRegd(select);
+
+    }, 100);
   }
 }
 
@@ -417,7 +459,50 @@ onDropdownClosed(select: MatSelect, controlName: string) {
 //   }
 // }
 
+// onPartyKeyDown(event: KeyboardEvent) {
+//   const accountId = this.addEditForm.get('accountId')?.value;
+
+//   if (
+//     (event.key === 'Enter' || event.key === 'Tab') &&
+//     (!accountId || accountId == 0)
+//   ) {
+//     event.preventDefault();
+//     event.stopPropagation();
+
+//     this.addEditForm.get('accountId')?.markAsTouched();
+
+//     this.snackBar.open('Please select Party Name', 'Close', {
+//       duration: 2000
+//     });
+
+//     // setTimeout(() => {
+//     //   this.accountSelect.focus();
+//     //   this.accountSelect.open(); // optional
+//     // });
+//          setTimeout(() => {
+//     this.focusNextRegd(this.accountSelect);
+//   }, 200);
+
+//     return;
+//   }
+// }
 onPartyKeyDown(event: KeyboardEvent) {
+
+  // LEFT ARROW → Invoice Date
+  if (event.key === 'ArrowLeft') {
+    event.preventDefault();
+    event.stopPropagation();
+
+    this.accountSelect.close();
+
+    setTimeout(() => {
+      this.invoiceDateInput?.nativeElement.focus();
+    }, 100);
+
+    return;
+  }
+
+  // EXISTING ENTER / TAB
   const accountId = this.addEditForm.get('accountId')?.value;
 
   if (
@@ -433,16 +518,50 @@ onPartyKeyDown(event: KeyboardEvent) {
       duration: 2000
     });
 
-    // setTimeout(() => {
-    //   this.accountSelect.focus();
-    //   this.accountSelect.open(); // optional
-    // });
-         setTimeout(() => {
-    this.focusNextRegd(this.accountSelect);
-  }, 200);
+    setTimeout(() => {
+      this.focusNextRegd(this.accountSelect);
+    }, 200);
 
     return;
   }
+}
+
+onPartySearchKeyDown(event: KeyboardEvent): void {
+
+  if (event.key !== 'ArrowLeft') {
+    return;
+  }
+
+  event.preventDefault();
+  event.stopPropagation();
+
+  // Close Party dropdown
+  this.accountSelect.close();
+
+  // Go to Invoice Date
+  setTimeout(() => {
+    this.invoiceDateInput?.nativeElement.focus();
+
+    const input = this.invoiceDateInput?.nativeElement;
+
+    if (input) {
+      const length = input.value?.length || 0;
+      input.setSelectionRange(length, length);
+    }
+  }, 100);
+}
+onShipToKeyDown(event: KeyboardEvent): void {
+
+  if (event.key !== 'ArrowLeft') {
+    return;
+  }
+
+  event.preventDefault();
+  event.stopPropagation();
+
+  setTimeout(() => {
+    this.accountSelect.focus();
+  }, 0);
 }
 
 onTaxClosed(select: MatSelect, index: number) {
@@ -624,20 +743,46 @@ if (isTransportFocused) {
 
   
 
+onItemSearchKeyDown(event: KeyboardEvent): void {
 
+  if (event.key !== 'ArrowLeft') {
+    return;
+  }
 
+  event.preventDefault();
+  event.stopImmediatePropagation();
+  event.stopPropagation();
 
-onItemKeyDown(event: KeyboardEvent, index: number): void {
-  const itemControl = this.saleInvoiceDetails.at(index).get('itemId');
+  const searchInput = event.target as HTMLElement;
+
+  // Mark this as BACK navigation
+  this.itemArrowLeftBack = true;
+
+  this.onLeftArrowBack(event, searchInput);
+}
+
+onItemKeyDown(
+  event: KeyboardEvent,
+  index: number,
+  itemSelect: MatSelect
+): void {
+
+  const itemControl =
+    this.saleInvoiceDetails.at(index).get('itemId');
 
   if (!itemControl) {
     return;
   }
 
+  // =====================================================
+  // ENTER / TAB -> VALIDATION
+  // =====================================================
+
   if (
     (event.key === 'Enter' || event.key === 'Tab') &&
     (!itemControl.value || itemControl.value == 0)
   ) {
+
     event.preventDefault();
     event.stopPropagation();
     event.stopImmediatePropagation();
@@ -649,17 +794,269 @@ onItemKeyDown(event: KeyboardEvent, index: number): void {
       required: true
     });
 
-    this.snackBar.open('Please select Item', 'Close', {
-      duration: 2000
-    });
+    this.snackBar.open(
+      'Please select Item',
+      'Close',
+      {
+        duration: 2000
+      }
+    );
 
     setTimeout(() => {
-      this.itemSelects.toArray()[index]?.nativeElement.focus();
-    });
+
+      const itemArray =
+        this.itemSelects?.toArray();
+
+      const itemRef =
+        itemArray?.[index];
+
+      if (itemRef?.nativeElement) {
+        itemRef.nativeElement.focus();
+      }
+
+    }, 0);
 
     return;
   }
 }
+ngAfterViewInit(): void {
+
+  document.addEventListener(
+    'keydown',
+    this.handleItemArrowLeft,
+    true
+  );
+}
+handleItemArrowLeft = (event: Event): void => {
+
+  const keyboardEvent = event as KeyboardEvent;
+
+  // =====================================================
+  // ONLY ARROW LEFT
+  // =====================================================
+
+  if (keyboardEvent.key !== 'ArrowLeft') {
+    return;
+  }
+
+  // =====================================================
+  // CURRENT ACTIVE ELEMENT
+  // =====================================================
+
+  const active =
+    document.activeElement as HTMLElement | null;
+
+  if (!active) {
+    return;
+  }
+
+
+  // =====================================================
+  // =====================================================
+  // TAX SELECT
+  // =====================================================
+  // =====================================================
+
+  let taxSelect: HTMLElement | null = null;
+
+  if (
+    active.tagName.toLowerCase() === 'mat-select' &&
+    active.getAttribute('formcontrolname') === 'taxableValueId'
+  ) {
+
+    taxSelect = active;
+
+  } else {
+
+    taxSelect =
+      active.closest(
+        'mat-select[formcontrolname="taxableValueId"]'
+      ) as HTMLElement | null;
+  }
+
+
+  // =====================================================
+  // TAX FOUND
+  // =====================================================
+
+  if (taxSelect) {
+
+    const row =
+      taxSelect.closest('tr') as HTMLElement | null;
+
+    if (!row) {
+      return;
+    }
+
+    const rows =
+      Array.from(
+        document.querySelectorAll(
+          'tbody[formArrayName="saleInvoiceDetails"] tr'
+        )
+      );
+
+    const index =
+      rows.indexOf(row);
+
+    if (index < 0) {
+      return;
+    }
+
+    console.log(
+      'ARROW LEFT -> TAX:',
+      index
+    );
+
+    // ===================================================
+    // STOP MAT-SELECT
+    // ===================================================
+
+    keyboardEvent.preventDefault();
+    keyboardEvent.stopPropagation();
+    keyboardEvent.stopImmediatePropagation();
+
+    // ===================================================
+    // GO BACK FROM TAX
+    // ===================================================
+
+    setTimeout(() => {
+
+      this.goBackFromTax(index);
+
+    }, 0);
+
+    return;
+  }
+
+
+  // =====================================================
+  // =====================================================
+  // ITEM SELECT
+  // =====================================================
+  // =====================================================
+
+  let itemSelect: HTMLElement | null = null;
+
+  if (
+    active.tagName.toLowerCase() === 'mat-select' &&
+    active.id.startsWith('itemSelect')
+  ) {
+
+    itemSelect = active;
+
+  } else {
+
+    itemSelect =
+      active.closest(
+        'mat-select[id^="itemSelect"]'
+      ) as HTMLElement | null;
+  }
+
+
+  // =====================================================
+  // NOT ITEM
+  // =====================================================
+
+  if (!itemSelect) {
+    return;
+  }
+
+
+  // =====================================================
+  // GET ITEM ROW INDEX
+  // =====================================================
+
+  const id =
+    itemSelect.getAttribute('id') || '';
+
+  const index =
+    Number(
+      id.replace('itemSelect', '')
+    );
+
+  if (isNaN(index)) {
+    return;
+  }
+
+
+  console.log(
+    'ARROW LEFT -> ITEM:',
+    index
+  );
+
+
+  // =====================================================
+  // STOP MAT-SELECT
+  // =====================================================
+
+  keyboardEvent.preventDefault();
+  keyboardEvent.stopPropagation();
+  keyboardEvent.stopImmediatePropagation();
+
+
+  // =====================================================
+  // MOVE BACK
+  // =====================================================
+
+  setTimeout(() => {
+
+    // ===================================================
+    // FIRST ROW -> SHIPPING BILL NO
+    // ===================================================
+
+    if (index === 0) {
+
+      const shippingBillNo =
+        document.getElementById(
+          'shippingBillNo'
+        ) as HTMLInputElement | null;
+
+      if (shippingBillNo) {
+
+        shippingBillNo.focus();
+
+        try {
+
+          const length =
+            shippingBillNo.value?.length || 0;
+
+          shippingBillNo.setSelectionRange(
+            length,
+            length
+          );
+
+        } catch {
+          // Ignore
+        }
+      }
+
+      return;
+    }
+
+
+    // ===================================================
+    // ROW 1+ -> PREVIOUS ROW ADD BUTTON
+    // ===================================================
+
+    const previousAddButton =
+      document.getElementById(
+        `addRowBtn${index - 1}`
+      ) as HTMLButtonElement | null;
+
+    if (previousAddButton) {
+
+      previousAddButton.focus();
+
+    } else {
+
+      console.warn(
+        'Previous add button not found:',
+        `addRowBtn${index - 1}`
+      );
+    }
+
+  }, 0);
+};
 
 onTaxDown(event: KeyboardEvent, index: number) {
   const itemControl = this.saleInvoiceDetails
@@ -2076,28 +2473,130 @@ this.taxSearchCtrls[index].valueChanges.subscribe(value => {
 
 
 
-handleAddRowKeyDown(event: KeyboardEvent, index: number) {
+handleAddRowKeyDown(
+  event: KeyboardEvent,
+  index: number
+): void {
 
-  // Shift + Enter (or Shift only if you prefer)
+  // =====================================================
+  // SHIFT
+  // =====================================================
+
   if (event.key === 'Shift') {
+
     event.preventDefault();
 
     // Focus your Value/Tax box
     this.valueInput.nativeElement.focus();
+
     return;
   }
 
-  // Normal Enter -> Add Row
+  // =====================================================
+  // ARROW LEFT
+  // Add Button -> Tax Dropdown
+  // =====================================================
+
+  // =====================================================
+// ARROW LEFT
+// Add Button -> Tax Dropdown
+// =====================================================
+
+if (event.key === 'ArrowLeft') {
+
+  event.preventDefault();
+  event.stopPropagation();
+
+  console.log(
+    'ARROW LEFT -> TAX DROPDOWN, ROW:',
+    index
+  );
+
+  // ===================================================
+  // GET TAX SELECTS
+  // ===================================================
+
+  const taxSelectList =
+    this.taxSelects.toArray();
+
+  console.log(
+    'ARROW LEFT TAX SELECT COUNT:',
+    taxSelectList.length
+  );
+
+  // ===================================================
+  // GET TAX SELECT FOR CURRENT ROW
+  // ===================================================
+
+  const taxSelect =
+    taxSelectList[index];
+
+  if (!taxSelect) {
+
+    console.log(
+      'ARROW LEFT: TAX SELECT NOT FOUND FOR ROW:',
+      index
+    );
+
+    return;
+  }
+
+  console.log(
+    'ARROW LEFT TAX SELECT:',
+    taxSelect
+  );
+
+  // ===================================================
+  // FOCUS TAX DROPDOWN
+  // ===================================================
+
+  setTimeout(() => {
+
+    taxSelect.focus();
+
+    console.log(
+      'ARROW LEFT FINAL ACTIVE:',
+      document.activeElement
+    );
+
+  }, 50);
+
+  return;
+}
+
+  // =====================================================
+  // NORMAL ENTER -> ADD ROW
+  // =====================================================
+
   if (event.key === 'Enter') {
-   
+
+    event.preventDefault();
+
     this.handleAddRow(index);
-      // Focus first control of the new row
+
+    // Focus first control of the new row
     setTimeout(() => {
-      const nextItem = document.getElementById('itemSelect' + (index + 1));
+
+      const nextItem =
+        document.getElementById(
+          'itemSelect' + (index + 1)
+        );
+
       nextItem?.focus();
+
     }, 0);
 
+    return;
   }
+}
+handleAddRowClick(index: number) {
+  this.handleAddRow(index);
+
+  // Focus first control of the new row
+  setTimeout(() => {
+    const nextItem = document.getElementById('itemSelect' + (index + 1));
+    nextItem?.focus();
+  }, 0);
 }
 handleAddRow(index: number) {
   // Only add on last row
@@ -2162,32 +2661,178 @@ onTaxKeyDown(event: KeyboardEvent, index: number) {
   });
 }
 
-removeInvoiceDetailRow(index: number) {
+// removeInvoiceDetailRow(index: number) {
 
-  // prevent removing first row
-  if (index === 0) {
+//   // prevent removing first row
+//   if (index === 0) {
+//     return;
+//   }
+
+//   // remove row
+//   this.saleInvoiceDetails.removeAt(index);
+
+//   // 🔁 Recalculate everything properly
+//   this.saleInvoiceDetails.controls.forEach((row: any) => {
+//     this.recalculateTax(row);
+//   });
+
+//   this.recalculateInvoiceTaxRates();
+//   this.recalculateSubTotal();
+// }
+onRemarksKeyDown(event: KeyboardEvent, index: number): void {
+
+  // Sirf Shift key par
+  if (!event.shiftKey || event.key !== 'Shift') {
     return;
   }
 
-  // remove row
-  this.saleInvoiceDetails.removeAt(index);
+  const remarksControl = this.saleInvoiceDetails
+    .at(index)
+    .get('remarks');
 
-  // 🔁 Recalculate everything properly
-  this.saleInvoiceDetails.controls.forEach((row: any) => {
-    this.recalculateTax(row);
-  });
+  const remarks = remarksControl?.value?.toString().trim() || '';
 
-  this.recalculateInvoiceTaxRates();
-  this.recalculateSubTotal();
+  // Remarks mein text hai → remove nahi karna
+  if (remarks.length > 0) {
+    return;
+  }
+
+  event.preventDefault();
+  this.removeRowAndFocus(index);
 }
 
+removeRowAndFocus1(index: number) {
+   
+    // Remove row
+    this.saleInvoiceDetails.removeAt(index);
 
-removeRowAndFocus(index: number) {
-  this.removeInvoiceDetailRow(index);
+    // Recalculate everything
+    this.saleInvoiceDetails.controls.forEach((row: any) => {
+      this.recalculateTax(row);
+    });
+
+    this.recalculateInvoiceTaxRates();
+    this.recalculateSubTotal();
 
   setTimeout(() => {
     this.valueInput?.nativeElement.focus();
   });
+}
+removeInvoiceDetailRow(index: number) {
+
+  // Prevent removing first row
+  if (index === 0) {
+    return;
+  }
+
+  const dialogRef = this.dialog.open(ConfirmItemDelete, {
+    width: '400px',
+    disableClose: true,
+    data: {
+      title: 'Delete Row',
+      message: 'Are you sure you want to delete this row?'
+    }
+  });
+
+  dialogRef.afterClosed().subscribe(result => {
+
+    if (!result) {
+      return;
+    }
+
+    // Remove row
+    this.saleInvoiceDetails.removeAt(index);
+
+    // Recalculate everything
+    this.saleInvoiceDetails.controls.forEach((row: any) => {
+      this.recalculateTax(row);
+    });
+
+    this.recalculateInvoiceTaxRates();
+    this.recalculateSubTotal();
+
+    setTimeout(() => {
+      this.valueInput?.nativeElement.focus();
+    });
+  });
+}
+// removeRowAndFocus(index: number) {
+
+//   const row = this.saleInvoiceDetails.at(index) as FormGroup;
+
+//   const qty = +row.get('qty')?.value || 0;
+//   const rate = +row.get('rate')?.value || 0;
+//   const rowTotal = +row.get('rowTotal')?.value || 0;
+
+//   if (qty > 0 || rate > 0 || rowTotal > 0) {
+
+//     const dialogRef = this.dialog.open(ConfirmItemDelete, {
+//       width: '400px',
+//       disableClose: true,
+//       data: {
+//         title: 'Delete Row',
+//         message: 'This row contains data. Are you sure you want to delete it?'
+//       }
+//     });
+
+//     dialogRef.afterClosed().subscribe(result => {
+
+//       if (!result) {
+//         return;
+//       }
+
+//       this.removeInvoiceDetailRow(index);
+
+//       setTimeout(() => {
+//         this.valueInput?.nativeElement.focus();
+//       });
+
+//     });
+
+//     return;
+//   }
+
+//   this.removeInvoiceDetailRow(index);
+
+//   setTimeout(() => {
+//     this.valueInput?.nativeElement.focus();
+//   });
+// }
+removeRowAndFocus(index: number) {
+
+  const row = this.saleInvoiceDetails.at(index) as FormGroup;
+
+  if (!row) {
+    return;
+  }
+
+  const qty = Number(row.get('qty')?.value ?? 0);
+  const rowTotal = Number(row.get('rowTotal')?.value ?? 0);
+
+  console.log('Qty:', qty);
+  console.log('Row Total:', rowTotal);
+
+  // Empty row -> delete directly
+  if (qty === 0 && rowTotal === 0) {
+   console.log('Deleting directly - dialog should NOT open');
+    this.removeRowAndFocus1(index);
+
+    setTimeout(() => {
+      this.valueInput?.nativeElement.focus();
+    });
+
+    return;
+  }
+
+ 
+
+   this.snackBar.open('You cannot delete this row.', 'Close', {
+      duration: 3000,
+      horizontalPosition: 'center',
+      verticalPosition: 'top'
+    });
+
+
 }
 listenRowCalculation(row: FormGroup) {
 
@@ -3043,9 +3688,37 @@ onAddNewKeyDown(event: KeyboardEvent): void {
       this.resetForm();
     }
   }
+  //if direct //
+
+//   if (event.key === 'Shift') {
+
+//   event.preventDefault();
+
+//   this.showAddNewOption = false;
+
+//   this.openPdfModel();
+
+//   return;
+// }
 
   if (event.key === 'Shift') {
+
+    event.preventDefault();
+
     this.showAddNewOption = false;
+
+    setTimeout(() => {
+
+      const pdfButton =
+        document.getElementById(
+          'pdfButton'
+        ) as HTMLButtonElement | null;
+
+      pdfButton?.focus();
+
+    }, 0);
+
+    return;
   }
 }
 switchToAddMode() {
@@ -3408,5 +4081,816 @@ openPdfModel() {
       autoPrint: true
     }
   });
+}
+
+
+@HostListener('document:keydown', ['$event'])
+onLeftArrowBack(
+  event: KeyboardEvent,
+  sourceElement?: HTMLElement
+): void {
+
+  if (event.key !== 'ArrowLeft') {
+    return;
+  }
+
+  const active =
+    sourceElement ||
+    (document.activeElement as HTMLElement | null);
+
+  if (!active) {
+    return;
+  }
+
+  // =====================================================
+  // DO NOT HANDLE TEXTAREA
+  // =====================================================
+  if (active instanceof HTMLTextAreaElement) {
+    return;
+  }
+
+  // =====================================================
+  // SIMPLE TEXT / NUMBER / DATE INPUT
+  // =====================================================
+  if (active instanceof HTMLInputElement) {
+
+    // Don't handle disabled/readonly/hidden
+    if (
+      active.disabled ||
+      active.readOnly ||
+      active.type === 'hidden' ||
+      active.tabIndex === -1
+    ) {
+      return;
+    }
+
+    // Don't interfere with ngx-mat-select-search
+    if (
+      active.closest(
+        '.mat-mdc-select-panel, .mat-select-panel'
+      )
+    ) {
+      return;
+    }
+
+    // ===================================================
+    // FIND ALL SIMPLE INPUTS ON PAGE
+    // ===================================================
+
+    const inputs = Array.from(
+      document.querySelectorAll('input')
+    ) as HTMLInputElement[];
+
+    const validInputs = inputs.filter(input => {
+
+      if (
+        input.disabled ||
+        input.readOnly ||
+        input.type === 'hidden' ||
+        input.tabIndex === -1
+      ) {
+        return false;
+      }
+
+      // Don't include mat-select search
+      if (
+        input.closest(
+          '.mat-mdc-select-panel, .mat-select-panel'
+        )
+      ) {
+        return false;
+      }
+
+      // Don't include invisible inputs
+      if (
+        input.offsetParent === null
+      ) {
+        return false;
+      }
+
+      return true;
+    });
+
+    // ===================================================
+    // CURRENT INPUT INDEX
+    // ===================================================
+
+    const currentIndex =
+      validInputs.indexOf(active);
+
+    if (currentIndex === -1) {
+      return;
+    }
+
+    // ===================================================
+    // FIRST INPUT -> NOTHING
+    // ===================================================
+
+    if (currentIndex === 0) {
+      return;
+    }
+
+    // ===================================================
+    // PREVIOUS TEXTBOX
+    // ===================================================
+
+    const previousInput =
+      validInputs[currentIndex - 1];
+
+    if (!previousInput) {
+      return;
+    }
+
+    // ===================================================
+    // STOP DEFAULT
+    // ===================================================
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    // ===================================================
+    // FOCUS PREVIOUS
+    // ===================================================
+
+    setTimeout(() => {
+
+      previousInput.focus();
+
+      // Put cursor at end
+      if (
+        previousInput.type !== 'number'
+      ) {
+
+        try {
+
+          const length =
+            previousInput.value?.length || 0;
+
+          previousInput.setSelectionRange(
+            length,
+            length
+          );
+
+        } catch {
+          // Ignore
+        }
+      }
+
+    }, 50);
+
+    return;
+  }
+
+  // =====================================================
+  // YOUR MAT-SELECT / TABLE LOGIC CAN CONTINUE BELOW
+  // =====================================================
+
+  // ... existing code ...
+}
+// =========================================================
+// ITEM SEARCH LEFT ARROW
+// =========================================================
+onRemarksLeftArrow(event: KeyboardEvent, index: number): void {
+
+  if (event.key !== 'ArrowLeft') {
+    return;
+  }
+
+  event.preventDefault();
+  event.stopPropagation();
+
+  console.log('REMARKS LEFT ARROW:', index);
+
+  // =====================================================
+  // FIND ITEM MAT-SELECT
+  // =====================================================
+
+  const itemSelect = document.getElementById(
+    'itemSelect' + index
+  ) as HTMLElement | null;
+
+  console.log('ITEM ELEMENT:', itemSelect);
+
+  if (!itemSelect) {
+    console.log(
+      'ITEM SELECT NOT FOUND:',
+      'itemSelect' + index
+    );
+    return;
+  }
+
+  // =====================================================
+  // CLOSE ANY OPEN MAT-SELECT
+  // =====================================================
+
+  const openSelects = Array.from(
+    document.querySelectorAll(
+      'mat-select[aria-expanded="true"]'
+    )
+  ) as HTMLElement[];
+
+  openSelects.forEach(select => {
+
+    select.blur();
+
+  });
+
+  // =====================================================
+  // FOCUS ITEM MAT-SELECT ITSELF
+  // =====================================================
+
+  setTimeout(() => {
+
+    itemSelect.focus();
+
+    console.log(
+      'ITEM FOCUS RESULT:',
+      document.activeElement
+    );
+
+  }, 100);
+}
+// =========================================================
+// TAX SEARCH ARROW LEFT
+// Tax Search -> Discount Amount
+// If Discount is hidden -> Previous Visible Input
+// =========================================================
+// =========================================================
+// TAX DROPDOWN ARROW LEFT
+// Works when dropdown is OPEN or CLOSED
+// =========================================================
+
+onTaxSearchKeyDown(
+  event: KeyboardEvent,
+  rowIndex: number
+): void {
+
+  if (event.key !== 'ArrowLeft') {
+    return;
+  }
+
+  event.preventDefault();
+  event.stopPropagation();
+
+  this.goBackFromTax(rowIndex);
+}
+
+
+// =========================================================
+// TAX MAT-SELECT ARROW LEFT
+// Use this when TAX DROPDOWN IS CLOSED
+// =========================================================
+
+onTaxSelectKeyDown(
+  event: KeyboardEvent,
+  rowIndex: number
+): void {
+
+  if (event.key !== 'ArrowLeft') {
+    return;
+  }
+
+  event.preventDefault();
+  event.stopPropagation();
+
+  // CLOSE TAX DROPDOWN
+  this.closeTaxDropdown(rowIndex);
+
+  // WAIT FOR DROPDOWN TO CLOSE
+  setTimeout(() => {
+
+    this.goBackFromTax(rowIndex);
+
+  }, 50);
+}
+
+private closeTaxDropdown(
+  rowIndex: number
+): void {
+
+  const taxSelect =
+    this.taxSelects?.toArray()[rowIndex];
+
+  if (!taxSelect) {
+
+    console.log(
+      'ARROW LEFT: TAX SELECT NOT FOUND',
+      rowIndex
+    );
+
+    return;
+  }
+
+  console.log(
+    'ARROW LEFT: CLOSING TAX DROPDOWN',
+    rowIndex
+  );
+
+  taxSelect.close();
+}
+
+
+// =========================================================
+// COMMON TAX BACK LOGIC
+// =========================================================
+
+// =========================================================
+// GO BACK FROM TAX
+// Tax -> discAmt / discPer / mRate / rate
+// If those are hidden -> previous visible input
+// =========================================================
+
+// =========================================================
+// GO BACK FROM TAX
+//
+// Tax Search -> discAmt
+// If discAmt hidden -> discPer
+// If discPer hidden -> mRate
+// If mRate hidden -> rate
+// If all hidden -> previous visible compact input
+// =========================================================
+
+private goBackFromTax(
+  rowIndex: number
+): void {
+
+  console.log(
+    'ARROW LEFT TAX ROW:',
+    rowIndex
+  );
+
+  // =======================================================
+  // STOP CURRENT TAX SEARCH
+  // =======================================================
+
+  const active =
+    document.activeElement as HTMLElement | null;
+
+  console.log(
+    'ARROW LEFT ACTIVE:',
+    active
+  );
+
+  // =======================================================
+  // CLOSE TAX DROPDOWN
+  // =======================================================
+
+  this.closeArrowLeftMatSelect();
+
+  // =======================================================
+  // GET ALL SALE ROWS
+  // =======================================================
+
+  const rows =
+    Array.from(
+      document.querySelectorAll(
+        'table tbody tr'
+      )
+    ) as HTMLElement[];
+
+  const row =
+    rows[rowIndex] || null;
+
+  if (!row) {
+
+    console.log(
+      'ARROW LEFT: ROW NOT FOUND:',
+      rowIndex
+    );
+
+    return;
+  }
+
+  console.log(
+    'ARROW LEFT ROW:',
+    row
+  );
+
+  // =======================================================
+  // POSSIBLE PREVIOUS CONTROLS
+  //
+  // CHECK IN THIS ORDER
+  //
+  // discAmt
+  // discPer
+  // mRate
+  // rate
+  // =======================================================
+
+  const controlNames = [
+    'discAmt',
+    'discPer',
+    'mRate',
+    'rate'
+  ];
+
+  let previousInput:
+    HTMLInputElement | null = null;
+
+  // =======================================================
+  // GET ALL INPUTS GLOBALLY
+  // =======================================================
+
+  const allInputs =
+    Array.from(
+      document.querySelectorAll(
+        'input'
+      )
+    ) as HTMLInputElement[];
+
+  console.log(
+    'ARROW LEFT ALL INPUTS:',
+    allInputs
+  );
+
+  // =======================================================
+  // FIND CONTROL USING ROW
+  // =======================================================
+
+  for (
+    const controlName of controlNames
+  ) {
+
+    const matchingInputs =
+      allInputs.filter(
+        input => {
+
+          return (
+            input.getAttribute(
+              'formcontrolname'
+            ) === controlName
+          );
+        }
+      );
+
+    console.log(
+      `ARROW LEFT ${controlName} ALL:`,
+      matchingInputs
+    );
+
+    // =====================================================
+    // MATCH CURRENT ROW
+    // =====================================================
+
+    let input =
+      matchingInputs.find(
+        item =>
+          item.closest('tr') === row
+      ) || null;
+
+    // =====================================================
+    // IF ROW MATCH FAILS
+    // MATCH USING ROW INDEX
+    // =====================================================
+
+    if (!input) {
+
+      input =
+        matchingInputs[rowIndex] ||
+        null;
+    }
+
+    console.log(
+      `ARROW LEFT ${controlName} CURRENT:`,
+      input
+    );
+
+    // =====================================================
+    // CHECK VISIBLE
+    // =====================================================
+
+    if (
+      input &&
+      this.isArrowLeftVisibleInput(
+        input
+      )
+    ) {
+
+      previousInput =
+        input;
+
+      console.log(
+        `ARROW LEFT -> ${controlName}`,
+        previousInput
+      );
+
+      break;
+    }
+  }
+
+  // =======================================================
+  // IF NONE FOUND
+  //
+  // FIND ALL VISIBLE COMPACT INPUTS
+  // IN CURRENT ROW
+  // =======================================================
+
+  if (!previousInput) {
+
+    console.log(
+      'ARROW LEFT: DISCOUNT/RATE CONTROLS NOT AVAILABLE'
+    );
+
+    // =====================================================
+    // ALL COMPACT INPUTS
+    // =====================================================
+
+    const compactInputs =
+      Array.from(
+        document.querySelectorAll(
+          'input.compact-input'
+        )
+      ) as HTMLInputElement[];
+
+    console.log(
+      'ARROW LEFT COMPACT INPUTS:',
+      compactInputs
+    );
+
+    // =====================================================
+    // CURRENT ROW INPUTS
+    // =====================================================
+
+    const currentRowInputs =
+      compactInputs.filter(
+        input => {
+
+          // -----------------------------------------------
+          // SEARCH INPUT
+          // -----------------------------------------------
+
+          if (
+            input.classList.contains(
+              'mat-select-search-input'
+            )
+          ) {
+            return false;
+          }
+
+          // -----------------------------------------------
+          // OVERLAY INPUT
+          // -----------------------------------------------
+
+          if (
+            input.closest(
+              '.mat-mdc-select-panel, .mat-select-panel'
+            )
+          ) {
+            return false;
+          }
+
+          // -----------------------------------------------
+          // STATE
+          // -----------------------------------------------
+
+          if (
+            input.type === 'hidden' ||
+            input.disabled ||
+            input.readOnly ||
+            input.tabIndex === -1
+          ) {
+            return false;
+          }
+
+          // -----------------------------------------------
+          // ROW
+          // -----------------------------------------------
+
+          return (
+            input.closest('tr') === row
+          );
+        }
+      );
+
+    console.log(
+      'ARROW LEFT CURRENT ROW INPUTS:',
+      currentRowInputs
+    );
+
+    // =====================================================
+    // FILTER ACTUALLY VISIBLE
+    // =====================================================
+
+    const visibleRowInputs =
+      currentRowInputs.filter(
+        input => {
+
+          const rect =
+            input.getBoundingClientRect();
+
+          return (
+            rect.width > 0 &&
+            rect.height > 0
+          );
+        }
+      );
+
+    console.log(
+      'ARROW LEFT VISIBLE ROW INPUTS:',
+      visibleRowInputs
+    );
+
+    // =====================================================
+    // LAST VISIBLE INPUT
+    // =====================================================
+
+    if (
+      visibleRowInputs.length > 0
+    ) {
+
+      previousInput =
+        visibleRowInputs[
+          visibleRowInputs.length - 1
+        ];
+
+      console.log(
+        'ARROW LEFT -> PREVIOUS VISIBLE INPUT:',
+        previousInput
+      );
+    }
+  }
+
+  // =======================================================
+  // NOTHING FOUND
+  // =======================================================
+
+  if (!previousInput) {
+
+    console.log(
+      'ARROW LEFT: NOTHING TO GO BACK TO'
+    );
+
+    return;
+  }
+
+  // =======================================================
+  // CLOSE DROPDOWN AGAIN
+  // =======================================================
+
+  this.closeArrowLeftMatSelect();
+
+  // =======================================================
+  // FOCUS PREVIOUS CONTROL
+  // =======================================================
+
+  setTimeout(() => {
+
+    previousInput!.focus();
+
+    this.moveArrowLeftCursorToEnd(
+      previousInput!
+    );
+
+    console.log(
+      'ARROW LEFT FINAL ACTIVE:',
+      document.activeElement
+    );
+
+  }, 150);
+}
+
+
+// =========================================================
+// CHECK VISIBLE INPUT
+// =========================================================
+
+private isArrowLeftVisibleInput(
+  input: HTMLInputElement
+): boolean {
+
+  // -------------------------------------------------------
+  // NEVER SEARCH INPUT
+  // -------------------------------------------------------
+
+  if (
+    input.classList.contains(
+      'mat-select-search-input'
+    )
+  ) {
+    return false;
+  }
+
+  // -------------------------------------------------------
+  // NEVER OVERLAY INPUT
+  // -------------------------------------------------------
+
+  if (
+    input.closest(
+      '.mat-mdc-select-panel, .mat-select-panel'
+    )
+  ) {
+    return false;
+  }
+
+  // -------------------------------------------------------
+  // INPUT STATE
+  // -------------------------------------------------------
+
+  if (
+    input.type === 'hidden' ||
+    input.disabled ||
+    input.readOnly ||
+    input.tabIndex === -1
+  ) {
+    return false;
+  }
+
+  // -------------------------------------------------------
+  // ACTUAL VISIBILITY
+  // -------------------------------------------------------
+
+  const rect =
+    input.getBoundingClientRect();
+
+  return (
+    rect.width > 0 &&
+    rect.height > 0
+  );
+}
+
+
+// =========================================================
+// CLOSE OPEN MAT SELECT
+// =========================================================
+
+private closeArrowLeftMatSelect(): void {
+
+  // =======================================================
+  // FIND OPEN MAT SELECT TRIGGER
+  // =======================================================
+
+  const openTriggers =
+    Array.from(
+      document.querySelectorAll(
+        '.mat-mdc-select-trigger[aria-expanded="true"], ' +
+        '.mat-select-trigger[aria-expanded="true"]'
+      )
+    ) as HTMLElement[];
+
+  console.log(
+    'ARROW LEFT OPEN TRIGGERS:',
+    openTriggers
+  );
+
+  // =======================================================
+  // BLUR OPEN TRIGGERS
+  // =======================================================
+
+  openTriggers.forEach(
+    trigger => {
+
+      trigger.blur();
+
+    }
+  );
+
+  // =======================================================
+  // BLUR TAX SEARCH INPUT
+  // =======================================================
+
+  const active =
+    document.activeElement as HTMLElement | null;
+
+  if (
+    active &&
+    active.classList.contains(
+      'mat-select-search-input'
+    )
+  ) {
+
+    active.blur();
+  }
+}
+
+
+// =========================================================
+// MOVE CURSOR TO END
+// =========================================================
+
+private moveArrowLeftCursorToEnd(
+  control: HTMLElement
+): void {
+
+  if (
+    control instanceof HTMLInputElement &&
+    control.type !== 'number'
+  ) {
+
+    try {
+
+      const length =
+        control.value?.length || 0;
+
+      control.setSelectionRange(
+        length,
+        length
+      );
+
+    } catch {
+
+      // Ignore
+
+    }
+  }
 }
 }
