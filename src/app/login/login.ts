@@ -90,6 +90,7 @@ onSubmit(): void {
           package: client.package,
           isActive: client.isActive,
           companyId:client.companyId,
+          
           companyName:client.companyName,
           companyPhoneNumber:client.companyPhoneNumber,
           companyAddress:client.companyAddress

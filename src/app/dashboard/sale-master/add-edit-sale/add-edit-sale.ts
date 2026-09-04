@@ -156,6 +156,29 @@ focusNextRegd(select: MatSelect) {
     });
   });
 }
+focusNext(event: KeyboardEvent, index: number) {
+  if (event.key !== 'Enter') {
+    return;
+  }
+
+  event.preventDefault();
+
+  const inputs = Array.from(
+    document.querySelectorAll('input, select, textarea')
+  ) as HTMLElement[];
+
+  let nextIndex = index + 1;
+
+  while (
+    nextIndex < inputs.length &&
+    inputs[nextIndex].getAttribute('formcontrolname') === 'hsn'
+  ) {
+    nextIndex++;
+  }
+
+  inputs[nextIndex]?.focus();
+}
+
   @ViewChild(MatAutocompleteTrigger)
 autocomplete!: MatAutocompleteTrigger;
 @ViewChildren(MatSelect)
@@ -1359,7 +1382,7 @@ applySaleScreenConfig() {
 
   this.saleInvoiceDetails.controls.forEach(row => {
     this.toggle(row, 'barcode', cfg?.barcodeSale);
-    this.toggle(row, 'hsn', cfg?.hsnsale);
+    // this.toggle(row, 'hsn', cfg?.hsnsale);
       // ✅ FIX HERE
     this.toggle(row, 'mRate', cfg?.mRateSale);
     this.toggle(row, 'discPer', cfg?.discPercentSale);
@@ -1744,6 +1767,7 @@ this.filteredTaxes[index] = [...this.listOfTaxTableData];
 
 row.patchValue({
   barcode: selectedItem.itemBarCodeOrPartNo || '',
+  // qty:selectedItem.quantity || '',
   hsn: selectedItem.hsn || '',
   rate: selectedItem.saleRate || 0,
   mRate: selectedItem.mrpRate || 0,
@@ -2321,6 +2345,23 @@ this.addInvoiceDetailRow();
 get saleInvoiceDetails(): FormArray {
   return this.addEditForm.get('saleInvoiceDetails') as FormArray;
 }
+getSelectedItemName(index: number): string {
+
+  const itemId = this.saleInvoiceDetails
+    .at(index)
+    .get('itemId')
+    ?.value;
+
+  if (!itemId) {
+    return '';
+  }
+
+  const item = this.listOfAllItem.find(
+    (x: any) => x.itemId === itemId
+  );
+
+  return item?.itemName || '';
+}
 getRowControl(i: number, control: string) {
   return this.saleInvoiceDetails.at(i).get(control);
 }
@@ -2634,31 +2675,85 @@ handleAddRow(index: number) {
   });
 }
 
-onTaxKeyDown(event: KeyboardEvent, index: number) {
+onTaxKeyDown(
+  event: KeyboardEvent,
+  index: number,
+  taxSelect: MatSelect
+): void {
 
-  // ✅ Shift + Enter (reliable across browsers)
-  if (!(event.key === 'Enter')) return;
+  // =====================================================
+  // ARROW LEFT
+  // =====================================================
+
+  if (event.key === 'ArrowLeft') {
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    console.log(
+      'TAX ARROW LEFT ROW:',
+      index
+    );
+
+    // Close THIS exact tax dropdown
+    if (taxSelect?.panelOpen) {
+      taxSelect.close();
+    }
+
+    // Go to previous field in SAME row
+    this.goBackFromTax(
+      index
+    );
+
+    return;
+  }
+
+
+  // =====================================================
+  // ENTER
+  // YOUR EXISTING LOGIC
+  // =====================================================
+
+  if (event.key !== 'Enter') {
+    return;
+  }
 
   event.preventDefault();
 
   // only add on last row
-  if (index !== this.saleInvoiceDetails.length - 1) return;
+  if (
+    index !==
+    this.saleInvoiceDetails.length - 1
+  ) {
+    return;
+  }
 
   // block if row invalid
-  if (this.saleInvoiceDetails.at(index).invalid) return;
+  if (
+    this.saleInvoiceDetails
+      .at(index)
+      .invalid
+  ) {
+    return;
+  }
 
   // add new row
   this.addInvoiceDetailRow();
 
-  // 🔥 WAIT FOR DOM RENDER
+  // wait for DOM render
   setTimeout(() => {
+
     this.cdr.detectChanges();
 
-    const items = this.itemSelects.toArray();
-    const last = items[items.length - 1];
+    const items =
+      this.itemSelects.toArray();
+
+    const last =
+      items[items.length - 1];
 
     last?.nativeElement?.focus();
-  });
+
+  }, 100);
 }
 
 // removeInvoiceDetailRow(index: number) {
@@ -4410,6 +4505,7 @@ private closeTaxDropdown(
 // If all hidden -> previous visible compact input
 // =========================================================
 
+
 private goBackFromTax(
   rowIndex: number
 ): void {
@@ -4441,30 +4537,17 @@ private goBackFromTax(
   // GET ALL SALE ROWS
   // =======================================================
 
-  const rows =
-    Array.from(
-      document.querySelectorAll(
-        'table tbody tr'
-      )
-    ) as HTMLElement[];
+const rows = Array.from(
+  document.querySelectorAll(
+    'table tbody[formArrayName="saleInvoiceDetails"] tr'
+  )
+) as HTMLElement[];
 
-  const row =
-    rows[rowIndex] || null;
+const row = rows[rowIndex];
 
-  if (!row) {
-
-    console.log(
-      'ARROW LEFT: ROW NOT FOUND:',
-      rowIndex
-    );
-
-    return;
-  }
-
-  console.log(
-    'ARROW LEFT ROW:',
-    row
-  );
+if (!row) {
+  return;
+}
 
   // =======================================================
   // POSSIBLE PREVIOUS CONTROLS
@@ -4893,4 +4976,5 @@ private moveArrowLeftCursorToEnd(
     }
   }
 }
+
 }

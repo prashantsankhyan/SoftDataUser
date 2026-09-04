@@ -93,6 +93,22 @@ const routes: Routes = [
         loadChildren:()=>import('./register-type/register-type-module').then(m=>m.RegisterTypeModule)
     },
 
+
+     {
+        path:'purchaseHeading',
+        loadChildren:()=>import('./purchase-heading/purchase-heading-module').then(m=>m.PurchaseHeadingModule)
+    },
+
+    {
+        path:'purchaseMaster',
+        loadChildren:()=>import('./purchase-master/purchase-master-module').then(m=>m.PurchaseMasterModule)
+    },
+
+       {
+        path:'salePurchaseLaddgerAccoutBase',
+        loadChildren:()=>import('./sale-purchase-ladger-account-base/sale-purchase-ladger-account-base-module').then(m=>m.SalePurchaseLadgerAccountBaseModule)
+    },
+
     
      
     ]

@@ -1,0 +1,784 @@
+<div class="container-fluid py-3">
+
+  <!-- =========================================================
+       PAGE HEADER
+  ========================================================== -->
+  <div class="card border-0 shadow-sm mb-3">
+
+    <div class="card-body">
+
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+
+        <div>
+          <h4 class="mb-1 fw-semibold">
+            Sale / Purchase Ledger
+          </h4>
+
+          <small class="text-muted">
+            Account-wise Sales and Purchase Voucher Ledger
+          </small>
+        </div>
+
+        <div class="d-flex gap-2">
+
+          <button
+            type="button"
+            class="btn btn-outline-success"
+            (click)="exportToExcel()"
+            [disabled]="!listOfReceiptData.length">
+
+            <i class="bi bi-file-earmark-excel me-1"></i>
+            Excel
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-outline-primary"
+            printSectionId="print-section"
+            ngxPrint
+            [disabled]="!listOfReceiptData.length">
+
+            <i class="bi bi-printer me-1"></i>
+            Print
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- =========================================================
+       ACCOUNT SEARCH
+  ========================================================== -->
+  <div class="card border-0 shadow-sm mb-3">
+
+    <div class="card-body">
+
+      <div class="row g-3 align-items-end">
+
+        <!-- Account -->
+     <div class="col-lg-5 col-md-6">
+
+  <label class="form-label fw-semibold">
+    Select Account
+  </label>
+
+  <input
+    type="text"
+    class="form-control"
+    placeholder="Search account..."
+    [(ngModel)]="accountSearchText"
+    (input)="applyFilter()"
+    autocomplete="off"
+  />
+
+  <!-- Account Dropdown -->
+  <div
+    class="account-list mt-1"
+    *ngIf="hasAccountSearch() && listOfData.length > 0"
+  >
+
+    <button
+      type="button"
+      class="account-item"
+      *ngFor="let account of listOfData"
+      (click)="onSelectAccount(account)"
+    >
+
+      <div class="d-flex justify-content-between align-items-center">
+
+        <span class="fw-semibold">
+          {{ account.accountName }}
+        </span>
+
+        <small class="text-muted">
+          ID: {{ account._id || account.id }}
+        </small>
+
+      </div>
+
+    </button>
+
+  </div>
+
+  <!-- No Account Found -->
+  <div
+    class="text-muted small mt-2"
+    *ngIf="hasAccountSearch() && listOfData.length === 0"
+  >
+    No account found
+  </div>
+
+</div>
+
+
+        <!-- From Date -->
+        <div class="col-lg-2 col-md-3">
+
+          <label class="form-label fw-semibold">
+            From Date
+          </label>
+
+          <input
+            type="text"
+            class="form-control"
+            placeholder="DD-MM-YYYY"
+            maxlength="10"
+            [(ngModel)]="fromDate"
+            (input)="formatDateInput('from')">
+
+        </div>
+
+
+        <!-- To Date -->
+        <div class="col-lg-2 col-md-3">
+
+          <label class="form-label fw-semibold">
+            To Date
+          </label>
+
+          <input
+            type="text"
+            class="form-control"
+            placeholder="DD-MM-YYYY"
+            maxlength="10"
+            [(ngModel)]="toDate"
+            (input)="formatDateInput('to')">
+
+        </div>
+
+
+        <!-- Apply -->
+        <div class="col-lg-3">
+
+          <div class="d-flex gap-2">
+
+            <button
+              type="button"
+              class="btn btn-primary"
+              (click)="applyLedgerFilter()">
+
+              <i class="bi bi-search me-1"></i>
+              Search Ledger
+
+            </button>
+
+
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              (click)="clearLedgerFilter()">
+
+              <i class="bi bi-x-circle me-1"></i>
+              Clear
+
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================================================
+       SELECTED ACCOUNT INFORMATION
+  ========================================================== -->
+  <div
+    class="card border-0 shadow-sm mb-3"
+    *ngIf="selectedAccount">
+
+    <div class="card-body">
+
+      <div class="row g-3">
+
+        <!-- Account -->
+        <div class="col-lg-4 col-md-6">
+
+          <div class="info-box">
+
+            <small class="text-muted d-block">
+              Account
+            </small>
+
+            <span class="fw-bold fs-5">
+              {{ accountName }}
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <!-- Opening -->
+        <div class="col-lg-2 col-md-6">
+
+          <div class="info-box">
+
+            <small class="text-muted d-block">
+              Opening Balance
+            </small>
+
+            <span
+              class="fw-bold"
+              [class.text-success]="openingType === 'CR'"
+              [class.text-danger]="openingType === 'DR'">
+
+              {{ getAbsValue(openingBalance) | number:'1.2-2' }}
+              {{ openingType }}
+
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <!-- Debit -->
+        <div class="col-lg-2 col-md-4">
+
+          <div class="info-box">
+
+            <small class="text-muted d-block">
+              Total Debit
+            </small>
+
+            <span class="fw-bold text-danger">
+              {{ totalDR | number:'1.2-2' }}
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <!-- Credit -->
+        <div class="col-lg-2 col-md-4">
+
+          <div class="info-box">
+
+            <small class="text-muted d-block">
+              Total Credit
+            </small>
+
+            <span class="fw-bold text-success">
+              {{ totalCR | number:'1.2-2' }}
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <!-- Closing -->
+        <div class="col-lg-2 col-md-4">
+
+          <div class="info-box">
+
+            <small class="text-muted d-block">
+              Closing Balance
+            </small>
+
+            <span
+              class="fw-bold"
+              [class.text-danger]="closingType === 'DR'"
+              [class.text-success]="closingType === 'CR'">
+
+              {{ getAbsValue(closingBalance) | number:'1.2-2' }}
+              {{ closingType }}
+
+            </span>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================================================
+       LEDGER SEARCH
+  ========================================================== -->
+
+
+
+  <!-- =========================================================
+       LEDGER TABLE
+  ========================================================== -->
+  <div
+    class="card border-0 shadow-sm"
+    id="print-section">
+
+    <!-- Print Header -->
+    <div class="card-header bg-white border-bottom">
+
+      <div class="row align-items-center">
+
+        <div class="col-md-8">
+
+          <h5 class="mb-1 fw-bold">
+            {{ accountName || 'Account Ledger' }}
+          </h5>
+
+          <small class="text-muted">
+
+            Sale / Purchase Ledger
+
+            <span *ngIf="fromDate || toDate">
+              |
+              {{ fromDate || 'Beginning' }}
+              -
+              {{ toDate || 'Today' }}
+            </span>
+
+          </small>
+
+        </div>
+
+
+        <div class="col-md-4 text-md-end">
+
+          <small class="text-muted">
+            Company ID: {{ companyId }}
+          </small>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- Spinner -->
+    <div
+      class="text-center py-5"
+      *ngIf="showSpinner">
+
+      <div
+        class="spinner-border text-primary"
+        role="status">
+
+      </div>
+
+      <div class="mt-2 text-muted">
+        Loading ledger...
+      </div>
+
+    </div>
+
+
+    <!-- =======================================================
+         TABLE
+    ======================================================== -->
+    <div
+      class="table-responsive"
+      *ngIf="!showSpinner">
+
+      <table
+        class="table table-bordered table-hover align-middle mb-0 ledger-table">
+
+        <thead class="table-light">
+
+          <tr>
+
+            <th class="text-center">
+              Date
+            </th>
+
+            <th>
+              Particulars
+            </th>
+
+            <th class="text-center">
+              Vch Type
+            </th>
+
+            <th class="text-center">
+              Vch No
+            </th>
+
+            <th class="text-end">
+              Qty
+            </th>
+
+            <th>
+              Items
+            </th>
+
+            <th class="text-end">
+              Debit
+            </th>
+
+            <th class="text-end">
+              Credit
+            </th>
+
+            <th class="text-end">
+              Balance
+            </th>
+
+            <th class="text-center">
+              Type
+            </th>
+
+          </tr>
+
+        </thead>
+
+
+        <tbody>
+
+          <!-- =================================================
+               OPENING BALANCE
+          ================================================== -->
+          <tr
+            *ngIf="openingBalance !== 0"
+            class="opening-row">
+
+            <td class="text-center">
+              -
+            </td>
+
+            <td class="fw-semibold">
+              Opening Balance
+            </td>
+
+            <td class="text-center">
+              -
+            </td>
+
+            <td class="text-center">
+              -
+            </td>
+
+            <td class="text-end">
+              -
+            </td>
+
+            <td>
+              -
+            </td>
+
+            <td class="text-end text-danger fw-semibold">
+
+              <ng-container
+                *ngIf="openingType === 'DR'">
+
+                {{ openingBalance | number:'1.2-2' }}
+
+              </ng-container>
+
+            </td>
+
+            <td class="text-end text-success fw-semibold">
+
+              <ng-container
+                *ngIf="openingType === 'CR'">
+
+                {{ openingBalance | number:'1.2-2' }}
+
+              </ng-container>
+
+            </td>
+
+            <td class="text-end fw-semibold">
+
+              {{ getAbsValue(openingBalance) | number:'1.2-2' }}
+
+            </td>
+
+            <td class="text-center fw-bold">
+
+              {{ openingType }}
+
+            </td>
+
+          </tr>
+
+
+          <!-- =================================================
+               LEDGER ROWS
+          ================================================== -->
+          <tr
+            *ngFor="
+              let item of listOfReceiptData;
+              let i = index
+            "
+            class="ledger-row">
+
+
+            <!-- Date -->
+            <td class="text-center text-nowrap">
+
+              {{ item.date | date:'dd-MM-yyyy' }}
+
+            </td>
+
+
+            <!-- Particulars -->
+            <td>
+
+              <div class="fw-semibold">
+
+                {{ item.particulars || '---' }}
+
+              </div>
+
+            </td>
+
+
+            <!-- Voucher Type -->
+            <td class="text-center">
+
+              <span
+                class="badge"
+                [ngClass]="{
+                  'bg-primary-subtle text-primary':
+                    item.voucherType === 'SALE',
+
+                  'bg-warning-subtle text-warning':
+                    item.voucherType === 'PURCHASE'
+                }">
+
+                {{ item.voucherType }}
+
+              </span>
+
+            </td>
+
+
+            <!-- Voucher No -->
+            <td class="text-center fw-semibold">
+
+              {{ item.voucherNo || '---' }}
+
+            </td>
+
+
+            <!-- Qty -->
+            <td class="text-end">
+
+              <span
+                *ngIf="item.qty > 0">
+
+                {{ item.qty | number:'1.0-2' }}
+
+              </span>
+
+              <span
+                *ngIf="!item.qty">
+
+                -
+
+              </span>
+
+            </td>
+
+
+            <!-- Items -->
+            <td>
+
+              <div
+                class="item-details"
+                [title]="item.items">
+
+                {{ item.items || '---' }}
+
+              </div>
+
+            </td>
+
+
+            <!-- Debit -->
+            <td
+              class="text-end debit-column">
+
+              <ng-container
+                *ngIf="item.debit > 0">
+
+                {{ item.debit | number:'1.2-2' }}
+
+              </ng-container>
+
+              <ng-container
+                *ngIf="!item.debit">
+
+                -
+
+              </ng-container>
+
+            </td>
+
+
+            <!-- Credit -->
+            <td
+              class="text-end credit-column">
+
+              <ng-container
+                *ngIf="item.credit > 0">
+
+                {{ item.credit | number:'1.2-2' }}
+
+              </ng-container>
+
+              <ng-container
+                *ngIf="!item.credit">
+
+                -
+
+              </ng-container>
+
+            </td>
+
+
+            <!-- Balance -->
+            <td
+              class="text-end fw-semibold">
+
+              {{ getAbsValue(item.balance) | number:'1.2-2' }}
+
+            </td>
+
+
+            <!-- Balance Type -->
+            <td class="text-center">
+
+              <span
+                class="balance-type"
+                [ngClass]="{
+                  'dr-badge':
+                    item.balanceType === 'DR',
+
+                  'cr-badge':
+                    item.balanceType === 'CR'
+                }">
+
+                {{ item.balanceType }}
+
+              </span>
+
+            </td>
+
+          </tr>
+
+
+          <!-- =================================================
+               NO DATA
+          ================================================== -->
+          <tr
+            *ngIf="!listOfReceiptData.length">
+
+            <td
+              colspan="10"
+              class="text-center py-5">
+
+              <div class="text-muted">
+
+                <i
+                  class="bi bi-journal-x fs-1 d-block mb-2">
+                </i>
+
+                <div class="fw-semibold">
+                  No ledger entries found
+                </div>
+
+                <small>
+                  Select an account to view
+                  Sale / Purchase transactions.
+                </small>
+
+              </div>
+
+            </td>
+
+          </tr>
+
+        </tbody>
+
+
+        <!-- ===================================================
+             FOOTER
+        ==================================================== -->
+        <tfoot
+          *ngIf="listOfReceiptData.length">
+
+          <!-- Total -->
+         <tr class="total-row">
+
+  <td></td>
+
+  <td class="fw-bold">
+    TOTAL
+  </td>
+
+  <td></td>
+
+  <td></td>
+
+  <td class="text-end fw-bold">
+    {{ totalQty | number:'1.0-2' }}
+  </td>
+
+  <td></td>
+
+  <td class="text-end fw-bold text-danger">
+    {{ totalDR | number:'1.2-2' }}
+  </td>
+
+  <td class="text-end fw-bold text-success">
+    {{ totalCR | number:'1.2-2' }}
+  </td>
+
+  <td class="text-end fw-bold">
+    {{ getAbsValue(closingBalance) | number:'1.2-2' }}
+  </td>
+
+  <td class="text-center fw-bold">
+    {{ closingType }}
+  </td>
+
+</tr>
+
+          <!-- Closing -->
+          <tr class="closing-row">
+
+            <td colspan="8" class="text-end fw-bold">
+
+              Closing Balance
+
+            </td>
+
+            <td class="text-end fw-bold">
+
+              {{ getAbsValue(closingBalance) | number:'1.2-2' }}
+
+            </td>
+
+            <td class="text-center fw-bold">
+
+              {{ closingType }}
+
+            </td>
+
+          </tr>
+
+        </tfoot>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</div>

@@ -1,105 +1,236 @@
+
 <section class="bg-light py-3 py-md-5">
+
   <div class="container">
+
     <div class="row justify-content-center">
+
       <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5 col-xxl-4">
+
         <div class="card border-0 rounded-3 shadow-sm">
+
           <div class="card-body p-3 p-md-4 p-xl-5">
 
             <h2 class="fw-normal text-center text-secondary mb-4">
               Sub User Login
             </h2>
 
-            <form [formGroup]="form" (ngSubmit)="onSubmit()">
-              <div class="row gy-2">
+            <!-- ================= FORM ================= -->
+            <form
+              [formGroup]="form"
+              (ngSubmit)="onSubmit()">
 
-                <!-- Phone Number -->
+              <div class="row gy-3">
+
+                <!-- ================= PHONE NUMBER ================= -->
                 <div class="col-12">
+
                   <div class="form-floating">
+
                     <input
                       type="text"
                       class="form-control"
                       placeholder="Phone Number"
                       formControlName="phoneNumber"
+                      maxlength="10"
+                      autocomplete="tel"
                       (blur)="getCompanyId()"
                     />
-                    <label>Phone Number</label>
+
+                    <label>
+                      Phone Number
+                    </label>
+
                   </div>
-                 
+
+                  <!-- Phone validation -->
+                  <div
+                    *ngIf="
+                      form.get('phoneNumber')?.touched &&
+                      form.get('phoneNumber')?.invalid
+                    "
+                    class="text-danger small mt-1">
+
+                    Please enter a valid 10 digit phone number.
+
+                  </div>
+
                 </div>
 
-                <!-- Company ID -->
-                <div class="col-12">
-                  <div class="form-floating">
-                    <input
-                      type="text"
-                      class="form-control"
-                      placeholder="Company ID"
-                      formControlName="companyId" readonly
-                    />
-                    <label>Company ID</label>
-                  </div>
-                </div>
 
-                <!-- Username -->
+              <!-- ================= COMPANY ================= -->
+<div class="col-12">
+
+  <div class="form-floating">
+
+    <select
+      class="form-select"
+      formControlName="companyId"
+      (change)="onCompanyChange()">
+
+      <!-- Placeholder -->
+      <option [ngValue]="null" disabled>
+        Select Company
+      </option>
+
+
+      <!-- Companies -->
+      <option
+        *ngFor="let company of companyList"
+        [ngValue]="company.id">
+
+        {{ company.companyName }}
+
+        <ng-container
+          *ngIf="company.phoneNumber">
+
+          - {{ company.phoneNumber }}
+
+        </ng-container>
+
+      </option>
+
+    </select>
+
+    <label>
+      Company
+    </label>
+
+  </div>
+
+
+  <!-- Loading -->
+  <div
+    *ngIf="companyLoading"
+    class="text-muted small mt-2">
+
+    <span
+      class="spinner-border spinner-border-sm me-2">
+    </span>
+
+    Finding your companies...
+
+  </div>
+
+
+  <!-- Validation -->
+  <div
+    *ngIf="
+      form.get('companyId')?.touched &&
+      form.get('companyId')?.hasError('required')
+    "
+    class="text-danger small mt-1">
+
+    Please select a company.
+
+  </div>
+
+
+</div>
+
+
+                <!-- ================= USERNAME ================= -->
                 <div class="col-12">
+
                   <div class="form-floating">
+
                     <input
                       type="text"
                       class="form-control"
                       placeholder="Username"
                       formControlName="username"
+                      autocomplete="username"
                     />
-                    <label>Username</label>
+
+                    <label>
+                      Username
+                    </label>
+
                   </div>
+
                 </div>
 
-                <!-- Password -->
+
+                <!-- ================= PASSWORD ================= -->
                 <div class="col-12">
+
                   <div class="form-floating">
+
                     <input
                       type="password"
                       class="form-control"
                       placeholder="Password"
                       formControlName="password"
+                      autocomplete="current-password"
                     />
-                    <label>Password</label>
+
+                    <label>
+                      Password
+                    </label>
+
                   </div>
-               
+
                 </div>
 
-                <!-- Submit -->
+
+                <!-- ================= LOGIN BUTTON ================= -->
                 <div class="col-12">
+
                   <div class="d-grid my-3">
+
                     <button
                       class="btn btn-primary btn-lg"
-                      type="submit"
-                      [disabled]="form.invalid || isLoading"
-                    >
+                      (click)="onSubmit()"
+                      [disabled]="form.invalid || isLoading">
+
+                      <span
+                        *ngIf="isLoading"
+                        class="spinner-border spinner-border-sm me-2">
+                      </span>
+
                       {{ isLoading ? 'Logging in...' : 'Log In' }}
+
                     </button>
+
                   </div>
+
                 </div>
 
-                <!-- Admin Login -->
+
+                <!-- ================= ADMIN LOGIN ================= -->
                 <div class="col-12 text-center">
+
                   <p class="m-0 text-secondary">
+
                     Want to contact Admin?
+
                     <a
                       routerLink="/loging"
                       class="link-primary text-decoration-none"
-                      style="cursor: pointer"
-                    >
+                      style="cursor: pointer">
+
                       Admin Login
+
                     </a>
+
                   </p>
+
                 </div>
 
               </div>
+
             </form>
+            <!-- ================= END FORM ================= -->
 
           </div>
+
         </div>
+
       </div>
+
     </div>
+
   </div>
+
 </section>
+

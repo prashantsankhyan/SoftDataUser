@@ -400,11 +400,12 @@
       <thead>
         <tr>
           <th class="sticky-col item-column">Item</th>
-
+<th >HSN</th>
+    <th >Remarks</th>
           <th *ngIf="screenConfig?.barcodeSale">Barcode</th>
           <!-- <th *ngIf="screenConfig?.remarksSale">Remarks</th> -->
-           <th >Remarks</th>
-          <th *ngIf="screenConfig?.hsnsale">HSN</th>
+       
+          
           <th *ngIf="screenConfig?.artSale">Art</th>
           <th *ngIf="screenConfig?.sizeSale">Size</th>
           <th *ngIf="screenConfig?.colorSale">Color</th>
@@ -452,7 +453,9 @@
     </mat-option>
 
   </mat-select> -->
-   <mat-select
+
+  <!-- //New code // -->
+   <!-- <mat-select
     #itemSelect
      [id]="'itemSelect' + i"
     formControlName="itemId"
@@ -497,7 +500,83 @@
   </ng-container>
   </span>
   </mat-option>
-</mat-select>  
+</mat-select>   -->
+
+
+<mat-select
+  #itemSelect
+  [id]="'itemSelect' + i"
+  formControlName="itemId"
+  [panelWidth]="'500px'"
+  (openedChange)="onOpened('item', $event)"
+  (closed)="onItemClosed(itemSelect, i)"
+  (selectionChange)="onItemChange(i)"
+  (blur)="onRowTotalBlur(i)"
+  (keydown)="onItemKeyDown($event, i, itemSelect)"
+>
+
+  <!-- Selected value: ONLY ITEM NAME -->
+  <mat-select-trigger>
+    {{ getSelectedItemName(i) }}
+  </mat-select-trigger>
+
+
+  <!-- SEARCH -->
+  <mat-option class="item-search-option">
+    <ngx-mat-select-search
+      [formControl]="itemSearchCtrls[i]"
+      placeholderLabel="Search item"
+      noEntriesFoundLabel="No matching item"
+      (keydown.shift)="removeRowAndFocus(i)"
+    >
+    </ngx-mat-select-search>
+  </mat-option>
+
+
+  <!-- TABLE HEADER -->
+  <div class="item-table-header">
+    <div>Item Name</div>
+    <div>Quantity</div>
+    <div class="text-end">S Rate</div>
+    <div class="text-end">P Rate</div>
+    <div class="text-end">MRP Rate</div>
+  </div>
+
+
+  <!-- TABLE ROWS -->
+  <mat-option
+    *ngFor="let u of filteredItems[i]"
+    [value]="u.itemId"
+    class="item-option"
+  >
+
+    <div class="item-table-row">
+
+      <div class="item-name" [title]="u.itemName">
+        {{ u.itemName }}
+      </div>
+
+      <div>
+        {{ u.quantity || '-' }}
+      </div>
+
+      <div class="text-end">
+        {{ (+u.saleRate || 0) | currency:'INR':'symbol':'1.2-2' }}
+      </div>
+
+      <div class="text-end">
+        {{ (+u.purchaseRate || 0) | currency:'INR':'symbol':'1.2-2' }}
+      </div>
+
+      <div class="text-end">
+        {{ (+u.mrpRate || 0) | currency:'INR':'symbol':'1.2-2' }}
+      </div>
+
+    </div>
+
+  </mat-option>
+
+</mat-select>
 </mat-form-field>    
             <!-- <select class="form-control compact-input"
                     formControlName="itemId"
@@ -511,6 +590,12 @@
 <small class="text-danger" *ngIf="isRowInvalid(i,'itemId') && getRowControl(i,'itemId')?.value == 0">
   Item is required
 </small>
+          </td>
+           <td >
+            <input type="text"
+                   class="form-control compact-input"
+                   formControlName="hsn"  (keydown)="onRemarksLeftArrow($event, i)"   (keydown.shift)="removeRowAndFocus(i)"
+ >
           </td>
             <td >
             <input type="text"
@@ -528,11 +613,7 @@
 
         
 
-          <td *ngIf="screenConfig?.hsnsale">
-            <input type="text"
-                   class="form-control compact-input"
-                   formControlName="hsn"tabindex="-1">
-          </td>
+         
 
           <td *ngIf="screenConfig?.artSale">
             <input type="text"
@@ -642,6 +723,7 @@
       (openedChange)="onOpened('tax', $event)"
       (selectionChange)="onTaxChange(i)"
       (closed)="onTaxClosed(taxSelect, i)"
+      
        >
 
       <mat-option>

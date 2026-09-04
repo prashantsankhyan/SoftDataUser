@@ -46,6 +46,27 @@ getNextInvoiceNo(
   });
 }
 
+getNextInvoiceNoPurchase(
+  companyId: number,
+  invoiceHeadingInt: number,
+  startFrom: number,
+    prefix: string | null,
+  suffix: string | null
+    // new parameter
+) {
+  const apiUrl = `${environment.apiBaseUrl}${ApiUrl.invoiceNumberForPurchase}`;
+
+  return this.http.get<{ nextInvoiceNo: string }>(apiUrl, {
+    params: {
+      companyId: companyId.toString(),
+      invoiceHeadingInt: invoiceHeadingInt.toString(),
+      startFrom: startFrom.toString(),
+      prefix: prefix ?? '',   // send empty if null
+      suffix: suffix ?? ''    // new suffix param
+    }
+  });
+}
+
 
   getAllData(url:string):Observable<any>{
     let params = new HttpParams();

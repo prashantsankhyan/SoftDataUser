@@ -711,31 +711,94 @@ subTotalTax: [0]
 
   });
 }
+// setupConditionalTaxValidation(
+//   toggle: string,
+//   name: string,
+//   rate: string,
+//   calcOn: string
+// ) {
+//   const toggleCtrl = this.addEditForm.get(toggle);
+//   const nameCtrl = this.addEditForm.get(name);
+//   const rateCtrl = this.addEditForm.get(rate);
+//   const calcCtrl = this.addEditForm.get(calcOn);
+
+//   const apply = (enabled: boolean) => {
+//     if (enabled === true) {
+//       nameCtrl?.setValidators([Validators.required]);
+//       rateCtrl?.setValidators([Validators.required, Validators.min(0.01)]);
+//       calcCtrl?.setValidators([Validators.required]);
+
+//       nameCtrl?.enable({ emitEvent: false });
+//       rateCtrl?.enable({ emitEvent: false });
+//       calcCtrl?.enable({ emitEvent: false });
+//     } else {
+//       nameCtrl?.clearValidators();
+//       rateCtrl?.clearValidators();
+//       calcCtrl?.clearValidators();
+
+//       nameCtrl?.setValue(0, { emitEvent: false });
+//       rateCtrl?.setValue(0, { emitEvent: false });
+//       calcCtrl?.setValue('', { emitEvent: false });
+
+//       nameCtrl?.disable({ emitEvent: false });
+//       rateCtrl?.disable({ emitEvent: false });
+//       calcCtrl?.disable({ emitEvent: false });
+//     }
+
+//     nameCtrl?.updateValueAndValidity({ emitEvent: false });
+//     rateCtrl?.updateValueAndValidity({ emitEvent: false });
+//     calcCtrl?.updateValueAndValidity({ emitEvent: false });
+//   };
+
+//   // ✅ APPLY ON CHANGE
+//   toggleCtrl?.valueChanges.subscribe(apply);
+
+//   // ✅ APPLY ON INITIAL LOAD / EDIT MODE
+//   apply(toggleCtrl?.value);
+// }
 setupConditionalTaxValidation(
   toggle: string,
   name: string,
   rate: string,
   calcOn: string
 ) {
+
   const toggleCtrl = this.addEditForm.get(toggle);
   const nameCtrl = this.addEditForm.get(name);
   const rateCtrl = this.addEditForm.get(rate);
   const calcCtrl = this.addEditForm.get(calcOn);
 
   const apply = (enabled: boolean) => {
+
     if (enabled === true) {
-      nameCtrl?.setValidators([Validators.required]);
-      rateCtrl?.setValidators([Validators.required, Validators.min(0.01)]);
-      calcCtrl?.setValidators([Validators.required]);
+
+      // Dropdown is mandatory and 0 is NOT allowed
+      nameCtrl?.setValidators([
+        Validators.required,
+        Validators.min(1)
+      ]);
+
+      // Rate is mandatory but 0 is allowed
+      rateCtrl?.setValidators([
+        Validators.required
+      ]);
+
+      // Calculate On is mandatory
+      calcCtrl?.setValidators([
+        Validators.required
+      ]);
 
       nameCtrl?.enable({ emitEvent: false });
       rateCtrl?.enable({ emitEvent: false });
       calcCtrl?.enable({ emitEvent: false });
+
     } else {
+
       nameCtrl?.clearValidators();
       rateCtrl?.clearValidators();
       calcCtrl?.clearValidators();
 
+      // When NO
       nameCtrl?.setValue(0, { emitEvent: false });
       rateCtrl?.setValue(0, { emitEvent: false });
       calcCtrl?.setValue('', { emitEvent: false });
@@ -750,13 +813,10 @@ setupConditionalTaxValidation(
     calcCtrl?.updateValueAndValidity({ emitEvent: false });
   };
 
-  // ✅ APPLY ON CHANGE
   toggleCtrl?.valueChanges.subscribe(apply);
 
-  // ✅ APPLY ON INITIAL LOAD / EDIT MODE
   apply(toggleCtrl?.value);
 }
-
 
 
 calculateTaxTotals() {

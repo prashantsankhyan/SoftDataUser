@@ -16,20 +16,28 @@
         <div class="copy-title">Original for Buyer</div>
          <div class="copy-title">{{screenConfig?.whatWeDoInSale}}</div>
 
-        <table class="no-border" >
-            <tr>
-                <td class="left">
-                    <div class="company">{{header.companyName}}</div>
-                
-                    ({{header.stateCode}}-{{header.stateName}})
-                    
-                </td>
-                <td class="right">
-                    <b>Invoice No:</b> {{header.invoiceNo}}<br>
-                    <b>Date:</b>{{header.invoiceDate|date :'dd/MM/yyyy'}}
-                </td>
-            </tr>
-        </table>
+      <table class="no-border">
+    <tr>
+        <!-- LEFT -->
+        <td class="left">
+            <div class="company">{{ header.companyName }}</div>
+            ({{ header.stateCode }}-{{ header.stateName }})
+        </td>
+
+        <!-- CENTER -->
+        <td class="center">
+            <b>Ship To:</b> {{ header.shipToName }}
+             <b>Phone:</b> {{ header.shipToPhone}}
+            
+        </td>
+
+        <!-- RIGHT -->
+        <td class="right">
+            <b>Invoice No:</b> {{ header.invoiceNo }}<br>
+            <b>Date:</b> {{ header.invoiceDate | date:'dd/MM/yyyy' }}
+        </td>
+    </tr>
+</table>
 
         <!-- Party & Transport -->
         <table class="no-border"> 

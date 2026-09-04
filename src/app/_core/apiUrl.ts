@@ -6,6 +6,7 @@ export const ApiUrl ={
  createSubUser:'SoftDataAPI/create-sub-user',
  deleteSubUser:'SoftDataAPI/delete-sub-user',
  subUserLogin:'SoftDataAPI/sub-user-login',
+ getCompanyByClinetId:'SoftDataAPI/get-company-by-client-id',
  groupMasterByCompanyId:'SoftDataAPI/group-Master',
  getCompanyByPhoneNumber:'SoftDataAPI/subuser/company',
  getRegistrationType:'SoftDataAPI/regdtype/company',
@@ -120,6 +121,27 @@ deleteNarration:'SoftDataAPI/delete-narration',
  getDataBaseOfAccountPaymentReceipt:'SoftDataAPI/get-payment-receipt-by-account',
  deleteSaleInvoice:'SoftDataAPI/deleteSaleInvoice',
  fullLadgerDetaisls:'SoftDataAPI/paymentRecepitFullDetailsByAccount',
+
+
+
+ //purchase Heading//
+ invoiceNumberForPurchase:'SoftDataAPI/get-next-Purchaseinvoice-no',
+ getPurchaaseHeadingByCompanyId:'SoftDataAPI/pourchase-heading-by-company',
+
+ 
+ addEditPurchaseHeading:'SoftDataAPI/purchase-heading-add-edit',
+ getPurchaseHeadingById:'SoftDataAPI/purchase-by-id',
+ deletePurchaseHeadingById:'SoftDataAPI/purchase-headind-delete',
+
+ addEditPurchase:'SoftDataAPI/add-edit-purchase',
+ getPurchaseInvoiceByCompanyId:'SoftDataAPI/purchase-invoices',
+ getPurchaseForUpdateById:'SoftDataAPI/get-Purchase-invoice-by-id',
+
+ deletePurchase:'SoftDataAPI/deletePurchaseInvoice',
+ purchaseInvoicePdf:'SoftDataAPI/get-purchase-invoice-For-Pdf-id',
+
+
+ salePurchaseLadgerAccountBase:'SoftDataAPI/get-account-ledger',
  
 
 

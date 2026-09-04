@@ -80,6 +80,7 @@
                        <a class="collapse-item" routerLink='./headingMaster' routerLinkActive="active" style="font-family: system-ui;font-weight:500">Heading Master</a>
                        <a class="collapse-item"routerLink="./gstVat" routerLinkActive="active" style="font-family: system-ui;font-weight:500">GST VAT Master</a>
                        <a class="collapse-item" routerLink='./saleHeading' routerLinkActive="active" style="font-family: system-ui;font-weight:500">Heading For Sale</a>
+                                              <a class="collapse-item" routerLink='./purchaseHeading' routerLinkActive="active" style="font-family: system-ui;font-weight:500">Heading For Purchase</a>
                         <a class="collapse-item" routerLink='./screen' routerLinkActive="active" style="font-family: system-ui;font-weight:500">Configration</a>
                         <a class="collapse-item" routerLink='./narration' routerLinkActive="active" style="font-family: system-ui;font-weight:500">Narration Master</a>
                      
@@ -105,7 +106,7 @@
               <div id="collapsePages"  class="collapse"[class.show]="isTransactionDropdownOpen" aria-labelledby="headingPages" data-parent="#accordionSidebar">
                   <div class="bg-white  collapse-inner rounded" style="margin-top: -10px;">
                      <a class="collapse-item" routerLink="./sale" routerLinkActive="active" style="font-family: system-ui;font-weight:500">Sale </a>
-                      <a class="collapse-item" routerLinkActive="active" style="font-family: system-ui;font-weight:500">Purchase </a>
+                      <a class="collapse-item" routerLink="./purchaseMaster" routerLinkActive="active" style="font-family: system-ui;font-weight:500">Purchase </a>
                        <a class="collapse-item"routerLink="./paymentReceipt"  routerLinkActive="active" style="font-family: system-ui;font-weight:500">Payment/Receipt Voucher </a>
                         
                     
@@ -129,8 +130,9 @@
                   <div class="bg-white  collapse-inner rounded" style="margin-top: -10px;">
                      <a class="collapse-item" routerLink="./accountNameLedger" routerLinkActive="active" style="font-family: system-ui;font-weight:500">Account Name Wise Ledger </a>
                       <a class="collapse-item" routerLink="./fullLedger"  routerLinkActive="active" style="font-family: system-ui;font-weight:500">Name Wise Ledger(Detailed) </a>
+                       <a class="collapse-item" routerLink="./salePurchaseLaddgerAccoutBase"     routerLinkActive="active" style="font-family: system-ui;font-weight:500">Sale / Purchase A/C Ledger </a>
                        <a class="collapse-item" routerLinkActive="active" style="font-family: system-ui;font-weight:500"> City Wise Ledger </a>
-                        <a class="collapse-item" routerLinkActive="active" style="font-family: system-ui;font-weight:500">Sale / Purchase A/C Ledger </a>
+                       
                        <a class="collapse-item" routerLinkActive="active" style="font-family: system-ui;font-weight:500"> Ledger A/C Monthly Flow </a>
                         
                     
@@ -166,8 +168,30 @@
                       <i class="fa fa-bars"></i>
                   </button>
 
-               
-               
+     <button
+  type="button"
+  routerLink="./sale"
+  routerLinkActive="active-navbar"
+  class="navbar-btn"
+>
+  Sale
+</button>
+   <button
+  type="button"
+  routerLink="./purchaseMaster"
+  routerLinkActive="active-navbar"
+  class="navbar-btn ml-2"
+>
+  Purchase
+</button>
+   <button
+  type="button"
+  routerLink="./paymentReceipt"
+  routerLinkActive="active-navbar"
+  class="navbar-btn ml-2"
+>
+  Payment/Receipt Voucher
+</button>
 
                   <!-- Topbar Navbar -->
                   <ul class="navbar-nav ml-auto" >

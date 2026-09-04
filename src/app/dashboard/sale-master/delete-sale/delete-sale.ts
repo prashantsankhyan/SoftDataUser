@@ -15,7 +15,7 @@ import { ApiUrl } from '../../../_core/apiUrl';
   styleUrl: './delete-sale.scss',
 })
 export class DeleteSale {
-id ='';
+  id ='';
   
   constructor(@Inject(MAT_DIALOG_DATA) public data:any,private http:AllApiService,
   private router:Router,

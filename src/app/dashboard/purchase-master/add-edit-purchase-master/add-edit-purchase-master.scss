@@ -1,0 +1,454 @@
+.popup-overlay {
+  display: none;        /* hidden by default */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.popup-overlay.active {
+  display: block;
+}
+
+.popup-content {
+  background: #fff;
+  padding: 20px;
+  margin: 50px auto;
+  width: 90%;
+  max-width: 1200px;
+  border-radius: 8px;
+}
+
+
+.format {
+  padding: .380rem .40rem !important;
+  font-size: small !important;
+  color: black !important;
+}
+
+
+
+
+
+
+
+/* Remove arrows from number input */
+
+/* Chrome, Safari, Edge */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.invoice-table-container {
+  background: #fff;
+  border-radius: 14px;
+  padding: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.08);
+}
+
+.invoice-table {
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.invoice-table thead th {
+  background: linear-gradient(45deg, #0d6efd, #0dcaf0);
+  color: white;
+  font-size: 11px;
+  text-align: center;
+  vertical-align: middle;
+  padding: 8px;
+}
+
+.invoice-table tbody td {
+  padding: 3px;
+  vertical-align: middle;
+}
+
+.compact-input {
+  height: 32px !important;
+  font-size: 11px !important;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-weight: 500 !important;
+}
+.compact-input2 {
+  height: 32px !important;
+  font-size: 10px !important;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-weight: 500 !important;
+}
+
+.action-btn {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 50%;
+}
+
+.custom-table {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.sticky-col {
+  position: sticky;
+  left: 0;
+  background: #fff;
+  z-index: 2;
+  min-width: 220px;
+}
+
+.text-end {
+  text-align: right;
+}
+
+/* when fewer fields visible */
+.invoice-table td,
+.invoice-table th {
+  min-width: 90px;
+}
+
+/* Mobile/small screen */
+@media (max-width: 1400px) {
+  .invoice-table {
+    font-size: 11px;
+  }
+
+  .compact-input {
+    height: 28px !important;
+    font-size: 11px !important;
+  }
+}
+
+/* BIG ITEM COLUMN */
+.item-column,
+.sticky-col {
+  min-width: 200px !important;
+  width: 200px !important;
+}
+
+.item-column2 {
+  min-width: 150px !important;
+  width: 150px !important;
+}
+
+/* Smaller action columns */
+.action-column {
+  width: 15px !important;
+  min-width: 15px !important;
+  text-align: center;
+  padding: 2px !important;
+}
+
+/* Small round buttons */
+.action-btn {
+  width: 22px !important;
+  height: 22px !important;
+  padding: 0 !important;
+  font-size: 12px !important;
+  border-radius: 50% !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Smaller icon size */
+.action-btn i {
+  font-size: 10px !important;
+}
+
+/* Compact row height */
+.invoice-table tbody td {
+  padding: 2px !important;
+}
+
+
+
+.form-label {
+    margin-bottom: .1rem !important;
+    font-size:x-small !important;
+    font-weight: 500 !important;
+}
+
+
+::ng-deep .custom-dialog-container .mat-mdc-dialog-surface {
+  height: 95vh !important;
+  max-height: 95vh !important;
+  overflow: hidden !important;
+}
+
+::ng-deep .mat-mdc-dialog-content {
+  max-height: calc(95vh - 120px) !important;
+  overflow-y: auto !important;
+}
+
+
+
+::ng-deep .small-field .mat-mdc-text-field-wrapper {
+  height: 32px !important;
+  padding: 1 !important;
+}
+
+::ng-deep .small-field .mat-mdc-form-field-flex {
+  height: 32px !important;
+  align-items: center !important;
+}
+
+::ng-deep .small-field .mat-mdc-input-element {
+  font-size: 12px !important;
+  margin-top: -8px !important;
+}
+
+::ng-deep .small-field .mdc-notched-outline {
+  height: 32px !important;
+}
+
+
+::ng-deep .ng-select {
+  width: 100%;
+}
+
+::ng-deep .ng-dropdown-panel {
+  z-index: 9999 !important;
+}
+
+
+
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255,255,255,0.8);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.loading-overlay p {
+  margin-top: 15px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+
+
+
+::ng-deep .city-field .mat-mdc-text-field-wrapper {
+  height: 35px !important;
+}
+
+::ng-deep .city-field .mat-mdc-form-field-infix {
+  min-height: 35px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+::ng-deep .city-field .mat-mdc-select-trigger {
+  height: 35px !important;
+  line-height: 35px !important;
+  display: flex;
+  align-items: center;
+}
+
+::ng-deep .city-field .mat-mdc-form-field-subscript-wrapper {
+  display: none;
+}
+
+
+
+.mat-mdc-option.mat-mdc-option-active.mdc-list-item {
+    background-color: rgba(0, 0, 0, 0.393) !important;
+    color: white !important;
+    outline: 0;
+}
+
+// .mat-mdc-option.mdc-list-item {
+//     align-items: center !important;
+//     background: black !important;
+// }
+.highlight-search {
+  background: yellow;
+ 
+  color: red;
+  font-weight: bold;
+}
+
+
+.item-row {
+  display: grid;
+  grid-template-columns: 5fr 1fr 1fr 1.5fr;
+  gap: 10px;
+  width: 100%;
+}
+
+.header-option {
+  position: sticky;
+  top: 0;
+  background: #1976d2 !important;
+  color: white !important;
+  font-weight: bold;
+}
+
+
+.invoice-table tfoot {
+  position: sticky;
+  bottom: 0;
+
+}
+
+.invoice-table tfoot td {
+    background-color: #f8f9fa !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-bottom: none !important;
+   
+}
+
+
+.add-new-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.25);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.add-new-box {
+  background: #fff;
+  padding: 25px;
+  border-radius: 8px;
+  min-width: 350px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,.3);
+}.add-new-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.25);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.add-new-box {
+  background: #fff;
+  padding: 25px;
+  border-radius: 8px;
+  min-width: 350px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,.3);
+}
+
+#pdfButton:focus {
+  background-color: green;
+  border-color: green;
+  color: #fff;
+  outline: none;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+
+/* Make item dropdown wider */
+.item-dropdown-panel {
+  min-width: 450px !important;
+  width: 450px !important;
+  max-width: 90vw !important;
+}
+
+/* Make the overlay itself wider */
+.cdk-overlay-pane:has(.item-dropdown-panel) {
+  width: 450px !important;
+  max-width: 90vw !important;
+}
+
+.item-full-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+
+  padding: 0 8px;
+  gap: 6px;
+
+  box-sizing: border-box;
+}
+
+.item-name {
+  flex: 1 1 auto;
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+
+  font-size: 14px;
+  font-weight: 500;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item-icon {
+  flex: 0 0 auto;
+  font-size: 12px;
+  margin-right: 4px;
+}
+
+.item-unit {
+  flex: 0 0 auto;
+
+  display: flex;
+  align-items: center;
+
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.unit-icon {
+  font-size: 10px;
+  margin-right: 2px;
+}
+
+.item-rate {
+  flex: 0 0 auto;
+
+  display: flex;
+  align-items: center;
+
+  white-space: nowrap;
+
+  font-size: 12px;
+  font-weight: 600;
+  color: #198754;
+}
+
+.rate-icon {
+  font-size: 10px;
+  margin-right: 2px;
+}
