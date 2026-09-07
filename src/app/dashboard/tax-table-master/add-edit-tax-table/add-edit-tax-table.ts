@@ -1,5 +1,5 @@
 import { CommonModule, TitleCasePipe } from '@angular/common';
-import { ChangeDetectorRef, Component, Inject,AfterViewInit, NgZone, ViewChild, ElementRef, HostListener } from '@angular/core';
+import { ChangeDetectorRef, Component, Inject, NgZone, ViewChild, ElementRef, HostListener } from '@angular/core';
 
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -16,7 +16,8 @@ import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 
 @Component({
   selector: 'app-add-edit-tax-table',
-  imports: [CommonModule,MaterialModule,RouterModule,ReactiveFormsModule,FormsModule,NgxMatSelectSearchModule],
+  imports: 
+  [CommonModule,MaterialModule,RouterModule,ReactiveFormsModule,FormsModule,NgxMatSelectSearchModule],
   templateUrl: './add-edit-tax-table.html',
   styleUrl: './add-edit-tax-table.scss',
     providers: [TitleCasePipe]
@@ -216,17 +217,16 @@ filteredCentralGST: any[] = [];
 filteredLocalGST: any[] = [];
 filteredTCS: any[] = [];
 filteredSwach: any[] = [];
+listOFSaveData:any[]=[];
+usedSalePurcAccountIds: number[] = [];
+currentEditSalePurcAccountId: number = 0;
  
   constructor(@Inject(MAT_DIALOG_DATA) public data:any,private fb: FormBuilder,private titleCase: TitleCasePipe ,private http:AllApiService,private cRouter:ActivatedRoute,
   private router: Router,private ngZone: NgZone,public dialog: MatDialog,
   private snackBar: MatSnackBar,
   private cdr: ChangeDetectorRef,public dialogRef: MatDialogRef<AddEditTaxTable>){}
  
- ngAfterViewInit(): void {
-  if (this.categoryId) {
-    this.updateData();
-  }
-}
+
   ngOnInit(): void {
     this.companyId = JSON.parse(localStorage.getItem('loggedUser') || '{}').companyId;
      this.userName = JSON.parse(localStorage.getItem('loggedUser') || '{}').username;
@@ -272,7 +272,7 @@ this.setupConditionalTaxValidation(
      
 
   
-    this.getAllData();
+    this.getSveDataList();
     
    // Central GST Search
 this.centralSearchCtrl.valueChanges.subscribe(value => {
@@ -364,14 +364,7 @@ this.swachSearchCtrl.valueChanges.subscribe(value => {
 
      // Reset Under Group dynamically
   
-    if(this.categoryId) { 
-      
-       this.updateData() ;
-      
-   }
-   else{
-   this.showSpiner = false;
-      }
+   
              this.searchCtrl.valueChanges.subscribe(search => {
 
   const text = (search || '').toLowerCase().trim();
@@ -514,52 +507,408 @@ onOpened(type: string, opened: boolean) {
   }
 }
 
-getAllData() {
-  this.http
-    .getAllDataId(ApiUrl.listOfAccount, this.companyId)
-    .subscribe((res: any) => {
+getSveDataList(): void {
 
-      if (!res || !Array.isArray(res.data)) {
-        this.listOfData = [];
-        this.liabilityList = [];
-        return;
+  this.http
+    .getAllDataId(
+      ApiUrl.listOfTaxTable,
+      this.companyId
+    )
+    .subscribe({
+
+      next: (res: any) => {
+
+        console.log('TAX TABLE SAVED DATA:', res);
+
+        this.usedSalePurcAccountIds = [];
+        this.currentEditSalePurcAccountId = 0;
+
+        if (!res || !Array.isArray(res.data)) {
+
+          this.listOFSaveData = [];
+
+          this.getAllData();
+
+          return;
+        }
+
+        const currentCompanyId =
+          Number(this.companyId || 0);
+
+        // ============================================
+        // ONLY CURRENT COMPANY TAX TABLE RECORDS
+        // ============================================
+
+        const filtered = res.data.filter((x: any) => {
+
+          const rowCompanyId =
+            Number(x.companyId || 0);
+
+          return (
+            rowCompanyId === 0 ||
+            rowCompanyId === currentCompanyId
+          );
+
+        });
+
+        this.listOFSaveData = [...filtered];
+
+
+        // ============================================
+        // FIND CURRENT EDIT RECORD ACCOUNT
+        // ============================================
+
+        if (this.categoryId > 0) {
+
+          const currentRecord = filtered.find(
+            (x: any) =>
+              Number(x.id || 0) ===
+              Number(this.categoryId)
+          );
+
+          if (currentRecord) {
+
+            this.currentEditSalePurcAccountId =
+              Number(
+                currentRecord.salePurcAccountId || 0
+              );
+
+          }
+
+        }
+
+
+        // ============================================
+        // GET USED ACCOUNT IDS
+        // ============================================
+
+        this.usedSalePurcAccountIds = filtered
+
+          .filter((x: any) => {
+
+            const taxTableId =
+              Number(x.id || 0);
+
+            const accountId =
+              Number(
+                x.salePurcAccountId || 0
+              );
+
+            if (accountId <= 0) {
+              return false;
+            }
+
+            // ========================================
+            // EDIT MODE:
+            // CURRENT RECORD ACCOUNT IS NOT BLOCKED
+            // ========================================
+
+            if (
+              this.categoryId > 0 &&
+              taxTableId === Number(this.categoryId)
+            ) {
+
+              return false;
+
+            }
+
+            return true;
+
+          })
+
+          .map((x: any) =>
+            Number(x.salePurcAccountId)
+          );
+
+
+        // Remove duplicate IDs
+
+        this.usedSalePurcAccountIds =
+          [...new Set(
+            this.usedSalePurcAccountIds
+          )];
+
+
+        console.log(
+          'CURRENT EDIT ACCOUNT ID:',
+          this.currentEditSalePurcAccountId
+        );
+
+        console.log(
+          'USED SALE/PURCHASE ACCOUNT IDS:',
+          this.usedSalePurcAccountIds
+        );
+
+
+        // ============================================
+        // NOW LOAD ACCOUNT MASTER
+        // ============================================
+
+        this.getAllData();
+
+      },
+
+      error: (err) => {
+
+        console.error(
+          'Tax Table API Error:',
+          err
+        );
+
+        this.usedSalePurcAccountIds = [];
+        this.currentEditSalePurcAccountId = 0;
+        this.listOFSaveData = [];
+
+        this.getAllData();
+
       }
 
-      const filtered = res.data.filter(
-        (x: any) => x.companyId === 0 || x.companyId === this.companyId
-      );
-
-      this.originalList = filtered.sort((a: any, b: any) =>
-        a.accountName.localeCompare(b.accountName)
-      );
-
-      // Existing dropdown filter
-      const allowedCategories = [
-        'Sale',
-        'Purchase',
-        'Expense',
-        'Income',
-        'Fixed Assets'
-      ];
-
-      this.listOfData = this.originalList.filter((x: any) =>
-        allowedCategories.includes(x.groupCategoryName)
-      );
-
-      // Liability dropdown
-      this.liabilityList = this.originalList.filter(
-        (x: any) => x.groupCategoryName === 'Liability'
-      );
-
-       this.filteredLists['salePurchase'] = [...this.listOfData];
-      //  this.filteredLists['gst'] = [...this.liabilityList];
-       this.filteredCentralGST = [...this.liabilityList];
-this.filteredLocalGST = [...this.liabilityList];
-this.filteredTCS = [...this.liabilityList];
-this.filteredSwach = [...this.liabilityList];
-
-      this.cdr.detectChanges();
     });
+
+}
+
+getAllData(): void {
+
+  this.http
+    .getAllDataId(
+      ApiUrl.listOfAccount,
+      this.companyId
+    )
+    .subscribe({
+
+      next: (res: any) => {
+
+        console.log(
+          'ACCOUNT MASTER DATA:',
+          res
+        );
+
+
+        if (
+          !res ||
+          !Array.isArray(res.data)
+        ) {
+
+          this.listOfData = [];
+          this.liabilityList = [];
+          this.filteredLists['salePurchase'] = [];
+
+          this.showSpiner = false;
+
+          return;
+        }
+
+
+        // ============================================
+        // ACCOUNT MASTER COMPANY FILTER
+        // ============================================
+
+        const filtered =
+          res.data.filter((x: any) => {
+
+            const accountCompanyId =
+              Number(x.companyId || 0);
+
+            const currentCompanyId =
+              Number(this.companyId || 0);
+
+            return (
+              accountCompanyId === 0 ||
+              accountCompanyId === currentCompanyId
+            );
+
+          });
+
+
+        // ============================================
+        // SORT
+        // ============================================
+
+        this.originalList =
+          [...filtered].sort(
+            (a: any, b: any) =>
+              (a.accountName || '')
+                .localeCompare(
+                  b.accountName || ''
+                )
+          );
+
+
+        // ============================================
+        // ALLOWED GROUPS
+        // ============================================
+
+        const allgroupName = [
+
+          'SALES ACCOUNTS',
+          'PURCHASE ACCOUNTS',
+          'DIRECT EXPENSES',
+          'INDIRECT EXPENSES',
+          'DIRECT INCOME',
+          'INDIRECT INCOME'
+
+        ];
+
+
+        // ============================================
+        // SALE / PURCHASE ACCOUNT LIST
+        // ============================================
+
+        this.listOfData =
+          this.originalList.filter((x: any) => {
+
+            // ----------------------------------------
+            // GROUP CHECK
+            // ----------------------------------------
+
+            if (
+              !allgroupName.includes(
+                x.groupName
+              )
+            ) {
+
+              return false;
+
+            }
+
+
+            const accountId =
+              Number(x.id || 0);
+
+
+            // ----------------------------------------
+            // CURRENT EDIT ACCOUNT
+            // ALWAYS SHOW IT
+            // ----------------------------------------
+
+            if (
+              this.categoryId > 0 &&
+              accountId ===
+              this.currentEditSalePurcAccountId
+            ) {
+
+              return true;
+
+            }
+
+
+            // ----------------------------------------
+            // ALREADY USED ACCOUNT
+            // DON'T SHOW
+            // ----------------------------------------
+
+            if (
+              this.usedSalePurcAccountIds
+                .includes(accountId)
+            ) {
+
+              console.log(
+                'REMOVED USED ACCOUNT:',
+                x.accountName,
+                accountId
+              );
+
+              return false;
+
+            }
+
+
+            return true;
+
+          });
+
+
+        // ============================================
+        // LIABILITY LIST
+        // ============================================
+
+        this.liabilityList =
+          this.originalList.filter(
+            (x: any) =>
+              x.groupName ===
+              'DUTIES & TAXES'
+          );
+
+
+        // ============================================
+        // INITIAL DROPDOWN LIST
+        // ============================================
+
+        this.filteredLists[
+          'salePurchase'
+        ] = [
+          ...this.listOfData
+        ];
+
+
+        this.filteredCentralGST =
+          [...this.liabilityList];
+
+        this.filteredLocalGST =
+          [...this.liabilityList];
+
+        this.filteredTCS =
+          [...this.liabilityList];
+
+        this.filteredSwach =
+          [...this.liabilityList];
+
+
+        console.log(
+          'CURRENT EDIT ACCOUNT:',
+          this.currentEditSalePurcAccountId
+        );
+
+        console.log(
+          'USED ACCOUNT IDS:',
+          this.usedSalePurcAccountIds
+        );
+
+        console.log(
+          'FINAL ACCOUNT DROPDOWN:',
+          this.listOfData
+        );
+
+
+        this.cdr.detectChanges();
+
+
+        // ============================================
+        // EDIT MODE
+        // ============================================
+
+        if (this.categoryId > 0) {
+
+          this.updateData();
+
+        } else {
+
+          this.showSpiner = false;
+
+        }
+
+      },
+
+      error: (err) => {
+
+        console.error(
+          'Account Master API Error:',
+          err
+        );
+
+        this.listOfData = [];
+        this.liabilityList = [];
+
+        this.filteredLists[
+          'salePurchase'
+        ] = [];
+
+        this.showSpiner = false;
+
+      }
+
+    });
+
 }
 
 
@@ -578,43 +927,78 @@ updateData(): void {
         if (res?.success && res.data) {
           const data = res.data; // extract actual group object
 
- this.addEditForm.patchValue({
-  id: data.id ?? 0,
-  companyId: data.companyId ?? this.companyId,
+this.addEditForm.patchValue({
 
-  salePurcAccountName: data.salePurcAccountName ?? 0,
+  id: Number(data.id || 0),
+
+  companyId:
+    Number(data.companyId || this.companyId),
+
+  salePurcAccountName:
+    Number(data.salePurcAccountName || 0),
+
   selectType: data.selectType ?? '',
-  underVatReturn: data.underVatReturn ?? '',
 
-  exciseApplicabe: data.exciseApplicabe ?? false,
+  underVatReturn:
+    data.underVatReturn ?? '',
 
-  // ===== GST CENTRAL =====
-  gstApplicabeCentral: data.gstApplicabeCentral ?? false,
-  gstApplicabeCentralName: data.gstApplicabeCentralName ?? 0,
-  gstApplicabeCentralRate: data.gstApplicabeCentralRate ?? 0,
-  gstApplicabeCentralCalculateOn: data.gstApplicabeCentralCalculateOn ?? '',
+  exciseApplicabe:
+    data.exciseApplicabe ?? false,
 
-  // ===== GST LOCAL =====
-  gstApplicabeLocal: data.gstApplicabeLocal ?? false,
-  gstApplicabeLocalName: data.gstApplicabeLocalName ?? 0,
-  gstApplicabeLocalRate: data.gstApplicabeLocalRate ?? 0,
-  gstApplicabeLocalCalculateOn: data.gstApplicabeLocalCalculateOn ?? '',
+  gstApplicabeCentral:
+    data.gstApplicabeCentral ?? false,
 
-  // ===== TCS =====
-  tcsApplicabe: data.tcsApplicabe ?? false,
-  tcsApplicabeName: data.tcsApplicabeName ?? 0,
-  tcsApplicabeRate: data.tcsApplicabeRate ?? 0,
-  tcsApplicabeCalculateOn: data.tcsApplicabeCalculateOn ?? '',
+  gstApplicabeCentralName:
+    data.gstApplicabeCentralName ,
 
-  // ===== SWACH BHARAT =====
-  swachBhartApplicable: data.swachBhartApplicable ?? false,
-  swachBhartApplicableName: data.swachBhartApplicableName ?? 0,
-  swachBhartApplicableRate: data.swachBhartApplicableRate ?? 0,
-  swachBhartApplicableCalculateOn: data.swachBhartApplicableCalculateOn ?? '',
+  gstApplicabeCentralRate:
+    data.gstApplicabeCentralRate ?? 0,
 
-  // ===== TOTALS =====
-  totalax: data.totalax ?? 0,
-  subTotalTax: data.subTotalTax ?? 0
+  gstApplicabeCentralCalculateOn:
+    data.gstApplicabeCentralCalculateOn ?? '',
+
+  gstApplicabeLocal:
+    data.gstApplicabeLocal ?? false,
+
+  gstApplicabeLocalName:
+    data.gstApplicabeLocalName ,
+
+  gstApplicabeLocalRate:
+    data.gstApplicabeLocalRate ?? 0,
+
+  gstApplicabeLocalCalculateOn:
+    data.gstApplicabeLocalCalculateOn ?? '',
+
+  tcsApplicabe:
+    data.tcsApplicabe ?? false,
+
+  tcsApplicabeName:
+    data.tcsApplicabeName ,
+
+  tcsApplicabeRate:
+    data.tcsApplicabeRate ?? 0,
+
+  tcsApplicabeCalculateOn:
+    data.tcsApplicabeCalculateOn ?? '',
+
+  swachBhartApplicable:
+    data.swachBhartApplicable ?? false,
+
+  swachBhartApplicableName:
+    data.swachBhartApplicableName ,
+
+  swachBhartApplicableRate:
+    data.swachBhartApplicableRate ?? 0,
+
+  swachBhartApplicableCalculateOn:
+    data.swachBhartApplicableCalculateOn ?? '',
+
+  totalax:
+    data.totalax ?? 0,
+
+  subTotalTax:
+    data.subTotalTax ?? 0
+
 });
 
 
@@ -913,7 +1297,7 @@ openGstVat(data?: any) {
   
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-         this.getAllData(); // reload list automatically
+         this.getSveDataList(); // reload list automatically
       }
     });
 }

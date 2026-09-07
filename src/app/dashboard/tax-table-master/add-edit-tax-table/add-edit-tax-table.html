@@ -5,7 +5,7 @@
       <div class="row g-3">
 
         <!-- Sale Purchase A/C -->
-        <div class="col-sm-4">
+        <div class="col-sm-6">
           <label class="form-label">Sale Purchase A.C Name *</label>
           <!-- <select class="form-control" formControlName="salePurcAccountName">
             <option value="" disabled>Select Group</option>
@@ -71,7 +71,7 @@
         </div>
 
         <!-- Select Type -->
-        <div class="col-sm-3">
+        <div class="col-sm-6">
           <label class="form-label">Select Type *</label>
 <mat-form-field appearance="outline" class="w-100 city-field" style="margin-top: -7px;" >
           <mat-select #select
@@ -145,24 +145,33 @@
   </mat-select> -->
 
 
-    <mat-select
-   
+  <mat-select
     #gstApplicabeCentralName
     formControlName="gstApplicabeCentralName"
-     (openedChange)="onOpened('gst', $event)"
-     (closed)="onDropdownClosed(gstApplicabeCentralName,'gstApplicabeCentralName')"
-      (selectionChange)="onSelectionChange(gstApplicabeCentralName)"
-       (keydown.enter)="handleMatSelectEnter($event, gstApplicabeCentralName, 'gstApplicabeCentralName')"
-    >
+    (openedChange)="onOpened('gst', $event)"
+    (closed)="onDropdownClosed(gstApplicabeCentralName,'gstApplicabeCentralName')"
+    (selectionChange)="onSelectionChange(gstApplicabeCentralName)"
+    (keydown.enter)="handleMatSelectEnter(
+      $event,
+      gstApplicabeCentralName,
+      'gstApplicabeCentralName'
+    )">
 
-<ngx-mat-select-search
-    [formControl]="centralSearchCtrl">
-</ngx-mat-select-search>
+  <!-- SEARCH MUST BE INSIDE mat-option -->
+  <mat-option>
+    <ngx-mat-select-search
+        [formControl]="centralSearchCtrl"
+        placeholderLabel="Search Central GST"
+        noEntriesFoundLabel="No matching Central GST">
+    </ngx-mat-select-search>
+  </mat-option>
 
-<mat-option *ngFor="let item of filteredCentralGST"
-            [value]="item.id">
-    {{item.accountName}}
-</mat-option>
+  <!-- ACTUAL OPTIONS -->
+  <mat-option
+      *ngFor="let item of filteredCentralGST"
+      [value]="item.id">
+    {{ item.accountName }}
+  </mat-option>
 
 </mat-select>
   </mat-form-field>
@@ -266,10 +275,14 @@
       (selectionChange)="onSelectionChange(gstApplicabeLocalName)"
        (keydown.enter)="handleMatSelectEnter($event, gstApplicabeLocalName, 'gstApplicabeLocalName')"
     >
+    <mat-option>
 <ngx-mat-select-search
-    [formControl]="localSearchCtrl">
+    [formControl]="localSearchCtrl"
+    placeholderLabel="Search Local GST"
+      noEntriesFoundLabel="No matching Local GST"
+    >
 </ngx-mat-select-search>
-
+</mat-option>
 <mat-option *ngFor="let item of filteredLocalGST"
             [value]="item.id">
     {{item.accountName}}
@@ -376,10 +389,13 @@
       (selectionChange)="onSelectionChange(tcsApplicabeName)"
        (keydown.enter)="handleMatSelectEnter($event, tcsApplicabeName, 'tcsApplicabeName')"
     >
+     <mat-option>
 <ngx-mat-select-search
-    [formControl]="tcsSearchCtrl">
+    [formControl]="tcsSearchCtrl"
+    placeholderLabel="Search TCS"
+      noEntriesFoundLabel="No matching TCS">
 </ngx-mat-select-search>
-
+</mat-option>
 <mat-option *ngFor="let item of filteredTCS"
             [value]="item.id">
     {{item.accountName}}
@@ -487,8 +503,11 @@
       (selectionChange)="onSelectionChange(swachBhartApplicableName)"
        (keydown.enter)="handleMatSelectEnter($event, swachBhartApplicableName, 'swachBhartApplicableName')"
     >
+     <mat-option>
 <ngx-mat-select-search
-    [formControl]="swachSearchCtrl">
+    [formControl]="swachSearchCtrl"
+     placeholderLabel="Search Swach Bharat"
+      noEntriesFoundLabel="No matching Swach Bharat">
 </ngx-mat-select-search>
 
 <mat-option *ngFor="let item of filteredSwach"
@@ -496,7 +515,7 @@
     {{item.accountName}}
 </mat-option>
 
-
+</mat-option>
   </mat-select>
   </mat-form-field>
             <!-- <select class="form-control"

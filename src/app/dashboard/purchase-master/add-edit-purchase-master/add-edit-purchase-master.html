@@ -41,9 +41,10 @@
             <mat-form-field appearance="outline" class="w-100 city-field" >
   <mat-select
    #invoiceHeading
+    id="invoiceHeading"
     formControlName="invoiceHeadingInt"
     (keydown.enter)="handleMatSelectEnter(invoiceHeading, 'invoiceHeadingInt')"
-     (selectionChange)="onHeadingSelect($event); focusNextRegd(accountSelect)"
+     
 
     (keydown)="onHeadingKeyDown($event)"
    >
@@ -76,8 +77,9 @@
         <label class="form-label">Invoice No</label>
       
        <input type="text" class="form-control format" formControlName="invoiceNo" 
-      [readonly]="headingPermission === '1'"
-         tabindex="-1" />
+        (keydown)="onInvoiceNoKeyDown($event)"
+     
+         />
       </div>
         <div class="col-md-2">
         <label class="form-label">Invoice Date</label>
@@ -453,52 +455,89 @@
     </mat-option>
 
   </mat-select> -->
-   <mat-select
-    #itemSelect
-     [id]="'itemSelect' + i"
-    formControlName="itemId"
-       [panelWidth]="'400px'"
-    (openedChange)="onOpened('item', $event)"
-    (closed)="onItemClosed(itemSelect, i)"
-    (selectionChange)="onItemChange(i)"
-    (blur)="onRowTotalBlur(i)"
-     (keydown)="onItemKeyDown($event, i, itemSelect)"
-   >
+  <mat-select
+  #itemSelect
+  [id]="'itemSelect' + i"
+  formControlName="itemId"
+  [panelWidth]="'650px'"
+  (openedChange)="onOpened('item', $event)"
+  (closed)="onItemClosed(itemSelect, i)"
+  (selectionChange)="onItemChange(i)"
+  (blur)="onRowTotalBlur(i)"
+  (keydown)="onItemKeyDown($event, i, itemSelect)"
+>
 
-  <mat-option>
- <ngx-mat-select-search
-    [formControl]="itemSearchCtrls[i]"
-    placeholderLabel="Search item"
-     (keydown.shift)="removeRowAndFocus(i)"
-    noEntriesFoundLabel="No matching item"
+  <!-- Selected value: ONLY ITEM NAME -->
+  <mat-select-trigger>
+    {{ getSelectedItemName(i) }}
+  </mat-select-trigger>
+
+
+  <!-- SEARCH -->
+  <mat-option class="item-search-option">
+    <ngx-mat-select-search
+      [formControl]="itemSearchCtrls[i]"
+      placeholderLabel="Search item"
+      noEntriesFoundLabel="No matching item"
+      (keydown.shift)="removeRowAndFocus(i)"
     >
-</ngx-mat-select-search>
+    </ngx-mat-select-search>
+  </mat-option>
+
+
+  <!-- TABLE HEADER -->
+  <div class="item-table-header">
+    <div>Item Name</div>
+    <div>Opening Stock</div>
+    <div> Opening Stock Rate</div>
+    <div> Opening Stock Value</div>
+  
+  </div>
+
+
+  <!-- TABLE ROWS -->
+  <mat-option
+    *ngFor="let u of filteredItems[i]"
+    [value]="u.itemId"
+    class="item-option"
+  >
+
+    <div class="item-table-row">
+
+      <div class="item-name" [title]="u.itemName">
+        {{ u.itemName }}
+      </div>
+
+      <div>
+        {{ u.openingStock || '-' }}
+      </div>
+      <div>
+           {{ (+u.openingStockRate || 0) | currency:'INR':'symbol':'1.2-2' }}
+      
+      </div>
+        <div>
+           {{ (+u.openingStockValue || 0) | currency:'INR':'symbol':'1.2-2' }}
+      
+      </div>
+
+      <!-- <div>
+         {{ u.netQty || '-' }}
+       
+      </div> -->
+
+      <!-- <div class="text-end">
+        {{ (+u.purchaseValue || 0) | currency:'INR':'symbol':'1.2-2' }}
+      </div> -->
+
+      <!-- <div class="text-end">
+        {{ (+u.saleValue || 0) | currency:'INR':'symbol':'1.2-2' }}
+      </div> -->
+
+    </div>
 
   </mat-option>
-  
- 
-  <mat-option
-  
-      *ngFor="let u of filteredItems[i]"
-     [value]="u.itemId">
-     <span   [title]="'Item : ' + u.itemName +
-           '\nRate : ' + u.saleRate +
-           '\nUnit : ' + u.unitName +
-           '\npurchase Rate : ' + u.purchaseRate +
-           '\nopening Stock : ' + u.openingStock +
-           '\nopening Stock Rate : ' + u.openingStockRate +
-           '\nopening Stock Value : ' + u.openingStockValue +
-           '\nPrice : ' + (u.salePrice | currency:'USD')">
-     
-       <ng-container
-      *ngIf="getHighlightedPartsItems(u.itemName, itemSearchCtrls[i].value || '') as p">
-    {{ p.before }}
-    <span class="highlight-search">{{ p.match }}</span>
-    {{ p.after }} -{{u.unitName}} -{{u.purchaseRate}}
-  </ng-container>
-  </span>
-  </mat-option>
-</mat-select>  
+
+</mat-select>
 </mat-form-field>    
             <!-- <select class="form-control compact-input"
                     formControlName="itemId"
@@ -636,49 +675,39 @@
               </option>
             </select> -->
             <mat-form-field appearance="outline" class="w-100 city-field">
+<mat-select
+  #taxSelect
+  formControlName="taxableValueId"
+  (openedChange)="onOpened('tax', $event)"
+  (selectionChange)="onTaxChange(i)"
+  (closed)="onTaxClosed(taxSelect, i)"
+>
+  <mat-option>
+    <ngx-mat-select-search
+      [formControl]="taxSearchCtrls[i]"
+      placeholderLabel="Search Tax"
+      noEntriesFoundLabel="No matching tax">
+    </ngx-mat-select-search>
+  </mat-option>
 
-    <mat-select
-      #taxSelect
-      formControlName="taxableValueId"
-      (openedChange)="onOpened('tax', $event)"
-      (selectionChange)="onTaxChange(i)"
-      (closed)="onTaxClosed(taxSelect, i)"
-       >
+  <mat-option
+    *ngFor="let tax of filteredTaxes[i]"
+    [value]="tax.id">
 
-      <mat-option>
-        <ngx-mat-select-search
-          [formControl]="taxSearchCtrls[i]"
-          placeholderLabel="Search Tax"
-          noEntriesFoundLabel="No matching tax"
-           >
-        </ngx-mat-select-search>
-      </mat-option>
+    <ng-container
+      *ngIf="getHighlightedPartsItems(
+        tax.salePurcAccountName,
+        taxSearchCtrls[i].value || ''
+      ) as p">
 
-      <mat-option
-        *ngFor="let tax of filteredTaxes[i]"
-        [value]="tax.id">
-  <ng-container
-      *ngIf="getHighlightedPartsItems(tax.salePurcAccountName, taxSearchCtrls[i].value || '') as p">
-    {{ p.before }}
-    <span class="highlight-search">{{ p.match }}</span>
-    {{ p.after }}
-  </ng-container>
-        <!-- {{ tax.salePurcAccountName }} -->
+      {{ p.before }}
+      <span class="highlight-search">{{ p.match }}</span>
+      {{ p.after }}
 
-      </mat-option>
+    </ng-container>
 
-       <!-- <mat-option
-       *ngFor="let tax of listOfTaxTableData"
-        [value]="tax.id">
-
-        {{ tax.salePurcAccountName }}
-
-      </mat-option> -->
-
-
-       
-
-    </mat-select>
+  </mat-option>
+</mat-select>
 
   </mat-form-field>
  <small class="text-danger" *ngIf="isRowInvalid(i,'taxableValueId') && getRowControl(i,'taxableValueId')?.value == 0">

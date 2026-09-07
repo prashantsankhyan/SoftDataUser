@@ -159,6 +159,29 @@ focusNextRegd(select: MatSelect) {
     });
   });
 }
+focusNext(event: KeyboardEvent, index: number) {
+  if (event.key !== 'Enter') {
+    return;
+  }
+
+  event.preventDefault();
+
+  const inputs = Array.from(
+    document.querySelectorAll('input, select, textarea')
+  ) as HTMLElement[];
+
+  let nextIndex = index + 1;
+
+  while (
+    nextIndex < inputs.length &&
+    inputs[nextIndex].getAttribute('formcontrolname') === 'hsn'
+  ) {
+    nextIndex++;
+  }
+
+  inputs[nextIndex]?.focus();
+}
+
   @ViewChild(MatAutocompleteTrigger)
 autocomplete!: MatAutocompleteTrigger;
 @ViewChildren(MatSelect)
@@ -252,14 +275,11 @@ private itemEnterNavigation = false;
      this.userName = JSON.parse(localStorage.getItem('loggedUser') || '{}').username;
     
     
-  
+    this.data;
     
     
-      this.purchaseInvoiceId = Number(this.data?.purchaseInvoiceId) || 0;
+      this.purchaseInvoiceId = Number(this.data?.purchaseInvoiceId,) || 0;
       this.isEditing = this.purchaseInvoiceId > 0;
-
-  console.log('Purchase Invoice ID:', this.purchaseInvoiceId);
-  console.log('Is Editing:', this.isEditing);
    
  
     this.makeForm();
@@ -275,8 +295,6 @@ this.getInvoiceHeading();
    else{
    this.showSpiner = false;
       }
-
-      
    }
 
    
@@ -1170,7 +1188,7 @@ onHeadingSelect(event: any) {
       next: (res: any) => {
         console.log('API RESPONSE:', res);
 
-        // Make sure the API call was successful and data exists
+      
         if (res?.success && res.data) {
           const data = res.data; // extract actual group object
 
@@ -1205,33 +1223,34 @@ getPurchaseHeading() {
 }
 
 getNextInvoiceNumber(headingId: number) {
-  if (!headingId) return;
+  // if (!headingId) return;
 
-  const heading = this.listOfSaleHeadingData.find(
-    x => Number(x.id) === Number(headingId)
-  );
-  if (!heading) return;
+  // const heading = this.listOfSaleHeadingData.find(
+  //   x => Number(x.id) === Number(headingId)
+  // );
+  // if (!heading) return;
 
-  const startFrom = Number(heading.numberStartFrom);
-  const prefix = heading?.prefix?.trim() || '';
-  const suffix = heading?.suffix?.trim() || '';   // ✅ add this
+  // const startFrom = Number(heading.numberStartFrom);
+  // const prefix = heading?.prefix?.trim() || '';
+  // const suffix = heading?.suffix?.trim() || '';  
 
-  this.http
-    .getNextInvoiceNoPurchase(this.companyId, headingId, startFrom, prefix, suffix)
-    .subscribe({
-      next: res => {
+  // this.http
+  //   .getNextInvoiceNoPurchase(this.companyId, headingId, startFrom, prefix, suffix)
+  //   .subscribe({
+  //     next: res => {
         
-        const nextNo = res.nextInvoiceNo?.toString();
-        if (nextNo) {
-          this.addEditForm.patchValue(
-            { invoiceNo: nextNo },
-            { emitEvent: false }
-          );
-        }
-      },
-      error: err => console.error('Error fetching next invoice:', err)
-    });
+  //       const nextNo = res.nextInvoiceNo?.toString();
+  //       if (nextNo) {
+  //         this.addEditForm.patchValue(
+  //           { invoiceNo: nextNo },
+  //           { emitEvent: false }
+  //         );
+  //       }
+  //     },
+  //     error: err => console.error('Error fetching next invoice:', err)
+  //   });
 }
+
 
 
 
@@ -1369,20 +1388,20 @@ applySaleScreenConfig() {
   const cfg = this.screenConfig;
 
   this.purchaseInvoiceDetails.controls.forEach(row => {
-    this.toggle(row, 'barcode', cfg?.barcodePurchase);
-    this.toggle(row, 'hsn', cfg?.hsnPurchase);
+    this.toggle(row, 'barcode', cfg?.barcodeSale);
+    // this.toggle(row, 'hsn', cfg?.hsnsale);
       // ✅ FIX HERE
-    this.toggle(row, 'mRate', cfg?.mRatePurchase);
-    this.toggle(row, 'discPer', cfg?.discPercentPurchase);
-    this.toggle(row, 'discAmt', cfg?.discountPurchase);
-    this.toggle(row, 'remarks', cfg?.remarksPurchase);
+    this.toggle(row, 'mRate', cfg?.mRateSale);
+    this.toggle(row, 'discPer', cfg?.discPercentSale);
+    this.toggle(row, 'discAmt', cfg?.discountSale);
+    this.toggle(row, 'remarks', cfg?.remarksSale);
 
-    this.toggle(row, 'art', cfg?.artPurchase);
-    this.toggle(row, 'size', cfg?.sizePurchase);
-    this.toggle(row, 'color', cfg?.colorPurchase);
-    this.toggle(row, 'pack1', cfg?.pack1Purchase);
-    this.toggle(row, 'pack2', cfg?.pack2Purchase);
-     this.toggle(row, 'pack2', cfg?.pack2Purchase);
+    this.toggle(row, 'art', cfg?.artSale);
+    this.toggle(row, 'size', cfg?.sizeSale);
+    this.toggle(row, 'color', cfg?.colorSale);
+    this.toggle(row, 'pack1', cfg?.pack1Sale);
+    this.toggle(row, 'pack2', cfg?.pack2Sale);
+     this.toggle(row, 'pack2', cfg?.pack2Sale);
   
   });
 }
@@ -1746,15 +1765,16 @@ onItemChange(index: number) {
    
   // });
  const taxId =
-  selectedItem.cgstSgstSale > 0
-    ? Number(selectedItem.cgstSgstSale)
-    : selectedItem.igstSaleName > 0
-    ? Number(selectedItem.igstSaleName)
+  selectedItem.cgstSgstPurchase > 0
+    ? Number(selectedItem.cgstSgstPurchase)
+    : selectedItem.igstPurchase > 0
+    ? Number(selectedItem.igstPurchase)
     : null;
 this.filteredTaxes[index] = [...this.listOfTaxTableData];
 
 row.patchValue({
   barcode: selectedItem.itemBarCodeOrPartNo || '',
+  // qty:selectedItem.quantity || '',
   hsn: selectedItem.hsn || '',
   rate: selectedItem.saleRate || 0,
   mRate: selectedItem.mrpRate || 0,
@@ -1865,14 +1885,14 @@ updateData(): void {
     return;
   }
 
-  this.isLoading = true;
+  
 
 
 
   this.http
     .getAllDataIdSale(ApiUrl.getPurchaseForUpdateById,this.purchaseInvoiceId)
     .subscribe((d: any) => {
-
+this.isLoading = false;
       console.log('API DATA:', d);
 
       if (!d) {
@@ -2136,7 +2156,7 @@ private safeDate(date: string | Date | null): string {
         if (res?.length) {
 
           const sorted = res.sort((a, b) =>
-            b.purchaseInvoiceId - a.purchaseInvoiceId
+            b.purchaseInvoiceId - a.purchaseInvoiceId,
           );
 
           const lastHeading = sorted[0].invoiceHeadingInt;
@@ -2347,6 +2367,23 @@ this.addInvoiceDetailRow();
 }
 get purchaseInvoiceDetails(): FormArray {
   return this.addEditForm.get('purchaseInvoiceDetails') as FormArray;
+}
+getSelectedItemName(index: number): string {
+
+  const itemId = this.purchaseInvoiceDetails
+    .at(index)
+    .get('itemId')
+    ?.value;
+
+  if (!itemId) {
+    return '';
+  }
+
+  const item = this.listOfAllItem.find(
+    (x: any) => x.itemId === itemId
+  );
+
+  return item?.itemName || '';
 }
 getRowControl(i: number, control: string) {
   return this.purchaseInvoiceDetails.at(i).get(control);
@@ -2661,31 +2698,85 @@ handleAddRow(index: number) {
   });
 }
 
-onTaxKeyDown(event: KeyboardEvent, index: number) {
+onTaxKeyDown(
+  event: KeyboardEvent,
+  index: number,
+  taxSelect: MatSelect
+): void {
 
-  // ✅ Shift + Enter (reliable across browsers)
-  if (!(event.key === 'Enter')) return;
+  // =====================================================
+  // ARROW LEFT
+  // =====================================================
+
+  if (event.key === 'ArrowLeft') {
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    console.log(
+      'TAX ARROW LEFT ROW:',
+      index
+    );
+
+    // Close THIS exact tax dropdown
+    if (taxSelect?.panelOpen) {
+      taxSelect.close();
+    }
+
+    // Go to previous field in SAME row
+    this.goBackFromTax(
+      index
+    );
+
+    return;
+  }
+
+
+  // =====================================================
+  // ENTER
+  // YOUR EXISTING LOGIC
+  // =====================================================
+
+  if (event.key !== 'Enter') {
+    return;
+  }
 
   event.preventDefault();
 
   // only add on last row
-  if (index !== this.purchaseInvoiceDetails.length - 1) return;
+  if (
+    index !==
+    this.purchaseInvoiceDetails.length - 1
+  ) {
+    return;
+  }
 
   // block if row invalid
-  if (this.purchaseInvoiceDetails.at(index).invalid) return;
+  if (
+    this.purchaseInvoiceDetails
+      .at(index)
+      .invalid
+  ) {
+    return;
+  }
 
   // add new row
   this.addInvoiceDetailRow();
 
-  // 🔥 WAIT FOR DOM RENDER
+  // wait for DOM render
   setTimeout(() => {
+
     this.cdr.detectChanges();
 
-    const items = this.itemSelects.toArray();
-    const last = items[items.length - 1];
+    const items =
+      this.itemSelects.toArray();
+
+    const last =
+      items[items.length - 1];
 
     last?.nativeElement?.focus();
-  });
+
+  }, 100);
 }
 
 // removeInvoiceDetailRow(index: number) {
@@ -3518,7 +3609,7 @@ clearZero(controlName: string): void {
 
 //   if (this.addEditForm.invalid) return;
 
-//   const isEdit = !!this.addEditForm.value.purchaseInvoiceId;
+//   const isEdit = !!this.addEditForm.value.purchaseInvoiceId,;
 
 //   const formValue = this.addEditForm.value;
 
@@ -3639,12 +3730,12 @@ this.isSaving = false;
 
           this.addEditForm.patchValue({
             purchaseInvoiceId:
-              res.purchaseInvoiceId
+              res.purchaseInvoiceId,
           });
 
           console.log(
             'Saved Invoice ID:',
-            res.purchaseInvoiceId
+            res.purchaseInvoiceId,
           );
         }
      
@@ -3865,7 +3956,7 @@ calculateRoundOff(value: number): number {
 
 //   if (this.addEditForm.invalid) return;
 
-//   const isEdit = !!this.addEditForm.value.purchaseInvoiceId;
+//   const isEdit = !!this.addEditForm.value.purchaseInvoiceId,;
 
 // const formValue = this.addEditForm.value;
 
@@ -4049,12 +4140,12 @@ addUnitShorcut(data?: any) {
 
 // openPdfModel() {
 // const isLargeView = true; // your condition
-//   const purchaseInvoiceId =
+//   const purchaseInvoiceId, =
 //     this.addEditForm.get(
-//       'purchaseInvoiceId'
+//       'purchaseInvoiceId,'
 //     )?.value;
 
-//   if (!purchaseInvoiceId) {
+//   if (!purchaseInvoiceId,) {
 //     this.snackBar.open(
 //       'Please save invoice first',
 //       'Close',
@@ -4070,7 +4161,7 @@ addUnitShorcut(data?: any) {
 //        maxHeight: isLargeView ? '95vh' : '90vh',
 //   height: isLargeView ? 'auto' : '800px',
 //       data: {
-//         purchaseInvoiceId: purchaseInvoiceId,
+//         purchaseInvoiceId,: purchaseInvoiceId,,
 //          autoPrint: true // ✅ send flag
 //       }
 //     });
@@ -4098,7 +4189,8 @@ openPdfModel() {
     return;
   }
 
-  this.dialog.open(PurchasePdf, {
+
+   this.dialog.open(PurchasePdf, {
     width: '1px',
     height: '1px',
     panelClass: 'hidden-dialog',
@@ -4108,10 +4200,66 @@ openPdfModel() {
       autoPrint: true
     }
   });
+
 }
 
 
 @HostListener('document:keydown', ['$event'])
+onInvoiceNoKeyDown(event: KeyboardEvent): void {
+
+  if (event.key !== 'ArrowLeft') {
+    return;
+  }
+
+  event.preventDefault();
+  event.stopPropagation();
+
+  console.log('INVOICE NO LEFT ARROW');
+
+  // =====================================================
+  // FIND INVOICE HEADING MAT-SELECT
+  // =====================================================
+
+  const invoiceHeading = document.getElementById(
+    'invoiceHeading'
+  ) as HTMLElement | null;
+
+  console.log('INVOICE HEADING ELEMENT:', invoiceHeading);
+
+  if (!invoiceHeading) {
+    console.log('INVOICE HEADING NOT FOUND');
+    return;
+  }
+
+  // =====================================================
+  // CLOSE ANY OPEN MAT-SELECT
+  // =====================================================
+
+  const openSelects = Array.from(
+    document.querySelectorAll(
+      'mat-select[aria-expanded="true"]'
+    )
+  ) as HTMLElement[];
+
+  openSelects.forEach(select => {
+    select.blur();
+  });
+
+  // =====================================================
+  // FOCUS INVOICE HEADING
+  // =====================================================
+
+  setTimeout(() => {
+
+    invoiceHeading.focus();
+
+    console.log(
+      'INVOICE HEADING FOCUS RESULT:',
+      document.activeElement
+    );
+
+  }, 100);
+}
 onLeftArrowBack(
   event: KeyboardEvent,
   sourceElement?: HTMLElement
@@ -4267,6 +4415,9 @@ onLeftArrowBack(
 
     return;
   }
+
+
+  
 
   // =====================================================
   // YOUR MAT-SELECT / TABLE LOGIC CAN CONTINUE BELOW
@@ -4437,6 +4588,7 @@ private closeTaxDropdown(
 // If all hidden -> previous visible compact input
 // =========================================================
 
+
 private goBackFromTax(
   rowIndex: number
 ): void {
@@ -4468,30 +4620,17 @@ private goBackFromTax(
   // GET ALL SALE ROWS
   // =======================================================
 
-  const rows =
-    Array.from(
-      document.querySelectorAll(
-        'table tbody tr'
-      )
-    ) as HTMLElement[];
+const rows = Array.from(
+  document.querySelectorAll(
+    'table tbody[formArrayName="purchaseInvoiceDetails"] tr'
+  )
+) as HTMLElement[];
 
-  const row =
-    rows[rowIndex] || null;
+const row = rows[rowIndex];
 
-  if (!row) {
-
-    console.log(
-      'ARROW LEFT: ROW NOT FOUND:',
-      rowIndex
-    );
-
-    return;
-  }
-
-  console.log(
-    'ARROW LEFT ROW:',
-    row
-  );
+if (!row) {
+  return;
+}
 
   // =======================================================
   // POSSIBLE PREVIOUS CONTROLS
@@ -4920,6 +5059,7 @@ private moveArrowLeftCursorToEnd(
     }
   }
 }
+
 }
 
 

@@ -75,6 +75,7 @@ addEditItemMaster:'SoftDataAPI/add-edit-item-master',
 alreadyExistItemMaster:'SoftDataAPI/check-item-exists',
 getItemMasterForEdit:'SoftDataAPI/get-item-by-id',
 deleteItemMaster:'SoftDataAPI/delete-item-by-id',
+stockManagement:'SoftDataAPI/get-item-wise-stock',
 
 
 listOfAccount:'SoftDataAPI/get-accounts-by-company',

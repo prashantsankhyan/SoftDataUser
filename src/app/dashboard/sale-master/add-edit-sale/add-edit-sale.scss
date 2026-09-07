@@ -115,6 +115,9 @@ input[type="number"] {
 .text-end {
   text-align: right;
 }
+.text-center {
+  text-align: center;
+}
 
 /* when fewer fields visible */
 .invoice-table td,
@@ -382,15 +385,13 @@ input[type="number"] {
   display: grid;
 
   grid-template-columns:
-    150px  /* Item Name */
+    130px  /* Item Name */
+  60px  /* Item Name */
+  80px  /* Item Name */
+  80px  /* Sale Rate */
   
   
-    20px   /* Quantity */
-    90px  /* Sale Rate */
-  
-    90px  /* MRP Rate */
-  
-    90px;  /* Opening Stock Rate */
+    60px;  /* Opening Stock Rate */
   
 
   align-items: center;

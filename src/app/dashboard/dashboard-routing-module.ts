@@ -108,6 +108,10 @@ const routes: Routes = [
         path:'salePurchaseLaddgerAccoutBase',
         loadChildren:()=>import('./sale-purchase-ladger-account-base/sale-purchase-ladger-account-base-module').then(m=>m.SalePurchaseLadgerAccountBaseModule)
     },
+      {
+        path:'stockManagement',
+        loadChildren:()=>import('./stock-management/stock-management-module').then(m=>m.StockManagementModule)
+    },
 
     
      

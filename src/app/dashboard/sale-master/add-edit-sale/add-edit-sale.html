@@ -507,7 +507,7 @@
   #itemSelect
   [id]="'itemSelect' + i"
   formControlName="itemId"
-  [panelWidth]="'500px'"
+  [panelWidth]="'458px'"
   (openedChange)="onOpened('item', $event)"
   (closed)="onItemClosed(itemSelect, i)"
   (selectionChange)="onItemChange(i)"
@@ -536,10 +536,11 @@
   <!-- TABLE HEADER -->
   <div class="item-table-header">
     <div>Item Name</div>
-    <div>Quantity</div>
-    <div class="text-end">S Rate</div>
-    <div class="text-end">P Rate</div>
-    <div class="text-end">MRP Rate</div>
+    <div>hsn </div>
+    <div  class="text-center"> Balance Qty</div>
+    <div  class="text-center"> Purchase Rate</div>
+    <div  class="text-center">Sale Rate</div>
+   
   </div>
 
 
@@ -557,20 +558,24 @@
       </div>
 
       <div>
-        {{ u.quantity || '-' }}
+        {{ u.hsn || '-' }}
+      </div>
+      <div class="text-center">
+  {{ u.closingQty != null
+      ? (u.closingQty | number: '1.' + (u.decimal || '0') + '-' + (u.decimal || '0'))
+      : '-' }}
+</div>
+
+      <div  class="text-center">
+         
+        {{ (+u.lastPurchaseRate || 0) | currency:'INR':'symbol':'1.2-2' }}
       </div>
 
-      <div class="text-end">
+      <div class="text-center">
         {{ (+u.saleRate || 0) | currency:'INR':'symbol':'1.2-2' }}
       </div>
 
-      <div class="text-end">
-        {{ (+u.purchaseRate || 0) | currency:'INR':'symbol':'1.2-2' }}
-      </div>
-
-      <div class="text-end">
-        {{ (+u.mrpRate || 0) | currency:'INR':'symbol':'1.2-2' }}
-      </div>
+    
 
     </div>
 

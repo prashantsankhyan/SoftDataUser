@@ -154,6 +154,35 @@ getAndEditById(
       return data;
     }))
   }
+//   getItemWiseStock(
+//   url: string,
+//   companyId: any,
+//   itemId?: any,
+//   fromDate?: any,
+//   toDate?: any
+// ): Observable<any> {
+
+//   let apiUrl = `${environment.apiBaseUrl}${url}?companyId=${companyId}`;
+
+//   if (itemId !== null && itemId !== undefined) {
+//     apiUrl += `&itemId=${itemId}`;
+//   }
+
+//   if (fromDate) {
+//     apiUrl += `&fromDate=${fromDate}`;
+//   }
+
+//   if (toDate) {
+//     apiUrl += `&toDate=${toDate}`;
+//   }
+
+//   return this.http.get(apiUrl);
+// }
+
+getItemWiseStock(url: string, companyId: any, itemId: any): Observable<any> {
+  const apiUrl = `${environment.apiBaseUrl}${url}?companyId=${companyId}&itemId=${itemId}`;
+  return this.http.get(apiUrl);
+}
   getAllDataByThreId(url:string,id?:any ,id1?:any,id2?:any) :Observable<any>{
     const apiUrl =`${environment.apiBaseUrl}${url}/${id}/${id1}/${id2}`;
     return this.http.get(apiUrl ,id) .pipe((data=>{

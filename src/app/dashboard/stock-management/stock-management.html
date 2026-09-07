@@ -1,0 +1,807 @@
+<div class="container-fluid stock-page">
+
+  <!-- =========================================================
+       FILTER SECTION
+  ========================================================== -->
+
+  <div class="filter-card">
+
+    <div class="filter-left">
+
+      <label class="form-label">
+        <span class="material-icons">filter_alt</span>
+        Search Item
+      </label>
+
+      <mat-form-field
+        appearance="outline"
+        class="item-select">
+
+        <mat-select
+          [(value)]="itemId"
+          placeholder="Select Item"
+          (selectionChange)="onItemChange($event.value)">
+
+          <!-- SEARCH -->
+          <mat-option
+            class="search-option"
+            (click)="$event.stopPropagation()">
+
+            <ngx-mat-select-search
+              [formControl]="itemSearchCtrl"
+              placeholderLabel="Search item..."
+              noEntriesFoundLabel="No item found">
+            </ngx-mat-select-search>
+
+          </mat-option>
+
+          <!-- ITEMS -->
+          <mat-option
+            *ngFor="let item of filteredItems"
+            [value]="item.itemId">
+
+            <div class="item-option">
+
+              <span class="item-option-name">
+                {{ item.itemName }}
+              </span>
+
+              <span
+                class="item-option-unit"
+                *ngIf="item.unit">
+
+                {{ item.unit }}
+
+              </span>
+
+            </div>
+
+          </mat-option>
+
+        </mat-select>
+
+      </mat-form-field>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================================================
+       SELECTED ITEM HEADER
+  ========================================================== -->
+
+  <div
+    class="selected-item-card"
+    *ngIf="stockData.length > 0">
+
+    <div class="selected-item-icon">
+
+      <span class="material-icons">
+        inventory_2
+      </span>
+
+    </div>
+
+    <div class="selected-item-info">
+
+      <div class="selected-item-title">
+        {{ stockData[0]?.itemName }}
+      </div>
+
+      <div class="selected-item-details">
+
+        <span>
+          <b>HSN:</b>
+          {{ stockData[0]?.hsn || '-' }}
+        </span>
+
+        <span>
+          <b>Unit:</b>
+          {{ stockData[0]?.unit || '-' }}
+        </span>
+
+        <span>
+          <b>Item ID:</b>
+          {{ stockData[0]?.itemId }}
+        </span>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================================================
+       SUMMARY CARDS
+  ========================================================== -->
+
+  <div
+    class="summary-grid"
+    *ngIf="stockData.length > 0">
+
+    <!-- OPENING -->
+
+    <div class="summary-card opening">
+
+      <div class="summary-icon">
+
+        <span class="material-icons">
+          inventory
+        </span>
+
+      </div>
+
+      <div class="summary-content">
+
+        <span class="summary-label">
+          Opening Stock
+        </span>
+
+        <strong class="summary-value">
+
+          {{ stockData[0]?.openingQty || 0
+             | number:'1.2-2' }}
+
+        </strong>
+
+        <small>
+          Initial quantity
+        </small>
+
+      </div>
+
+    </div>
+
+
+    <!-- PURCHASE -->
+
+    <div class="summary-card purchase">
+
+      <div class="summary-icon">
+
+        <span class="material-icons">
+          add_shopping_cart
+        </span>
+
+      </div>
+
+      <div class="summary-content">
+
+        <span class="summary-label">
+          Purchase
+        </span>
+
+        <strong class="summary-value">
+
+          {{ stockData[0]?.purchaseQty || 0
+             | number:'1.2-2' }}
+
+        </strong>
+
+        <small>
+          {{ transactions.length }}
+          transactions
+        </small>
+
+      </div>
+
+    </div>
+
+
+    <!-- SALE -->
+
+    <div class="summary-card sale">
+
+      <div class="summary-icon">
+
+        <span class="material-icons">
+          shopping_cart
+        </span>
+
+      </div>
+
+      <div class="summary-content">
+
+        <span class="summary-label">
+          Sale
+        </span>
+
+        <strong class="summary-value">
+
+          {{ stockData[0]?.saleQty || 0
+             | number:'1.2-2' }}
+
+        </strong>
+
+        <small>
+          Sold quantity
+        </small>
+
+      </div>
+
+    </div>
+
+
+    <!-- CLOSING -->
+
+    <div class="summary-card closing">
+
+      <div class="summary-icon">
+
+        <span class="material-icons">
+          account_balance
+        </span>
+
+      </div>
+
+      <div class="summary-content">
+
+        <span class="summary-label">
+          Closing Stock
+        </span>
+
+        <strong class="summary-value">
+
+          {{ stockData[0]?.closingQty || 0
+             | number:'1.2-2' }}
+
+        </strong>
+
+        <small>
+          Current available
+        </small>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================================================
+       STOCK SUMMARY
+  ========================================================== -->
+
+  <div
+    class="content-card"
+    *ngIf="stockData.length > 0">
+
+    <div class="card-header-custom">
+
+      <div class="table-heading">
+
+        <div class="table-heading-icon">
+
+          <span class="material-icons">
+            assessment
+          </span>
+
+        </div>
+
+        <div>
+
+          <h5>
+            Stock Summary
+          </h5>
+
+          <span>
+            Current item stock position
+          </span>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="table-wrapper">
+
+      <table class="table stock-table">
+
+        <thead>
+
+          <tr>
+
+            <th>
+              #
+            </th>
+
+            <th>
+              Item
+            </th>
+
+            <th>
+              Unit
+            </th>
+
+            <th>
+              HSN
+            </th>
+
+            <th class="text-end">
+              Opening
+            </th>
+
+            <th class="text-end">
+              Purchase
+            </th>
+
+            <th class="text-end">
+              Sale
+            </th>
+
+            <th class="text-end">
+              Net Qty
+            </th>
+
+            <th class="text-end">
+              Closing
+            </th>
+
+            <th class="text-end">
+              Purchase Value
+            </th>
+
+            <th class="text-end">
+              Sale Value
+            </th>
+
+          </tr>
+
+        </thead>
+
+
+        <tbody>
+
+          <tr
+            *ngFor="
+              let stock of stockData;
+              let i = index
+            "
+            class="stock-row">
+
+            <!-- SERIAL -->
+
+            <td>
+              {{ i + 1 }}
+            </td>
+
+
+            <!-- ITEM -->
+
+            <td>
+
+              <div class="item-cell">
+
+                <div class="item-avatar">
+
+                  <span class="material-icons">
+                    inventory_2
+                  </span>
+
+                </div>
+
+                <div>
+
+                  <div class="item-name">
+                    {{ stock.itemName || '-' }}
+                  </div>
+
+                  <small
+                    *ngIf="stock.description">
+
+                    {{ stock.description }}
+
+                  </small>
+
+                </div>
+
+              </div>
+
+            </td>
+
+
+            <!-- UNIT -->
+
+            <td>
+
+              <span class="unit-badge">
+                {{ stock.unit || '-' }}
+              </span>
+
+            </td>
+
+
+            <!-- HSN -->
+
+            <td>
+
+              <span class="hsn-text">
+                {{ stock.hsn || '-' }}
+              </span>
+
+            </td>
+
+
+            <!-- OPENING -->
+
+            <td class="text-end quantity">
+
+              {{ stock.openingQty
+                 | number:'1.2-2' }}
+
+            </td>
+
+
+            <!-- PURCHASE -->
+
+            <td
+              class="text-end quantity purchase-text">
+
+              {{ stock.purchaseQty
+                 | number:'1.2-2' }}
+
+            </td>
+
+
+            <!-- SALE -->
+
+            <td
+              class="text-end quantity sale-text">
+
+              {{ stock.saleQty
+                 | number:'1.2-2' }}
+
+            </td>
+
+
+            <!-- NET -->
+
+            <td
+              class="text-end quantity net-qty">
+
+              {{ stock.netQty
+                 | number:'1.2-2' }}
+
+            </td>
+
+
+            <!-- CLOSING -->
+
+            <td
+              class="text-end quantity closing-text">
+
+              {{ stock.closingQty
+                 | number:'1.2-2' }}
+
+            </td>
+
+
+            <!-- PURCHASE VALUE -->
+
+            <td class="text-end amount">
+
+              ₹
+              {{ stock.purchaseValue
+                 | number:'1.2-2' }}
+
+            </td>
+
+
+            <!-- SALE VALUE -->
+
+            <td class="text-end amount">
+
+              ₹
+              {{ stock.saleValue
+                 | number:'1.2-2' }}
+
+            </td>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================================================
+       TRANSACTION HISTORY
+  ========================================================== -->
+
+  <div
+    class="content-card transaction-card"
+    *ngIf="itemId && transactions.length > 0">
+
+    <!-- HEADER -->
+
+    <div class="card-header-custom">
+
+      <div class="table-heading">
+
+        <div class="table-heading-icon transaction-heading-icon">
+
+          <span class="material-icons">
+            history
+          </span>
+
+        </div>
+
+        <div>
+
+          <h5>
+            Transaction History
+          </h5>
+
+          <span>
+            {{ transactions.length }}
+            transaction(s) for this item
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <!-- TOTAL TRANSACTIONS -->
+
+      <div class="transaction-count">
+
+        <span class="material-icons">
+          receipt_long
+        </span>
+
+        {{ transactions.length }}
+
+      </div>
+
+    </div>
+
+
+    <!-- TRANSACTION TABLE -->
+
+    <div class="table-wrapper">
+
+      <table class="table transaction-table">
+
+        <thead>
+
+          <tr>
+
+            <th>
+              #
+            </th>
+
+            <th>
+              Type
+            </th>
+
+            <th>
+              Invoice No
+            </th>
+
+            <th>
+              Date
+            </th>
+
+            <th class="text-end">
+              Qty
+            </th>
+
+            <th class="text-end">
+              Rate
+            </th>
+
+            <th class="text-end">
+              Amount
+            </th>
+
+          </tr>
+
+        </thead>
+
+
+        <tbody>
+
+          <tr
+            *ngFor="
+              let transaction of transactions;
+              let i = index
+            "
+            class="transaction-row">
+
+            <!-- SERIAL -->
+
+            <td class="serial-column">
+              {{ i + 1 }}
+            </td>
+
+
+            <!-- TYPE -->
+
+            <td>
+
+              <span
+                class="transaction-type"
+                [ngClass]="
+                  getTransactionClass(
+                    transaction.transactionType
+                  )
+                ">
+
+                <span class="material-icons">
+
+                  {{
+                    getTransactionIcon(
+                      transaction.transactionType
+                    )
+                  }}
+
+                </span>
+
+                {{ transaction.transactionType }}
+
+              </span>
+
+            </td>
+
+
+            <!-- INVOICE -->
+
+            <td>
+
+              <div class="invoice-info">
+
+                <strong>
+
+                  {{
+                    transaction.invoiceNo
+                    || '-'
+                  }}
+
+                </strong>
+
+                <small>
+                  ID:
+                  {{ transaction.invoiceId }}
+                </small>
+
+              </div>
+
+            </td>
+
+
+            <!-- DATE -->
+
+            <td>
+
+              <span class="transaction-date">
+
+                {{
+                  transaction.invoiceDate
+                  | date:'dd-MM-yyyy'
+                }}
+
+              </span>
+
+            </td>
+
+
+            <!-- QTY -->
+
+            <td class="text-end quantity">
+
+              {{ transaction.qty
+                 | number:'1.2-2' }}
+
+            </td>
+
+
+            <!-- RATE -->
+
+            <td class="text-end">
+
+              ₹
+              {{ transaction.rate
+                 | number:'1.2-2' }}
+
+            </td>
+
+
+            <!-- AMOUNT -->
+
+            <td
+              class="text-end transaction-amount">
+
+              ₹
+              {{ transaction.amount
+                 | number:'1.2-2' }}
+
+            </td>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================================================
+       NO TRANSACTIONS
+  ========================================================== -->
+
+  <div
+    class="content-card"
+    *ngIf="
+      itemId &&
+      stockData.length > 0 &&
+      transactions.length === 0
+    ">
+
+    <div class="empty-state transaction-empty">
+
+      <div class="empty-icon">
+
+        <span class="material-icons">
+          receipt_long
+        </span>
+
+      </div>
+
+      <h5>
+        No Transactions
+      </h5>
+
+      <p>
+        No purchase or sale transactions
+        found for this item.
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================================================
+       NO ITEM SELECTED
+  ========================================================== -->
+
+  <div
+    class="content-card"
+    *ngIf="!itemId">
+
+    <div class="empty-state">
+
+      <div class="empty-icon">
+
+        <span class="material-icons">
+          inventory_2
+        </span>
+
+      </div>
+
+      <h5>
+        Select an Item
+      </h5>
+
+      <p>
+        Select an item from the search above
+        to view stock and transaction details.
+      </p>
+
+    </div>
+
+  </div>
+
+</div>
