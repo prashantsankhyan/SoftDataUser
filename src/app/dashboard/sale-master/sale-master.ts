@@ -8,6 +8,7 @@ import { Router } from '@angular/router';
 import { ApiUrl } from '../../_core/apiUrl';
 import { DeleteSale } from './delete-sale/delete-sale';
 import { AddEditSale } from './add-edit-sale/add-edit-sale';
+import { AddEditSaleWithChanges } from './add-edit-sale-with-changes/add-edit-sale-with-changes';
 
 @Component({
   selector: 'app-sale-master',
@@ -267,6 +268,26 @@ goToPdf(data: any) {
 
 addEditData(data?: any) {
   const dialogRef = this.dialog.open(AddEditSale, {
+    width: '99vw',
+    maxWidth: '2000px',
+    maxHeight: '95vh',
+    
+    disableClose: false, // allow close on outside click
+    data: data || null
+  });
+
+  dialogRef.afterClosed().subscribe(result => {
+    if (result) {
+      this.refreshList();   // 🔥 keeps toggle state
+    }
+  });
+    dialogRef.backdropClick().subscribe(() => {
+    this.refreshList();
+  });
+}
+
+addEditDataWithChanges(data?: any) {
+  const dialogRef = this.dialog.open(AddEditSaleWithChanges, {
     width: '99vw',
     maxWidth: '2000px',
     maxHeight: '95vh',

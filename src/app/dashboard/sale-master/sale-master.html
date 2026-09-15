@@ -24,14 +24,14 @@
      
 
       <button 
-  class="btn btn-primary"
+  class="btn btn-primary" 
   *ngIf="isExcluded"
   (click)="addEditData()">
   + ADD Exclude
 </button>
 
 <button 
-  class="btn btn-primary"
+  class="btn btn-primary" (click)="addEditDataWithChanges()"
   *ngIf="!isExcluded"
   >
   + ADD Include
@@ -101,9 +101,16 @@
 
             <td style="text-align: right;">
               <button
+               *ngIf="isExcluded"
                 class="btn btn-sm btn-outline-primary me-1"
                 (click)="addEditData(row)">
                 <i class="bi bi-pencil"></i>
+              </button>
+               <button
+               *ngIf="!isExcluded"
+                class="btn btn-sm btn-outline-primary me-1"
+                (click)="addEditDataWithChanges(row)">
+                <i class="bi bi-pencil"></i> 
               </button>
 
               <button

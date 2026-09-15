@@ -459,7 +459,7 @@
   #itemSelect
   [id]="'itemSelect' + i"
   formControlName="itemId"
-  [panelWidth]="'650px'"
+  [panelWidth]="'515px'"
   (openedChange)="onOpened('item', $event)"
   (closed)="onItemClosed(itemSelect, i)"
   (selectionChange)="onItemChange(i)"
@@ -485,13 +485,15 @@
   </mat-option>
 
 
-  <!-- TABLE HEADER -->
+ <!-- TABLE HEADER -->
   <div class="item-table-header">
     <div>Item Name</div>
-    <div>Opening Stock</div>
-    <div> Opening Stock Rate</div>
-    <div> Opening Stock Value</div>
-  
+    <div>HSN </div>
+    <div  class="text-center">Balance Qty</div>
+    <div  class="text-center">Purchase Rate</div>
+    <div  class="text-center">Sale Rate</div>
+    <div  class="text-center">MRP Rate</div>
+   
   </div>
 
 
@@ -500,6 +502,7 @@
     *ngFor="let u of filteredItems[i]"
     [value]="u.itemId"
     class="item-option"
+    
   >
 
     <div class="item-table-row">
@@ -509,29 +512,27 @@
       </div>
 
       <div>
-        {{ u.openingStock || '-' }}
+        {{ u.hsn || '-' }}
       </div>
-      <div>
-           {{ (+u.openingStockRate || 0) | currency:'INR':'symbol':'1.2-2' }}
-      
-      </div>
-        <div>
-           {{ (+u.openingStockValue || 0) | currency:'INR':'symbol':'1.2-2' }}
-      
+      <div class="text-center">
+  {{ u.closingQty != null
+      ? (u.closingQty | number: '1.' + (u.decimal || '0') + '-' + (u.decimal || '0'))
+      : '-' }}
+</div>
+
+      <div  class="text-center">
+         
+        {{ (+u.lastPurchaseRate || 0) | currency:'INR':'symbol':'1.2-2' }}
       </div>
 
-      <!-- <div>
-         {{ u.netQty || '-' }}
-       
-      </div> -->
+      <div class="text-center">
+        {{ (+u.saleRate || 0) | currency:'INR':'symbol':'1.2-2' }}
+      </div>
+        <div class="text-center">
+        {{ (+u.mrpRate || 0) | currency:'INR':'symbol':'1.2-2' }}
+      </div>
 
-      <!-- <div class="text-end">
-        {{ (+u.purchaseValue || 0) | currency:'INR':'symbol':'1.2-2' }}
-      </div> -->
-
-      <!-- <div class="text-end">
-        {{ (+u.saleValue || 0) | currency:'INR':'symbol':'1.2-2' }}
-      </div> -->
+    
 
     </div>
 
@@ -563,9 +564,11 @@
           <td *ngIf="screenConfig?.barcodePurchase">
             <input type="text"
                    class="form-control compact-input"
-                   formControlName="barcode"(keydown.shift)="removeRowAndFocus(i)" >
+                   formControlName="barcode"(keydown)="onBarcodeScan($event, i)" (keydown.shift)="removeRowAndFocus(i)" >
+                   
           </td>
 
+          
         
 
           <td *ngIf="screenConfig?.hsnPurchase">

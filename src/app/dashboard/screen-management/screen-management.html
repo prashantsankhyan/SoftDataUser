@@ -1,94 +1,230 @@
+
 <form [formGroup]="form" class="screen-form">
 
-  <!-- SALE -->
-  <mat-card class="section-card mt-2">
-    <mat-card-title class="p-2">Sale</mat-card-title>
+  <!-- ================= SALE ================= -->
+  <mat-card class="config-card sale-card">
 
-    <div class="checkbox-grid mt-2">
-      <mat-checkbox formControlName="barcodeSale">Barcode Sale</mat-checkbox>
-      <mat-checkbox formControlName="remarksSale">Remarks</mat-checkbox>
-      <mat-checkbox formControlName="hsnSale">HSN</mat-checkbox>
-      <mat-checkbox formControlName="artSale">Art</mat-checkbox>
-      <mat-checkbox formControlName="sizeSale">Size</mat-checkbox>
-      <mat-checkbox formControlName="colorSale">Color</mat-checkbox>
-      <mat-checkbox formControlName="pack1Sale">Pack 1</mat-checkbox>
-      <mat-checkbox formControlName="pack2Sale">Pack 2</mat-checkbox>
-      <mat-checkbox formControlName="mRateSale">MRP</mat-checkbox>
-        
-      <mat-checkbox formControlName="discPercentSale">Discount % Sale</mat-checkbox>
-      <mat-checkbox formControlName="discountSale">Discount Sale</mat-checkbox> <br/>
-      <div class="row">
-        <div class="col-sm-4">
-  <label style="color: black;"> What we Do </label>
-       <input class="form-control mt-2"  formControlName="whatWeDoInSale">
-        </div>
-        <div class="col-sm-4">
-  <label style="color: black;"> Description</label>
-       <input class="form-control mt-2"  formControlName="descriptionSale">
+    <div class="card-header sale-header">
+      <div class="header-icon">
+        <span>🛒</span>
+      </div>
 
+      <div class="header-content">
+        <div class="header-title">Sale Configuration</div>
+        <div class="header-subtitle">
+          Configure fields and options for Sale Invoice
         </div>
-         <div class="col-sm-4 mb-2">
-   <label style="color: black;"> Terms and Conditions Sale</label>
+      </div>
+    </div>
+
+    <div class="config-body">
+
+      <div class="checkbox-grid">
+
+        <mat-checkbox formControlName="barcodeSale">
+          Barcode Sale
+        </mat-checkbox>
+
+        <mat-checkbox formControlName="remarksSale">
+          Remarks
+        </mat-checkbox>
+
+        <mat-checkbox formControlName="hsnSale">
+          HSN
+        </mat-checkbox>
+
+        <mat-checkbox formControlName="artSale">
+          Art
+        </mat-checkbox>
+
+        <mat-checkbox formControlName="sizeSale">
+          Size
+        </mat-checkbox>
+
+        <mat-checkbox formControlName="colorSale">
+          Color
+        </mat-checkbox>
+
+        <mat-checkbox formControlName="pack1Sale">
+          Pack 1
+        </mat-checkbox>
+
+        <mat-checkbox formControlName="pack2Sale">
+          Pack 2
+        </mat-checkbox>
+
+        <mat-checkbox formControlName="mRateSale">
+          MRP
+        </mat-checkbox>
+
+        <mat-checkbox formControlName="saleOfNegativeStock">
+          Sale Of On -ve Stock
+        </mat-checkbox>
+
+        <mat-checkbox formControlName="discPercentSale">
+          Discount % Sale
+        </mat-checkbox>
+
+        <mat-checkbox formControlName="discountSale">
+          Discount Sale
+        </mat-checkbox>
+
+        <mat-checkbox formControlName="showMoreDetailsSale">
+          Show Extra
+        </mat-checkbox>
+
+      </div>
+
+      <!-- SALE EXTRA DETAILS -->
+      <div class="extra-section">
+
       
-      <textarea class="form-control mt-2" rows="4" formControlName="termAndConditionSale"></textarea>
+
+        <div class="row g-3">
+
+          <div class="col-md-4">
+            <label>What We Do</label>
+            <input
+              class="form-control config-input"
+              formControlName="whatWeDoInSale"
+              placeholder="Enter what you do"
+            >
+          </div>
+
+          <div class="col-md-4">
+            <label>Description</label>
+            <input
+              class="form-control config-input"
+              formControlName="descriptionSale"
+              placeholder="Enter description"
+            >
+          </div>
+
+          <div class="col-md-4">
+            <label>Terms & Conditions</label>
+            <textarea
+              class="form-control config-input"
+              rows="3"
+              formControlName="termAndConditionSale"
+              placeholder="Enter terms and conditions"
+            ></textarea>
+          </div>
 
         </div>
 
       </div>
-     
 
-      
-    
     </div>
+
   </mat-card>
 
-  <!-- PURCHASE -->
-  <mat-card class="section-card mt-4">
-    <mat-card-title class="p-2">Purchase</mat-card-title>
 
-    <div class="checkbox-grid mt-2">
-      <mat-checkbox formControlName="barcodePurchase">Barcode Purchase</mat-checkbox>
-      <mat-checkbox formControlName="remarksPurchase">Remarks</mat-checkbox>
-      <mat-checkbox formControlName="hsnPurchase">HSN</mat-checkbox>
-      <mat-checkbox formControlName="artPurchase">Art</mat-checkbox>
-      <mat-checkbox formControlName="sizePurchase">Size</mat-checkbox>
-      <mat-checkbox formControlName="colorPurchase">Color</mat-checkbox>
-      <mat-checkbox formControlName="pack1Purchase">Pack 1</mat-checkbox>
-      <mat-checkbox formControlName="pack2Purchase">Pack 2</mat-checkbox>
-      <mat-checkbox formControlName="mRatePurchase">MRP</mat-checkbox>
+  <!-- ================= PURCHASE ================= -->
+  <mat-card class="config-card purchase-card">
+
+    <div class="card-header purchase-header">
+
+      <div class="header-icon">
+        <span>📦</span>
+      </div>
+
+      <div class="header-content">
+        <div class="header-title">Purchase Configuration</div>
+        <div class="header-subtitle">
+          Configure fields and options for Purchase Invoice
+        </div>
+      </div>
+
+    </div>
+
+    <div class="config-body">
+
+      <div class="checkbox-grid">
+
+        <mat-checkbox formControlName="barcodePurchase">
+          Barcode Purchase
+        </mat-checkbox>
+
+        <mat-checkbox formControlName="remarksPurchase">
+          Remarks
+        </mat-checkbox>
+
+        <mat-checkbox formControlName="hsnPurchase">
+          HSN
+        </mat-checkbox>
+
+        <mat-checkbox formControlName="artPurchase">
+          Art
+        </mat-checkbox>
+
+        <mat-checkbox formControlName="sizePurchase">
+          Size
+        </mat-checkbox>
+
+        <mat-checkbox formControlName="colorPurchase">
+          Color
+        </mat-checkbox>
+
+        <mat-checkbox formControlName="pack1Purchase">
+          Pack 1
+        </mat-checkbox>
+
+        <mat-checkbox formControlName="pack2Purchase">
+          Pack 2
+        </mat-checkbox>
+
+        <mat-checkbox formControlName="mRatePurchase">
+          MRP
+        </mat-checkbox>
+
+        <mat-checkbox formControlName="discPercentPurchase">
+          Discount % Purchase
+        </mat-checkbox>
+
+        <mat-checkbox formControlName="discountPurchase">
+          Discount Purchase
+        </mat-checkbox>
+
+        <mat-checkbox formControlName="showMoreDetailsPurchase">
+          Show Extra
+        </mat-checkbox>
+
+      </div>
+
+
+      <!-- PURCHASE TERMS -->
+      <!-- <div class="extra-section">
+
         
-      <mat-checkbox formControlName="discPercentPurchase">Discount % Purchase</mat-checkbox>
-      <mat-checkbox formControlName="discountPurchase">Discount Purchase</mat-checkbox>
-      <br/>
 
-      <label style="color: black;"> Terms and conditions Purchase</label>
-      <textarea class="form-control mt-2" rows="5" formControlName="termAndConditionPurchase"></textarea>
+        <textarea
+          class="form-control config-input"
+          rows="4"
+          formControlName="termAndConditionPurchase"
+          placeholder="Enter purchase terms and conditions"
+        ></textarea>
+
+      </div> -->
+
     </div>
+
   </mat-card>
 
-  <!-- EXTRA -->
-  <mat-card class="section-card mt-4">
-    <!-- <mat-card-title class="p-2">Extra</mat-card-title>
 
-    <div class="checkbox-grid mt-2">
-    
+  <!-- ================= ACTION BAR ================= -->
+  <div class="action-bar">
 
-    
-    </div> -->
-  </mat-card>
-
-  <!-- ACTIONS -->
-  <div class="action-bar mt-2">
     <button
+      type="button"
       mat-raised-button
-      color="primary"
+      class="save-button"
       (click)="save()"
-     
     >
-      Save
+      <span class="save-icon">💾</span>
+      Save Configuration
     </button>
 
-  
   </div>
 
 </form>
+

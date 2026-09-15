@@ -511,7 +511,7 @@
   (openedChange)="onOpened('item', $event)"
   (closed)="onItemClosed(itemSelect, i)"
   (selectionChange)="onItemChange(i)"
-  (blur)="onRowTotalBlur(i)"
+ 
   (keydown)="onItemKeyDown($event, i, itemSelect)"
 >
 
@@ -535,12 +535,12 @@
 
   <!-- TABLE HEADER -->
   <div class="item-table-header">
-    <div>Item Name</div>
-    <div>HSN </div>
-    <div  class="text-center">Balance Qty</div>
-    <div  class="text-center">Purchase Rate</div>
-    <div  class="text-center">Sale Rate</div>
-    <div  class="text-center">MRP Rate</div>
+    <div>ITEM NAME</div>
+    <div>HSM </div>
+    <div  class="text-center"> BALANCE QTY</div>
+    <div  class="text-center"> PURCHASE RATE</div>
+    <div  class="text-center">SATE RATE</div>
+     <div  class="text-center">MRP </div>
    
   </div>
 
@@ -576,9 +576,10 @@
       <div class="text-center">
         {{ (+u.saleRate || 0) | currency:'INR':'symbol':'1.2-2' }}
       </div>
-        <div class="text-center">
+       <div class="text-center">
         {{ (+u.mrpRate || 0) | currency:'INR':'symbol':'1.2-2' }}
       </div>
+      
 
     
 
@@ -681,7 +682,7 @@
             <input type="number"
                    class="form-control compact-input text-end"  formControlName="rate" 
                 (focus)="clearRateZeroOnFocus(i, 'rate')"
-  (blur)="restoreZeroOnBlur(i, 'rate')"
+  (focusout)="onRateFocusOut(i)"
                    >
           </td>
 
@@ -709,10 +710,12 @@
 
           <!-- TOTAL -->
             <td>
+            
               <input type="number"
                     class="form-control compact-input2 text-end fw-bold"formControlName="rowTotal" 
+                  
                     
-                 (focus)="onRowTotalFocus(i)"     (blur)="onRowTotalBlur(i)" (keydown)="onRateKeyDown($event, i)" tabindex="-1">
+                     (keydown)="onRateKeyDown($event, i)" tabindex="-1">
             </td>
 
           <!-- TAX -->
@@ -727,14 +730,14 @@
             </select> -->
             <mat-form-field appearance="outline" class="w-100 city-field">
 
-    <mat-select
-      #taxSelect
-      formControlName="taxableValueId"
-      (openedChange)="onOpened('tax', $event)"
-      (selectionChange)="onTaxChange(i)"
-      (closed)="onTaxClosed(taxSelect, i)"
-      
-       >
+      <mat-select
+        #taxSelect
+        formControlName="taxableValueId"
+        (openedChange)="onOpened('tax', $event)"
+        (selectionChange)="onTaxChange(i)"
+        (closed)="onTaxClosed(taxSelect, i)"
+        
+        >
 
       <mat-option>
         <ngx-mat-select-search
@@ -810,7 +813,7 @@
 
       <td *ngIf="screenConfig?.barcodeSale"></td>
 
-      <td *ngIf="screenConfig?.remarksSale"></td>
+      <td ></td>
 
       <td *ngIf="screenConfig?.hsnsale" class="col-small"></td>
 

@@ -1,0 +1,118 @@
+/* =========================================
+   MAIN FORM - COMPACT
+========================================= */
+
+.screen-form {
+  padding: 6px 8px;
+  background: #f5f7fb;
+  min-height: 100%;
+  box-sizing: border-box;
+}
+
+
+/* =========================================
+   CARD
+========================================= */
+
+.config-card {
+  border-radius: 8px !important;
+  overflow: hidden;
+  border: 1px solid #e0e4ea;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+  margin-bottom: 4px;
+  background: #fff;
+}
+
+
+/* =========================================
+   HEADER - SMALL
+========================================= */
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 7px 11px;
+  color: #fff;
+}
+
+.sale-header {
+  background: linear-gradient(135deg, #1565c0, #1976d2);
+}
+
+.purchase-header {
+  background: linear-gradient(135deg, #2e7d32, #43a047);
+}
+
+
+.header-icon {
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 7px;
+
+  font-size: 16px;
+}
+
+.header-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.header-title {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 16px;
+}
+
+.header-subtitle {
+  margin-top: 1px;
+  font-size: 10px;
+  opacity: 0.85;
+  line-height: 12px;
+}
+
+
+/* =========================================
+   BODY - COMPACT
+========================================= */
+
+.config-body {
+  padding: 5px 8px;
+}
+
+
+/* =========================================
+   CHECKBOX GRID
+========================================= */
+
+.checkbox-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(6, minmax(120px, 1fr));
+
+  gap: 2px 4px;
+
+  padding: 0;
+}
+
+
+/* =========================================
+   CHECKBOX
+========================================= */
+
+.checkbox-grid mat-checkbox {
+  min-height: 20px;
+
+  padding: 3px 4px;
+
+  border: 1px solid #e1e5eb;
+  border-radius: 5px;
+}

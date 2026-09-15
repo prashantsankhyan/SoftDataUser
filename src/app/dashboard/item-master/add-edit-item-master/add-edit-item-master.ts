@@ -746,7 +746,7 @@ getAllTaxTable() {
       // SALE TAX
       // ==========================
       const saleTaxes = filtered.filter((x: any) =>
-        x.selectType?.toLowerCase().includes('sale')
+        x.gstVatClassName?.toLowerCase().includes('sale')
       );
 
       // CGST + SGST Sale
@@ -767,7 +767,7 @@ getAllTaxTable() {
       // PURCHASE TAX
       // ==========================
       const purchaseTaxes = filtered.filter((x: any) =>
-        x.selectType?.toLowerCase().includes('purchase')
+        x.gstVatClassName?.toLowerCase().includes('purchase')
       );
 
       // CGST + SGST Purchase

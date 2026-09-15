@@ -1,6 +1,6 @@
 <div class="container-fluid">
 
-  <div class="row mb-3 align-items-center">
+  <div class="row mb-3 align-items-center mt-2">
     <div class="col-md-6">
       <input
         type="text"
@@ -16,26 +16,17 @@
 
 
     <div class="col-md-6 text-end">
-    <form [formGroup]="permissionForm">
-  <mat-slide-toggle formControlName="excludedOrIncluded">
-    Include / Exclude
-  </mat-slide-toggle>
-</form>
+   
      
 
       <button 
   class="btn btn-primary"
-  *ngIf="isExcluded"
+ 
   (click)="addEditData()">
-  + ADD Exclude
+  + ADD PURCHASE
 </button>
 
-<button 
-  class="btn btn-primary"
-  *ngIf="!isExcluded"
-  >
-  + ADD Include
-</button>
+
       
 
     </div>

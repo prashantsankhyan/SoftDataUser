@@ -57,19 +57,20 @@ getAllData() {
     .subscribe((res: any) => {
 
       if (!res || !Array.isArray(res.data)) {
+        this.originalList = [];
         this.listOfData = [];
         return;
       }
 
-      const filtered = res.data.filter(
-        (x: any) => x.companyId === 0 || x.companyId === this.companyId
-      );
+      // SQL procedure already handles:
+      // 1-4 = common records
+      // Other records = current company only
+      // Ordering = 1,2,3,4 then newest ID first
 
-      this.originalList = filtered.sort((a: any, b: any) =>
-        a.className.localeCompare(b.className)
-      );
+      this.originalList = [...res.data];
 
       this.listOfData = [...this.originalList];
+
       this.cdr.detectChanges();
     });
 }

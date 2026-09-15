@@ -20,6 +20,7 @@ showSpinner = true;
 companyId:any;
 permission:any;
 searchText: string = '';
+private isAccountDialogOpening = false;
 alphabets: string[] = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
 listOfData: any[] = [];        // filtered data (shown)
@@ -138,6 +139,9 @@ resetFilter() {
   this.selectedRowIndex = -1;
 }
 openSelectedAccount() {
+    if (this.isAccountDialogOpening) {
+    return;
+  }
   if (this.listOfData.length === 1) {
     this.addEditData(this.listOfData[0]);
   }
@@ -145,26 +149,99 @@ openSelectedAccount() {
 
 
 
-addEditData(data?: any) {
+// addEditData(data?: any) {
+//   if (this.isAccountDialogOpening) {
+//     return;
+//   }
+
+//   this.isAccountDialogOpening = true;
+//   const dialogRef = this.dialog.open(AddEditItemMaster, {
+//   width: '95vw',
+//     maxWidth: '1500px',
+//     maxHeight: '100vh', 
+//     data: data || null
+//   });
+
+//   dialogRef.afterClosed().subscribe(result => {
+//     if (result) {
+//       this.isAccountDialogOpening = false;
+
+//     console.log('ACCOUNT DIALOG RESULT:', result);
+//        this.getAllData(); 
+//     }
+//   });
+// }
+
+
+addEditData(data?: any): void {
+
+  // Prevent opening multiple dialogs
+  if (this.isAccountDialogOpening) {
+    return;
+  }
+
+  this.isAccountDialogOpening = true;
+
   const dialogRef = this.dialog.open(AddEditItemMaster, {
-  width: '95vw',
+    width: '95vw',
     maxWidth: '1500px',
-    maxHeight: '100vh', 
-    data: data || null
+    maxHeight: '100vh',
+    disableClose: false,
+    autoFocus: false,
+    restoreFocus: true,
+    data: data ? { ...data } : null
   });
 
-  dialogRef.afterClosed().subscribe(result => {
-    if (result) {
-       this.getAllData(); // reload list automatically
+  dialogRef.afterClosed().subscribe({
+    next: (result) => {
+
+      // ALWAYS reset this flag
+      this.isAccountDialogOpening = false;
+
+      console.log('ITEM DIALOG RESULT:', result);
+
+      // Reload only when save/update happened
+      if (result) {
+        this.getAllData();
+      }
+
+      this.cdr.detectChanges();
+    },
+
+    error: (error) => {
+
+      // Also reset if something unexpected happens
+      this.isAccountDialogOpening = false;
+
+      console.error('Dialog error:', error);
+
+      this.cdr.detectChanges();
     }
   });
 }
+// deleteData(row: any) {
+//   const dialogRef = this.dialog.open(DeleteItemMaster, {
+//     width: '360px',
+//     disableClose: true,
+//     data:row.itemId
+//   });
+// }
 
-deleteData(row: any) {
+deleteData(row: any): void {
+
   const dialogRef = this.dialog.open(DeleteItemMaster, {
     width: '360px',
     disableClose: true,
-    data:row.itemId
+    data: row.itemId
+  });
+
+  dialogRef.afterClosed().subscribe(result => {
+
+    if (result) {
+      this.getAllData();
+    }
+
+    this.cdr.detectChanges();
   });
 }
 }

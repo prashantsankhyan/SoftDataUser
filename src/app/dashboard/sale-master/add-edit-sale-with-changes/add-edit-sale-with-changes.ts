@@ -25,15 +25,15 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ConfirmItemDelete } from '../confirm-item-delete/confirm-item-delete';
 
 @Component({
-  selector: 'app-add-edit-sale',
-  imports: [CommonModule,MaterialModule,RouterModule,ReactiveFormsModule,FormsModule,
+  selector: 'app-add-edit-sale-with-changes',
+ imports: [CommonModule,MaterialModule,RouterModule,ReactiveFormsModule,FormsModule,
     NgxMatSelectSearchModule,MatTooltipModule
   ],
-  templateUrl: './add-edit-sale.html',
-  styleUrl: './add-edit-sale.scss',
+  templateUrl: './add-edit-sale-with-changes.html',
+  styleUrl: './add-edit-sale-with-changes.scss',
   providers: [TitleCasePipe]
 })
-export class AddEditSale {
+export class AddEditSaleWithChanges {
 
   @HostListener('keydown', ['$event'])
   
@@ -264,7 +264,7 @@ private itemEnterNavigation = false;
   constructor(@Inject(MAT_DIALOG_DATA) public data:any,private fb: FormBuilder,private titleCase: TitleCasePipe ,private http:AllApiService,private cRouter:ActivatedRoute,
   private router: Router,private ngZone: NgZone,public dialog: MatDialog,
   private snackBar: MatSnackBar,
-  private cdr: ChangeDetectorRef,public dialogRef: MatDialogRef<AddEditSale>){}
+  private cdr: ChangeDetectorRef,public dialogRef: MatDialogRef<AddEditSaleWithChanges>){}
  
 
   ngOnInit(): void {
@@ -1750,66 +1750,119 @@ getHighlightedPartsItems(text: string, search: string) {
 }
 
 onItemChange(index: number) {
-  const row = this.saleInvoiceDetails.at(index) as FormGroup;
-  const itemId = row.get('itemId')?.value;
-  
 
-  if (!itemId) return;
+  const row = this.saleInvoiceDetails.at(index) as FormGroup;
+
+  const itemId = Number(row.get('itemId')?.value);
+
+  if (!itemId) {
+    return;
+  }
 
   const selectedItem = this.listOfAllItem.find(
-    x => x.itemId === Number(itemId)
+    x => Number(x.itemId) === itemId
   );
- 
-  if (!selectedItem) return;
 
-  // row.patchValue({
-  //   barcode: selectedItem.itemBarCodeOrPartNo || '',
-  //   hsn: selectedItem.hsn || '',
-  //   rate: selectedItem.saleRate || 0,
-  //   mRate: selectedItem.mrpRate || 0,
-  //   taxPercent: selectedItem.taxRate || 0,
-  //   unit :selectedItem.unitInt || 0,
-  //   taxableValueId:
-  // selectedItem.cgstSgstSale > 0
-  //   ? selectedItem.cgstSgstSale
-  //   : selectedItem.igstSaleName > 0
-  //   ? selectedItem.igstSaleName
-  //   : null
-   
-  // });
- const taxId =
-  selectedItem.cgstSgstSale > 0
-    ? Number(selectedItem.cgstSgstSale)
-    : selectedItem.igstSaleName > 0
-    ? Number(selectedItem.igstSaleName)
-    : null;
-this.filteredTaxes[index] = [...this.listOfTaxTableData];
+  if (!selectedItem) {
+    return;
+  }
 
-row.patchValue({
-  barcode: selectedItem.itemBarCodeOrPartNo || '',
-  // qty:selectedItem.quantity || '',
-  hsn: selectedItem.hsn || '',
-  rate: selectedItem.saleRate || 0,
-  mRate: selectedItem.mrpRate || 0,
-  taxPercent: selectedItem.taxRate || 0,
-  unit: selectedItem.unitInt || 0
-});
 
-setTimeout(() => {
-  row.get('taxableValueId')?.setValue(taxId);
-  this.cdr.detectChanges();
-  this.onTaxChange(index);
-}, 0);
- 
-  
-    this.formatQty(index);
-    
-     this.onTaxChange(index);
-     
-     setTimeout(() => {
-    this.onRowTotalBlur(index);
-  }, 0);
-  
+  // =====================================================
+  // GET ITEM TAX
+  // =====================================================
+
+  const taxId =
+    Number(selectedItem.cgstSgstSale) > 0
+      ? Number(selectedItem.cgstSgstSale)
+      : Number(selectedItem.igstSaleName) > 0
+        ? Number(selectedItem.igstSaleName)
+        : null;
+
+
+  // =====================================================
+  // TAX LIST
+  // =====================================================
+
+  this.filteredTaxes[index] = [
+    ...this.listOfTaxTableData
+  ];
+
+
+  // =====================================================
+  // SET ITEM DETAILS
+  // =====================================================
+
+  row.patchValue({
+
+    barcode: selectedItem.itemBarCodeOrPartNo || '',
+
+    hsn: selectedItem.hsn || '',
+
+    rate: Number(selectedItem.saleRate) || 0,
+
+    mRate: Number(selectedItem.mrpRate) || 0,
+
+    taxPercent: Number(selectedItem.taxRate) || 0,
+
+    unit: selectedItem.unitInt || 0
+
+  }, {
+    emitEvent: false
+  });
+
+
+  // =====================================================
+  // SET ITEM TAX
+  // =====================================================
+
+  row.get('taxableValueId')?.setValue(
+    taxId,
+    {
+      emitEvent: false
+    }
+  );
+
+
+  // =====================================================
+  // FORMAT QTY
+  // =====================================================
+
+  this.formatQty(index);
+
+
+  // =====================================================
+  // TAX CALCULATION
+  // =====================================================
+  // If item already contains tax,
+  // calculate tax immediately.
+  //
+  // If item has NO tax, do nothing here.
+  // User can select tax manually from mat-select,
+  // which calls onTaxChange().
+  // =====================================================
+
+  if (taxId !== null && taxId > 0) {
+
+    this.onTaxChange(index);
+
+  }
+
+
+  // =====================================================
+  // ROW TOTAL
+  // =====================================================
+  // Do NOT call onRowTotalBlur() here.
+  //
+  // Calling it here can cause:
+  // onTaxChange()
+  //      +
+  // onRowTotalBlur()
+  //      +
+  // recalculateTax()
+  //
+  // resulting in duplicate tax calculation.
+  // =====================================================
 }
 formatQty(index: number) {
   const row = this.saleInvoiceDetails.at(index) as FormGroup;
@@ -1858,29 +1911,55 @@ onQtyBlur(index: number) {
 }
 
 
-getAllTaxTableData() {
-  this.http
-    .getAllDataId(ApiUrl.listOfTaxTable,this.companyId)
-    .subscribe((res: any) => {
+getAllTaxTableData(): Promise<void> {
+  return new Promise((resolve, reject) => {
 
-      if (!res || !Array.isArray(res.data)) {
-        this.listOfTaxTableData = [];
-        return;
-      }
+    this.http
+      .getAllDataId(ApiUrl.listOfTaxTable, this.companyId)
+      .subscribe({
+        next: (res: any) => {
 
-      const filtered = res.data.filter(
-        (x: any) => x.companyId === 0 || x.companyId === this.companyId
-      );
+          if (!res || !Array.isArray(res.data)) {
+            this.listOfTaxTableData = [];
+            this.originalList = [];
+            resolve();
+            return;
+          }
 
-     this.originalList = filtered.sort((a: any, b: any) =>
-  (a.salePurcAccountName ?? '').localeCompare(b.salePurcAccountName ?? '')
-);
+          const filtered = res.data.filter(
+            (x: any) =>
+              Number(x.companyId) === 0 ||
+              Number(x.companyId) === Number(this.companyId)
+          );
 
-      this.listOfTaxTableData = [...this.originalList];
-      this.cdr.detectChanges();
-    });
+          this.originalList = filtered.sort(
+            (a: any, b: any) =>
+              (a.salePurcAccountName ?? '').localeCompare(
+                b.salePurcAccountName ?? ''
+              )
+          );
+
+          this.listOfTaxTableData = [...this.originalList];
+
+          console.log(
+            '✅ Tax table loaded:',
+            this.listOfTaxTableData
+          );
+
+          this.cdr.detectChanges();
+
+          // ✅ Tell Promise.all() that tax data is ready
+          resolve();
+        },
+
+        error: (error) => {
+          console.error('❌ Error loading tax table:', error);
+          reject(error);
+        }
+      });
+
+  });
 }
-
 
 isLoading = false;
 updateData(): void {
@@ -2014,7 +2093,12 @@ this.filteredItems = {};
           mRate: row.MRate,
           discPer: row.DiscPer,
           discAmt: row.DiscAmt,
-          taxableValueId: row.TaxableValueId,
+          // taxableValueId: row.TaxableValueId,
+            taxableValueId:
+    row.TaxableValueId != null
+      ? Number(row.TaxableValueId)
+      : null,
+
           accountId: row.AccountId,
           taxPercent: row.TaxPercent,
           rowTotal: row.RowTotal,
@@ -2095,7 +2179,8 @@ this.taxSearchCtrls[index].valueChanges.subscribe(value => {
 
 });
         this.listenRowCalculation(fg);
-        this.recalculateTax(fg);
+        // this.recalculateTax(fg);
+      
       });
 
       /* FINAL TOTAL RECALC */
@@ -2460,6 +2545,8 @@ createSaleInvoiceDetail(): FormGroup {
     taxPercent: [0],
     subTaxPercent: [0],
     rowTotal: [0],
+     grossRowTotal: [0],
+    taxCalculated: [false],
     taxTableRowSubTotal: [0]
     
   });
@@ -2833,7 +2920,7 @@ removeRowAndFocus1(index: number) {
     this.valueInput?.nativeElement.focus();
   });
 }
-removeInvoiceDetailRow(index: number) {
+removeInvoiceDetailRow(index: number): void {
 
   // Prevent removing first row
   if (index === 0) {
@@ -2855,20 +2942,33 @@ removeInvoiceDetailRow(index: number) {
       return;
     }
 
-    // Remove row
+    // =====================================================
+    // REMOVE ONLY THE SELECTED ROW
+    // =====================================================
     this.saleInvoiceDetails.removeAt(index);
 
-    // Recalculate everything
-    this.saleInvoiceDetails.controls.forEach((row: any) => {
-      this.recalculateTax(row);
-    });
+    // =====================================================
+    // IMPORTANT:
+    // DO NOT CALL recalculateTax() FOR REMAINING ROWS
+    // Their qty, rate, rowTotal and tax values must remain
+    // exactly as they were before deleting the row.
+    // =====================================================
 
+    // Recalculate only invoice-level values
     this.recalculateInvoiceTaxRates();
     this.recalculateSubTotal();
 
+    // =====================================================
+    // REFRESH UI
+    // =====================================================
+    this.cdr.detectChanges();
+
+    // =====================================================
+    // FOCUS
+    // =====================================================
     setTimeout(() => {
       this.valueInput?.nativeElement.focus();
-    });
+    }, 0);
   });
 }
 // removeRowAndFocus(index: number) {
@@ -2949,223 +3049,976 @@ removeRowAndFocus(index: number) {
 
 
 }
-listenRowCalculation(row: FormGroup) {
+listenRowCalculation(row: FormGroup): void {
 
   const qtyCtrl = row.get('qty');
   const rateCtrl = row.get('rate');
   const discPerCtrl = row.get('discPer');
   const discAmtCtrl = row.get('discAmt');
   const rowTotalCtrl = row.get('rowTotal');
-   const taxCtrl = row.get('taxableValueId'); // ✅ ADD THIS
-  let updating = false;
-  let editingRowTotal = false;
+  const taxCtrl = row.get('taxableValueId');
 
-  const calculateBase = () => {
-    const qty = +qtyCtrl?.value || 0;
-    const rate = +rateCtrl?.value || 0;
+  let updating = false;
+
+  // =====================================================
+  // BASE
+  // =====================================================
+
+  const calculateBase = (): number => {
+
+    const qty =
+      Number(qtyCtrl?.value) || 0;
+
+    const rate =
+      Number(rateCtrl?.value) || 0;
+
     return qty * rate;
   };
 
-  // % → Amount
-  const calculateFromPercent = () => {
-    const amount = calculateBase();
-    const discPer = +discPerCtrl?.value || 0;
 
-    const discAmt = (amount * discPer) / 100;
-    const rowTotal = amount - discAmt;
+  // =====================================================
+  // DISCOUNT %
+  // =====================================================
 
-    // row.patchValue({
-    //   discAmt: +discAmt.toFixed(2),
-    //   rowTotal: +rowTotal.toFixed(2)
-    // }, { emitEvent: false });
+  const calculateFromPercent = (): void => {
 
-     row.patchValue({
-       discAmt: +discAmt.toFixed(2), // ✅ add this
-    discPer: +discPer.toFixed(2),
-    rowTotal: this.formatRowTotal(row, rowTotal)
-  }, { emitEvent: false });
+    if (updating) {
+      return;
+    }
 
+    const amount =
+      calculateBase();
 
-    this.recalculateTax(row);   // ✅ always update tax & subtotal
+    const discPer =
+      Number(discPerCtrl?.value) || 0;
+
+    const discAmt =
+      (amount * discPer) / 100;
+
+    const grossAmount =
+      Math.max(0, amount - discAmt);
+
+    row.patchValue({
+
+      discAmt:
+        Number(discAmt.toFixed(2)),
+
+      discPer:
+        Number(discPer.toFixed(2)),
+
+      rowTotal:
+        this.formatRowTotal(row, grossAmount),
+
+      grossRowTotal:
+        Number(grossAmount.toFixed(2)),
+
+      taxTableRowSubTotal:
+        Number(grossAmount.toFixed(2)),
+
+      taxCalculated:
+        false
+
+    }, {
+      emitEvent: false
+    });
+
+    const taxId =
+      Number(taxCtrl?.value) || 0;
+
+    if (taxId > 0) {
+
+      this.recalculateTax(
+        row,
+        true
+      );
+
+    } else {
+
+      this.recalculateInvoiceTaxRates();
+      this.recalculateSubTotal();
+
+    }
   };
 
-  // Amount → %
-const calculateFromAmount = () => {
-  const amount = calculateBase();
-  const discAmt = +discAmtCtrl?.value || 0;
 
-  const discPer = amount ? (discAmt / amount) * 100 : 0;
-  const rowTotal = amount - discAmt;
+  // =====================================================
+  // DISCOUNT AMOUNT
+  // =====================================================
 
-  row.patchValue({
-    discPer: +discPer.toFixed(2),
-    rowTotal: +rowTotal
-  }, { emitEvent: false });
+  const calculateFromAmount = (): void => {
 
-  const index = this.saleInvoiceDetails.controls.indexOf(row);
-  this.onRowTotalBlur(index); // auto call
+    if (updating) {
+      return;
+    }
 
-  this.recalculateTax(row);
-};
+    const amount =
+      calculateBase();
 
-  // qty / rate change → IMMEDIATE subtotal
-  qtyCtrl?.valueChanges.subscribe(() => calculateFromPercent());
-  rateCtrl?.valueChanges.subscribe(() => calculateFromPercent());
+    const discAmt =
+      Number(discAmtCtrl?.value) || 0;
 
-  // discount %
+    const discPer =
+      amount > 0
+        ? (discAmt / amount) * 100
+        : 0;
+
+    const grossAmount =
+      Math.max(0, amount - discAmt);
+
+    row.patchValue({
+
+      discPer:
+        Number(discPer.toFixed(2)),
+
+      rowTotal:
+        Number(grossAmount.toFixed(2)),
+
+      grossRowTotal:
+        Number(grossAmount.toFixed(2)),
+
+      taxTableRowSubTotal:
+        Number(grossAmount.toFixed(2)),
+
+      taxCalculated:
+        false
+
+    }, {
+      emitEvent: false
+    });
+
+    const taxId =
+      Number(taxCtrl?.value) || 0;
+
+    if (taxId > 0) {
+
+      this.recalculateTax(
+        row,
+        true
+      );
+
+    } else {
+
+      this.recalculateInvoiceTaxRates();
+      this.recalculateSubTotal();
+
+    }
+  };
+
+
+  // =====================================================
+  // QTY CHANGE
+  //
+  // IMPORTANT:
+  // If Qty is cleared, clear calculated amounts immediately.
+  //
+  // Rate is NOT recalculated while typing.
+  // =====================================================
+
+  qtyCtrl?.valueChanges.subscribe((value: any) => {
+
+    if (updating) {
+      return;
+    }
+
+    const qty =
+      Number(value) || 0;
+
+    const rate =
+      Number(rateCtrl?.value) || 0;
+
+
+    // ===================================================
+    // QTY CLEARED
+    // ===================================================
+
+    if (qty <= 0) {
+
+      updating = true;
+
+      row.patchValue({
+
+        rowTotal: 0,
+
+        grossRowTotal: 0,
+
+        taxTableRowSubTotal: 0,
+
+        discAmt: 0,
+
+        taxCalculated: false
+
+      }, {
+        emitEvent: false
+      });
+
+      updating = false;
+
+      this.recalculateInvoiceTaxRates();
+      this.recalculateSubTotal();
+
+      return;
+    }
+
+
+    // ===================================================
+    // RATE NOT AVAILABLE
+    //
+    // Don't keep old Amount.
+    // ===================================================
+
+    if (rate <= 0) {
+
+      updating = true;
+
+      row.patchValue({
+
+        rowTotal: 0,
+
+        grossRowTotal: 0,
+
+        taxTableRowSubTotal: 0,
+
+        discAmt: 0,
+
+        taxCalculated: false
+
+      }, {
+        emitEvent: false
+      });
+
+      updating = false;
+
+      this.recalculateInvoiceTaxRates();
+      this.recalculateSubTotal();
+
+      return;
+    }
+
+
+    // ===================================================
+    // NORMAL QTY CHANGE
+    // ===================================================
+
+    const discPer =
+      Number(discPerCtrl?.value) || 0;
+
+    const gross =
+      qty * rate;
+
+    const discAmt =
+      (gross * discPer) / 100;
+
+    const newGross =
+      Math.max(
+        0,
+        gross - discAmt
+      );
+
+
+    updating = true;
+
+    row.patchValue({
+
+      discAmt:
+        Number(discAmt.toFixed(2)),
+
+      // Keep current displayed Rate
+      rate:
+        rate,
+
+      rowTotal:
+        Number(newGross.toFixed(2)),
+
+      grossRowTotal:
+        Number(newGross.toFixed(2)),
+
+      taxTableRowSubTotal:
+        Number(newGross.toFixed(2)),
+
+      taxCalculated:
+        false
+
+    }, {
+      emitEvent: false
+    });
+
+    updating = false;
+
+
+    const taxId =
+      Number(taxCtrl?.value) || 0;
+
+    if (taxId > 0) {
+
+      // Qty changed.
+      //
+      // Current displayed Rate is already
+      // tax-exclusive after tax calculation.
+      //
+      this.recalculateTax(
+        row,
+        false
+      );
+
+    } else {
+
+      this.recalculateInvoiceTaxRates();
+      this.recalculateSubTotal();
+
+    }
+
+  });
+
+
+  // =====================================================
+  // RATE CHANGE
+  //
+  // IMPORTANT:
+  //
+  // NO rateCtrl.valueChanges subscription here.
+  //
+  // Rate is handled ONLY by:
+  //
+  // (blur)="onRateBlur(i)"
+  //
+  // This allows the user to type:
+  //
+  // 6
+  // 60
+  // 600
+  //
+  // without Angular changing the value while typing.
+  // =====================================================
+
+
+  // =====================================================
+  // DISCOUNT %
+  // =====================================================
+
   discPerCtrl?.valueChanges.subscribe(() => {
-    if (updating) return;
-    updating = true;
+
+    if (updating) {
+      return;
+    }
+
     calculateFromPercent();
-    updating = false;
+
   });
 
-  // discount amount
+
+  // =====================================================
+  // DISCOUNT AMOUNT
+  // =====================================================
+
   discAmtCtrl?.valueChanges.subscribe(() => {
-    if (updating) return;
-    updating = true;
+
+    if (updating) {
+      return;
+    }
+
     calculateFromAmount();
+
+  });
+
+
+  // =====================================================
+  // TAX CHANGE
+  //
+  // DO NOT USE:
+  //
+  // taxCtrl.valueChanges
+  //
+  // Tax selection is handled by:
+  //
+  // (selectionChange)="onTaxChange(i)"
+  //
+  // =====================================================
+
+
+  // =====================================================
+  // MANUAL ROW TOTAL
+  // =====================================================
+
+  rowTotalCtrl?.valueChanges.subscribe((value) => {
+
+    if (
+      value === null ||
+      value === '' ||
+      value.toString().endsWith('.')
+    ) {
+      return;
+    }
+
+    if (updating) {
+      return;
+    }
+
+    updating = true;
+
+    const rowTotal =
+      Number(value) || 0;
+
+    let qty =
+      Number(qtyCtrl?.value) || 0;
+
+    let rate =
+      Number(rateCtrl?.value) || 0;
+
+    const discAmt =
+      Number(discAmtCtrl?.value) || 0;
+
+
+    // =================================================
+    // BOTH ZERO
+    // =================================================
+
+    if (
+      qty === 0 &&
+      rate === 0 &&
+      rowTotal > 0
+    ) {
+
+      qty = 1;
+
+      rate =
+        rowTotal + discAmt;
+
+      row.patchValue({
+
+        qty,
+
+        rate
+
+      }, {
+        emitEvent: false
+      });
+    }
+
+
+    // =================================================
+    // QTY EXISTS
+    // =================================================
+
+    else if (
+      qty > 0 &&
+      rowTotal > 0
+    ) {
+
+      const baseAmount =
+        rowTotal + discAmt;
+
+      rate =
+        baseAmount / qty;
+
+      row.patchValue({
+
+        rate:
+          Number(rate.toFixed(2))
+
+      }, {
+        emitEvent: false
+      });
+    }
+
+
+    // =================================================
+    // RATE EXISTS
+    // =================================================
+
+    else if (
+      qty === 0 &&
+      rate > 0 &&
+      rowTotal > 0
+    ) {
+
+      qty =
+        rowTotal / rate;
+
+      row.patchValue({
+
+        qty:
+          Number(qty.toFixed(2))
+
+      }, {
+        emitEvent: false
+      });
+    }
+
+
+    // =================================================
+    // UPDATE TOTAL
+    // =================================================
+
+    row.patchValue({
+
+      grossRowTotal:
+        Number(rowTotal.toFixed(2)),
+
+      taxTableRowSubTotal:
+        Number(rowTotal.toFixed(2)),
+
+      taxCalculated:
+        false
+
+    }, {
+      emitEvent: false
+    });
+
+
+    // =================================================
+    // TAX
+    // =================================================
+
+    const taxId =
+      Number(taxCtrl?.value) || 0;
+
+    if (taxId > 0) {
+
+      this.recalculateTax(
+        row,
+        true
+      );
+
+    } else {
+
+      this.recalculateInvoiceTaxRates();
+      this.recalculateSubTotal();
+
+    }
+
     updating = false;
+
   });
-
-    taxCtrl?.valueChanges.subscribe(() => {
-    this.recalculateTax(row);
-    this.recalculateInvoiceTaxRates();
-  });
-
-  
-
-  
-
-rowTotalCtrl?.valueChanges.subscribe((value) => {
-
-  // Skip while typing decimal like 45454.
-  if (value === null || value === '' || value.toString().endsWith('.')) {
-    return;
-  }
-
-  if (updating) return;
-
-  updating = true;
-  
-
-  const rowTotal = parseFloat(value) || 0;
-
-  let qty = Number(qtyCtrl?.value) || 0;
-  let rate = Number(rateCtrl?.value) || 0;
-  const discAmt = Number(discAmtCtrl?.value) || 0;
-
-  // both 0
-  if (qty === 0 && rate === 0 && rowTotal > 0) {
-
-    qty = 1;
-    rate = rowTotal + discAmt;
-
-    row.patchValue({
-      qty,
-      rate
-    }, { emitEvent: false });
-
-  }
-
-  // qty exists
-  else if (qty > 0 && rowTotal > 0) {
-
-    const baseAmount = rowTotal + discAmt;
-    rate = baseAmount / qty;
-
-    row.patchValue({
-      rate: +rate.toFixed(2)
-    }, { emitEvent: false });
-
-  }
-
-  // rate exists
-  else if (qty === 0 && rate > 0 && rowTotal > 0) {
-
-    qty = rowTotal / rate;
-
-    row.patchValue({
-      qty: +qty.toFixed(2)
-    }, { emitEvent: false });
-
-  }
-
-  this.recalculateTax(row);
-
-  updating = false;
-});
 
 }
 
+onRateBlur(index: number): void {
 
-recalculateTax(row: FormGroup) {
+  const row =
+    this.saleInvoiceDetails.at(index) as FormGroup;
 
-  const taxId = Number(row.get('taxableValueId')?.value);
-  const rowTotal = Number(row.get('rowTotal')?.value) || 0;
+  if (!row) {
+    return;
+  }
 
-  // ✅ NO TAX SELECTED → still update subtotal
-  if (!taxId || rowTotal <= 0) {
-    row.patchValue(
-      { taxTableRowSubTotal: rowTotal },
-      { emitEvent: false }
+  const qty =
+    Number(row.get('qty')?.value) || 0;
+
+  const enteredRate =
+    Number(row.get('rate')?.value) || 0;
+
+  if (qty <= 0 || enteredRate <= 0) {
+    return;
+  }
+
+  const discPer =
+    Number(row.get('discPer')?.value) || 0;
+
+  const grossAmount =
+    qty * enteredRate;
+
+  const discountAmount =
+    (grossAmount * discPer) / 100;
+
+  const newGrossAmount =
+    Math.max(
+      0,
+      grossAmount - discountAmount
     );
 
-    this.recalculateSubTotal(); // ✅ KEY LINE
-     this.recalculateInvoiceTaxRates();
+  row.patchValue({
+
+    discAmt:
+      Number(discountAmount.toFixed(2)),
+
+    rowTotal:
+      Number(newGrossAmount.toFixed(2)),
+
+    grossRowTotal:
+      Number(newGrossAmount.toFixed(2)),
+
+    taxTableRowSubTotal:
+      Number(newGrossAmount.toFixed(2)),
+
+    taxCalculated: false
+
+  }, {
+    emitEvent: false
+  });
+
+  const taxId =
+    Number(row.get('taxableValueId')?.value) || 0;
+
+  if (taxId > 0) {
+
+    this.recalculateTax(row, true);
+
+  } else {
+
+    this.recalculateInvoiceTaxRates();
+    this.recalculateSubTotal();
+
+  }
+}
+
+
+
+
+onRateEnter(index: number): void {
+
+  // Calculate the entered rate
+  this.onRateBlur(index);
+
+  // Move to next input
+  setTimeout(() => {
+
+    const activeElement =
+      document.activeElement as HTMLElement;
+
+    const inputs = Array.from(
+      document.querySelectorAll(
+        'input, textarea, mat-select, button'
+      )
+    ) as HTMLElement[];
+
+    const currentIndex =
+      inputs.indexOf(activeElement);
+
+    if (
+      currentIndex >= 0 &&
+      currentIndex < inputs.length - 1
+    ) {
+      inputs[currentIndex + 1]?.focus();
+    }
+
+  }, 50);
+}
+
+
+onRateFocusOut(index: number): void {
+
+  const row =
+    this.saleInvoiceDetails.at(index) as FormGroup;
+
+  if (!row) {
     return;
   }
 
-  const tax = this.listOfTaxTableData.find(x => x.id === taxId);
-  if (!tax) return;
+  const qty =
+    Number(row.get('qty')?.value) || 0;
 
-  const taxPercent = Number(tax.totalax) || 0;
-  const fixedTaxPercent = Number(tax.subTotalTax) || 0;
+  const enteredRate =
+    Number(row.get('rate')?.value) || 0;
 
-  let total = rowTotal * (1 + taxPercent / 100);
-  total = total * (1 + fixedTaxPercent / 100);
+  // Nothing entered
+  if (qty <= 0 || enteredRate <= 0) {
+    return;
+  }
 
-  // precision-safe
-  total = Math.floor((total + Number.EPSILON) * 1000) / 1000;
+  const discPer =
+    Number(row.get('discPer')?.value) || 0;
 
-  row.patchValue(
-    { taxTableRowSubTotal: total },
-    { emitEvent: false }
+  // =====================================================
+  // USER ENTERED RATE
+  // =====================================================
+
+  const grossAmount =
+    qty * enteredRate;
+
+  const discountAmount =
+    (grossAmount * discPer) / 100;
+
+  const newGrossAmount =
+    Math.max(
+      0,
+      grossAmount - discountAmount
+    );
+
+  // =====================================================
+  // UPDATE GROSS
+  // =====================================================
+
+  row.patchValue({
+
+    discAmt:
+      Number(discountAmount.toFixed(2)),
+
+    rowTotal:
+      Number(newGrossAmount.toFixed(2)),
+
+    grossRowTotal:
+      Number(newGrossAmount.toFixed(2)),
+
+    taxTableRowSubTotal:
+      Number(newGrossAmount.toFixed(2)),
+
+    taxCalculated:
+      false
+
+  }, {
+    emitEvent: false
+  });
+
+  // =====================================================
+  // TAX
+  // =====================================================
+
+  const taxId =
+    Number(row.get('taxableValueId')?.value) || 0;
+
+  if (taxId > 0) {
+
+    this.recalculateTax(
+      row,
+      true
+    );
+
+  } else {
+
+    this.recalculateInvoiceTaxRates();
+    this.recalculateSubTotal();
+
+  }
+}
+recalculateTax(
+  row: FormGroup,
+  rateChanged: boolean = true
+): void {
+
+  const qty =
+    Number(row.get('qty')?.value) || 0;
+
+  const taxId =
+    Number(row.get('taxableValueId')?.value) || 0;
+
+  const grossRowTotal =
+    Number(row.get('rowTotal')?.value) || 0;
+
+  if (qty <= 0 || grossRowTotal <= 0) {
+    return;
+  }
+
+  const tax =
+    this.listOfTaxTableData.find(
+      x => Number(x.id) === taxId
+    );
+
+  if (!taxId || !tax) {
+
+    row.patchValue({
+
+      grossRowTotal:
+        Number(grossRowTotal.toFixed(2)),
+
+      taxTableRowSubTotal:
+        Number(grossRowTotal.toFixed(2)),
+
+      taxCalculated:
+        false
+
+    }, {
+      emitEvent: false
+    });
+
+    this.recalculateInvoiceTaxRates();
+    this.recalculateSubTotal();
+
+    return;
+  }
+
+
+  // =====================================================
+  // TAX %
+  // =====================================================
+
+  const taxPercent =
+    Number(tax.totalax) || 0;
+
+
+  // =====================================================
+  // TAX-INCLUSIVE → TAX-EXCLUSIVE
+  // =====================================================
+
+  const taxableAmount =
+    taxPercent > 0
+      ? grossRowTotal /
+        (1 + taxPercent / 100)
+      : grossRowTotal;
+
+
+  const roundedTaxableAmount =
+    Number(
+      taxableAmount.toFixed(2)
+    );
+
+
+  // =====================================================
+  // TAX
+  // =====================================================
+
+  const taxAmount =
+    Number(
+      (
+        grossRowTotal -
+        roundedTaxableAmount
+      ).toFixed(2)
+    );
+
+
+  // =====================================================
+  // RATE
+  // =====================================================
+
+  let finalRate =
+    Number(row.get('rate')?.value) || 0;
+
+
+  // =====================================================
+  // ONLY RATE CHANGE / TAX SELECTION
+  // CHANGES DISPLAY RATE
+  // =====================================================
+
+  if (rateChanged) {
+
+    finalRate =
+      Number(
+        (
+          roundedTaxableAmount /
+          qty
+        ).toFixed(2)
+      );
+  }
+
+
+  // =====================================================
+  // UPDATE
+  // =====================================================
+
+  row.patchValue({
+
+    // Tax-exclusive amount
+    rowTotal:
+      roundedTaxableAmount,
+
+    // GST base
+    taxTableRowSubTotal:
+      roundedTaxableAmount,
+
+    // Qty change keeps old Rate
+    // Rate change gets new Rate
+    rate:
+      finalRate,
+
+    // Original gross
+    grossRowTotal:
+      Number(
+        grossRowTotal.toFixed(2)
+      ),
+
+    taxPercent:
+      taxPercent,
+
+    taxCalculated:
+      true
+
+  }, {
+    emitEvent: false
+  });
+
+
+  console.log(
+    '🔥 TALLY TAX CALCULATION',
+    {
+      qty,
+      taxId,
+      taxPercent,
+
+      gross:
+        grossRowTotal,
+
+      taxable:
+        roundedTaxableAmount,
+
+      tax:
+        taxAmount,
+
+      rateChanged,
+
+      finalRate
+    }
   );
 
-  this.recalculateSubTotal(); // ✅ ALWAYS update subtotal
+
   this.recalculateInvoiceTaxRates();
+  this.recalculateSubTotal();
 }
+
 
 
 recalculateSubTotal() {
-  // 1️⃣ Sum of all row totals
-  const rowsTotal = this.saleInvoiceDetails.controls.reduce(
-    (sum, row: any) => {
-      const val = Number(row.get('taxTableRowSubTotal')?.value) || 0;
-      return sum + val;
-    },
-    0
-  );
 
-  // 2️⃣ Optional extra values
-  const value = Number(this.addEditForm.get('value')?.value) || 0;
-  const value1 = Number(this.addEditForm.get('value1')?.value) || 0;
+  let rowsTotal = 0;
 
-  // 3️⃣ Final subtotal
+  this.saleInvoiceDetails.controls.forEach((row: any) => {
+
+    const rowTotal =
+      Number(row.get('rowTotal')?.value) || 0;
+
+    const taxId =
+      Number(row.get('taxableValueId')?.value) || 0;
+
+    let taxAmount = 0;
+
+    if (taxId) {
+
+      const tax = this.listOfTaxTableData.find(
+        x => x.id === taxId
+      );
+
+      if (tax) {
+
+        const taxPercent =
+          Number(tax.totalax) || 0;
+
+        // Tax calculated on original Qty × Rate
+        const qty =
+          Number(row.get('qty')?.value) || 0;
+
+        const rate =
+          Number(row.get('rate')?.value) || 0;
+
+        const baseAmount = qty * rate;
+
+        taxAmount = (baseAmount * taxPercent) / 100;
+      }
+    }
+
+    // rowTotal + tax
+    const rowSubTotal = rowTotal + taxAmount;
+
+    rowsTotal += rowSubTotal;
+  });
+
+  const value =
+    Number(this.addEditForm.get('value')?.value) || 0;
+
+  const value1 =
+    Number(this.addEditForm.get('value1')?.value) || 0;
+
   let subTotal = rowsTotal + value + value1;
 
-  // precision-safe (keeps 108.99 exactly)
-  subTotal = Math.round((subTotal + Number.EPSILON) * 100) / 100;
-    // ✅ APPLY ROUNDING
-  const roundAndTotal = this.calculateRoundOff(subTotal);
+  subTotal =
+    Math.round((subTotal + Number.EPSILON) * 100) / 100;
 
-  this.addEditForm.patchValue(
-    { subTotal,
-      roundAndTotal
-     },
-    { emitEvent: false }
-  );
+  const roundAndTotal =
+    this.calculateRoundOff(subTotal);
+
+  this.addEditForm.patchValue({
+    subTotal: subTotal,
+    roundAndTotal: roundAndTotal
+  }, {
+    emitEvent: false
+  });
 }
 onRowTotalBlur(index: number) {
 
@@ -3174,26 +4027,32 @@ onRowTotalBlur(index: number) {
   const rowTotalControl = row.get('rowTotal');
   const unitId = row.get('unit')?.value;
 
-  if (!rowTotalControl) return;
+  if (!rowTotalControl) {
+    return;
+  }
 
   // Find selected unit
   const selectedUnit = this.listOfUnit.find(
     (x: any) => Number(x.id) === Number(unitId)
   );
 
-  // decimal from unit
-  const decimalPlaces = Number(selectedUnit?.decimal ?? 0);
+  // Decimal places from unit
+  const decimalPlaces =
+    Number(selectedUnit?.decimal ?? 0);
 
-  // value
-  const rowTotal = parseFloat(rowTotalControl.value || 0);
+  // Current displayed/calculated row total
+  const rowTotal =
+    parseFloat(rowTotalControl.value || 0);
 
-  // format like qty
+  // Format row total only
   rowTotalControl.setValue(
     rowTotal.toFixed(decimalPlaces),
-    { emitEvent: false }
+    {
+      emitEvent: false
+    }
   );
 
-  // recalculate tax
+  // Recalculate tax
   this.recalculateTax(row);
 }
 
@@ -3201,40 +4060,77 @@ onRowTotalBlur(index: number) {
 
 onRateKeyDown(event: KeyboardEvent, index: number): void {
 
-  if (event.key !== 'Tab' && event.key !== 'Enter') {
+  if (
+    event.key !== 'Tab' &&
+    event.key !== 'Enter'
+  ) {
     return;
   }
 
-  const row = this.saleInvoiceDetails.at(index) as FormGroup;
-  const rowTotal = Number(row.get('rowTotal')?.value || 0);
+  const row =
+    this.saleInvoiceDetails.at(index) as FormGroup;
 
-  // Don't allow Tab or Enter if Row Total is 0
-  if (rowTotal <= 0) {
+  if (!row) {
+    return;
+  }
+
+  const rate =
+    Number(row.get('rate')?.value) || 0;
+
+  const qty =
+    Number(row.get('qty')?.value) || 0;
+
+  if (rate <= 0 || qty <= 0) {
+
     event.preventDefault();
     event.stopPropagation();
 
-    row.get('rowTotal')?.markAsTouched();
+    row.get('rate')?.markAsTouched();
+
     (event.target as HTMLInputElement).focus();
 
     return;
   }
 
-  // Prevent default Tab/Enter behaviour
+  // Calculate the rate first
+  this.onRateBlur(index);
+
+  // Stop default Enter/Tab
   event.preventDefault();
+  event.stopPropagation();
 
-  const form = (event.target as HTMLElement).closest('form');
-  if (!form) return;
+  const form =
+    (event.target as HTMLElement).closest('form');
 
- const elements = Array.from(
-  form.querySelectorAll(
-    'input:not([disabled]), textarea:not([disabled]), button:not([disabled]), .mat-mdc-select'
-  )
-) as HTMLElement[];
-  const current = event.target as HTMLElement;
-  const currentIndex = elements.indexOf(current);
+  if (!form) {
+    return;
+  }
 
-  if (currentIndex > -1 && currentIndex < elements.length - 1) {
-    elements[currentIndex + 1].focus();
+  const elements = Array.from(
+    form.querySelectorAll(
+      'input:not([disabled]):not([readonly]), ' +
+      'textarea:not([disabled]):not([readonly]), ' +
+      'button:not([disabled]), ' +
+      '.mat-mdc-select'
+    )
+  ) as HTMLElement[];
+
+  const current =
+    event.target as HTMLElement;
+
+  const currentIndex =
+    elements.indexOf(current);
+
+  if (
+    currentIndex > -1 &&
+    currentIndex < elements.length - 1
+  ) {
+
+    setTimeout(() => {
+
+      elements[currentIndex + 1]?.focus();
+
+    }, 0);
   }
 }
 
@@ -3322,11 +4218,17 @@ get totalAmount(): string {
 
 
 
-
 onTaxChange(index: number) {
- const row = this.saleInvoiceDetails.at(index) as FormGroup;
+
+  const row = this.saleInvoiceDetails.at(index) as FormGroup;
+
+  if (!row) {
+    return;
+  }
+
   this.recalculateTax(row);
- this.recalculateInvoiceTaxRates();
+
+  this.recalculateInvoiceTaxRates();
 }
 calculateTaxForRow(row: FormGroup, tax: any) {
 
@@ -3449,61 +4351,73 @@ recalculateInvoiceTaxRates() {
   let tcsAmt = 0;
   let swachBharatAmt = 0;
 
-  // Use Set to avoid duplicate %
-  const centralRateSet = new Set<number>();
-  const localRateSet = new Set<number>();
-  const tcsRateSet = new Set<number>();
-  const swachRateSet = new Set<number>();
-
   this.saleInvoiceDetails.controls.forEach((row: any) => {
 
-    const taxId = row.get('taxableValueId')?.value;
-    const rowTotal = Number(row.get('rowTotal')?.value) || 0;
+    const taxId =
+      Number(row.get('taxableValueId')?.value) || 0;
 
     if (!taxId) return;
 
     const tax = this.listOfTaxTableData.find(
-      x => x.id === Number(taxId)
+      x => Number(x.id) === taxId
     );
 
     if (!tax) return;
 
-    const cRate = Number(tax.gstApplicabeCentralRate) || 0;
-    const lRate = Number(tax.gstApplicabeLocalRate) || 0;
-    const tcsR = Number(tax.tcsApplicabeRate) || 0;
-    const sbRate = Number(tax.swachBhartApplicableRate) || 0;
+    const cRate =
+      Number(tax.gstApplicabeCentralRate) || 0;
 
-    // ✅ store unique %
-    if (cRate) centralRateSet.add(cRate);
-    if (lRate) localRateSet.add(lRate);
-    if (tcsR) tcsRateSet.add(tcsR);
-    if (sbRate) swachRateSet.add(sbRate);
+    const lRate =
+      Number(tax.gstApplicabeLocalRate) || 0;
 
-    // ✅ calculate amount
-    if (rowTotal > 0) {
-      centralGstAmt += (rowTotal * cRate) / 100;
-      localGstAmt += (rowTotal * lRate) / 100;
-      tcsAmt += (rowTotal * tcsR) / 100;
-      swachBharatAmt += (rowTotal * sbRate) / 100;
+    const tcsR =
+      Number(tax.tcsApplicabeRate) || 0;
+
+    const sbRate =
+      Number(tax.swachBhartApplicableRate) || 0;
+
+
+    // IMPORTANT:
+    // Use actual taxable/base amount
+    const baseAmount =
+      Number(row.get('taxTableRowSubTotal')?.value) || 0;
+
+
+    if (baseAmount > 0) {
+
+      centralGstAmt +=
+        (baseAmount * cRate) / 100;
+
+      localGstAmt +=
+        (baseAmount * lRate) / 100;
+
+      tcsAmt +=
+        (baseAmount * tcsR) / 100;
+
+      swachBharatAmt +=
+        (baseAmount * sbRate) / 100;
     }
+
   });
 
-  // round amounts
-  centralGstAmt = +centralGstAmt.toFixed(2);
-  localGstAmt = +localGstAmt.toFixed(2);
-  tcsAmt = +tcsAmt.toFixed(2);
-  swachBharatAmt = +swachBharatAmt.toFixed(2);
 
-  // Patch only amount (for saving)
   this.addEditForm.patchValue({
-    centralGst: centralGstAmt,
-    localGst: localGstAmt,
-    tcs: tcsAmt,
-    swachBharat: swachBharatAmt
-  }, { emitEvent: false });
 
+    centralGst:
+      Number(centralGstAmt.toFixed(2)),
 
-  
+    localGst:
+      Number(localGstAmt.toFixed(2)),
+
+    tcs:
+      Number(tcsAmt.toFixed(2)),
+
+    swachBharat:
+      Number(swachBharatAmt.toFixed(2))
+
+  }, {
+    emitEvent: false
+  });
 }
 getTaxRate(taxId: number, type: 'central' | 'local' | 'tcs' | 'swach'): number {
 
@@ -4998,3 +5912,4 @@ private moveArrowLeftCursorToEnd(
 }
 
 }
+

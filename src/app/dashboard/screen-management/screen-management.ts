@@ -72,7 +72,10 @@ export class ScreenManagement {
 
       barcodePurchase: false,
       discPercentPurchase: false,
-      discountPurchase: false
+      discountPurchase: false,
+      saleOfNegativeStock: false,
+showMoreDetailsSale: false,
+showMoreDetailsPurchase: false,
     });
   }
 
@@ -92,35 +95,34 @@ export class ScreenManagement {
 save(): void {
   if (this.form.invalid) return;
 
+  console.log('FORM VALUE:', this.form.value);
+  console.log('saleOfNegativeStock:', this.form.get('saleOfNegativeStock')?.value);
+
   this.showSpiner = true;
 
-  const isEdit = !!this.form.value.screenId;
+  this.api.addEditData(ApiUrl.screenManagement, this.form.value).subscribe({
+    next: (res: any) => {
+      this.showSpiner = false;
 
-  const message = isEdit
-    ? ' updated successfully'
-    : ' added successfully';
+      if (res?.success) {
+        this.snackBar.open('Updated successfully', 'Close', {
+          duration: 3000
+        });
 
-  this.api
-    .addEditData(ApiUrl.screenManagement, this.form.value)
-    .subscribe({
-      next: (res: any) => {
-        this.showSpiner = false;
-
-        if (res?.success) {
-          this.snackBar.open(message, 'Close', { duration: 3000 });
-        } else {
-          this.snackBar.open('Failed to save group', 'Close', { duration: 3000 });
-        }
-      },
-      error: (err) => {
-        this.showSpiner = false;
-        this.snackBar.open(
-          err?.error?.message || 'Failed to save group',
-          'Close',
-          { duration: 3000 }
-        );
+        this.getAllData(); // reload saved value
       }
-    });
+    },
+    error: (err) => {
+      this.showSpiner = false;
+      console.error(err);
+
+      this.snackBar.open(
+        err?.error?.message || 'Failed to save',
+        'Close',
+        { duration: 3000 }
+      );
+    }
+  });
 }
 
 

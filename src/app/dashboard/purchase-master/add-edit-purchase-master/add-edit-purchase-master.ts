@@ -264,10 +264,13 @@ showAddNewOption = false;
 
 private itemArrowLeftBack = false;
 private itemEnterNavigation = false;
+
   constructor(@Inject(MAT_DIALOG_DATA) public data:any,private fb: FormBuilder,private titleCase: TitleCasePipe ,private http:AllApiService,private cRouter:ActivatedRoute,
   private router: Router,private ngZone: NgZone,public dialog: MatDialog,
   private snackBar: MatSnackBar,
-  private cdr: ChangeDetectorRef,public dialogRef: MatDialogRef<AddEditPurchaseMaster>){}
+  private cdr: ChangeDetectorRef,public dialogRef: MatDialogRef<AddEditPurchaseMaster>){
+    
+  }
  
 
   ngOnInit(): void {
@@ -396,7 +399,9 @@ onOpened(type: string, opened: boolean,index?: number) {
 
   this.purchaseInvoiceDetails.controls.forEach((_, index) => {
 
-    this.filteredTaxes[index] = [...this.listOfTaxTableData];
+    this.filteredTaxes[index] = this.listOfTaxTableData.filter(
+        tax => tax.gstVatClassName === 'Purchase/Ex'
+    );
 
     this.taxSearchCtrls[index]?.setValue('', {
       emitEvent: false
@@ -1378,33 +1383,44 @@ getTabIndexBasedOnValue1(): number {
     .subscribe((res: any) => {
       if (res?.success && res?.data?.length) {
         this.screenConfig = res.data[0]; // 👈 important
-        this.applySaleScreenConfig();
+        this.applyPurchaseScreenConfig();
       }
 
       this.cdr.detectChanges();
     });
 }
-applySaleScreenConfig() {
-  const cfg = this.screenConfig;
+applyPurchaseScreenConfig() {
+const cfg = this.screenConfig;
 
-  this.purchaseInvoiceDetails.controls.forEach(row => {
-    this.toggle(row, 'barcode', cfg?.barcodeSale);
-    // this.toggle(row, 'hsn', cfg?.hsnsale);
-      // ✅ FIX HERE
-    this.toggle(row, 'mRate', cfg?.mRateSale);
-    this.toggle(row, 'discPer', cfg?.discPercentSale);
-    this.toggle(row, 'discAmt', cfg?.discountSale);
-    this.toggle(row, 'remarks', cfg?.remarksSale);
+this.purchaseInvoiceDetails.controls.forEach(row => {
 
-    this.toggle(row, 'art', cfg?.artSale);
-    this.toggle(row, 'size', cfg?.sizeSale);
-    this.toggle(row, 'color', cfg?.colorSale);
-    this.toggle(row, 'pack1', cfg?.pack1Sale);
-    this.toggle(row, 'pack2', cfg?.pack2Sale);
-     this.toggle(row, 'pack2', cfg?.pack2Sale);
-  
-  });
+
+this.toggle(row, 'barcode', cfg?.barcodePurchase);
+
+this.toggle(row, 'hsn', cfg?.hsnPurchase);
+
+this.toggle(row, 'mRate', cfg?.mRatePurchase);
+
+this.toggle(row, 'discPer', cfg?.discPercentPurchase);
+
+this.toggle(row, 'discAmt', cfg?.discountPurchase);
+
+// this.toggle(row, 'remarks', cfg?.remarksPurchase);
+
+this.toggle(row, 'artNo', cfg?.artPurchase);
+
+this.toggle(row, 'size', cfg?.sizePurchase);
+
+this.toggle(row, 'color', cfg?.colorPurchase);
+
+this.toggle(row, 'pack1', cfg?.pack1Purchase);
+
+this.toggle(row, 'pack2', cfg?.pack2Purchase);
+
+
+});
 }
+
 private toggle(row: any, controlName: string, enabled: boolean) {
   const ctrl = row.get(controlName);
   if (!ctrl) return;
@@ -1776,7 +1792,8 @@ row.patchValue({
   barcode: selectedItem.itemBarCodeOrPartNo || '',
   // qty:selectedItem.quantity || '',
   hsn: selectedItem.hsn || '',
-  rate: selectedItem.saleRate || 0,
+  // rate: selectedItem.saleRate || 0,
+  rate: selectedItem.purchaseRate || 0,
   mRate: selectedItem.mrpRate || 0,
   taxPercent: selectedItem.taxRate || 0,
   unit: selectedItem.unitInt || 0
@@ -1798,6 +1815,90 @@ setTimeout(() => {
   }, 0);
   
 }
+
+onBarcodeScan(event: KeyboardEvent, index: number): void {
+
+  if (event.key !== 'Enter') {
+    return;
+  }
+
+  event.preventDefault();
+  event.stopPropagation();
+
+  const row = this.purchaseInvoiceDetails.at(index) as FormGroup;
+
+  const barcode = String(
+    row.get('barcode')?.value || ''
+  ).trim();
+
+  if (!barcode) {
+    return;
+  }
+
+  console.log('SCANNED BARCODE:', barcode);
+
+  const item = this.listOfAllItem.find(
+    (x: any) =>
+      String(x.itemBarCodeOrPartNo || '').trim() === barcode
+  );
+
+  if (!item) {
+    this.snackBar.open(
+      `Item not found: ${barcode}`,
+      'Close',
+      { duration: 2000 }
+    );
+
+    row.get('barcode')?.setValue('');
+    return;
+  }
+
+  console.log('SCANNED ITEM:', item);
+
+  // Set item
+  row.patchValue({
+    itemId: item.itemId,
+
+    barcode: item.itemBarCodeOrPartNo || barcode,
+
+    hsn: item.hsn || '',
+
+    unit: item.unitInt || 0,
+
+    // IMPORTANT:
+    // Purchase invoice should use purchaseRate
+    rate: item.purchaseRate || 0,
+
+    mRate: item.mrpRate || 0,
+
+    taxPercent: item.taxRate || 0
+  });
+
+  // Purchase tax
+  const taxId =
+    Number(item.cgstSgstPurchase) > 0
+      ? Number(item.cgstSgstPurchase)
+      : Number(item.igstPurchase) > 0
+      ? Number(item.igstPurchase)
+      : null;
+
+  row.get('taxableValueId')?.setValue(taxId);
+
+  // Default quantity
+  if (!row.get('qty')?.value) {
+    row.get('qty')?.setValue(1);
+  }
+
+  // Recalculate
+  this.onTaxChange(index);
+  this.formatQty(index);
+
+  setTimeout(() => {
+    this.onRowTotalBlur(index);
+    this.cdr.detectChanges();
+  }, 0);
+}
+
 formatQty(index: number) {
   const row = this.purchaseInvoiceDetails.at(index) as FormGroup;
 

@@ -289,11 +289,11 @@ citySearchCtrl = new FormControl('');
  
   }
  
- ngAfterViewInit(): void {
-  if (this.categoryId) {
-    this.updateData();
-  }
-}
+//  ngAfterViewInit(): void {
+//   if (this.categoryId) {
+//     this.updateData();
+//   }
+// }
   ngOnInit(): void {
     this.companyId = JSON.parse(localStorage.getItem('loggedUser') || '{}').companyId;
      this.userName = JSON.parse(localStorage.getItem('loggedUser') || '{}').username;
@@ -418,14 +418,14 @@ this.addEditForm.get('opBalance')?.valueChanges.subscribe(() => {
 
      // Reset Under Group dynamically
   
-    if(this.categoryId) { 
+  //   if(this.categoryId) { 
       
-       this.updateData() ;
+  //      this.updateData() ;
       
-   }
-   else{
-   this.showSpiner = false;
-      }
+  //  }
+  //  else{
+  //  this.showSpiner = false;
+  //     }
 
       
       
@@ -1151,19 +1151,20 @@ getAllGSTVATData() {
     .subscribe((res: any) => {
 
       if (!res || !Array.isArray(res.data)) {
+        this.originalList = [];
         this.listOfVATGSTData = [];
         return;
       }
 
-      const filtered = res.data.filter(
-        (x: any) => x.companyId === 0 || x.companyId === this.companyId
-      );
+      // SQL procedure already returns:
+      // 1,2,3,4 = common records
+      // company-specific records = current company
+      // So don't filter again here.
 
-      this.originalList = filtered.sort((a: any, b: any) =>
-        a.className.localeCompare(b.className)
-      );
+      this.originalList = [...res.data];
 
       this.listOfVATGSTData = [...this.originalList];
+
       this.cdr.detectChanges();
     });
 }
@@ -1219,95 +1220,405 @@ getAllTransport() {
 
 
  
+// updateData(): void {
+//   this.showSpiner = true;
+
+//   this.http.getAllDataId(ApiUrl.getDataForEditAccount,this.categoryId)
+//     .subscribe({
+//       next: (res: any) => {
+//         console.log('API RESPONSE:', res);
+
+//         // Make sure the API call was successful and data exists
+//         if (res?.success && res.data) {
+//           const data = res.data; // extract actual group object
+// console.log('Form City:', this.addEditForm.get('cityId')?.value);
+//       this.addEditForm.patchValue({
+//   id: data.id ?? 0,
+//   companyId: data.companyId ?? this.companyId,
+//   groupId: data.groupId ?? 0,
+//   stateUser: data.stateUser ?? '',
+//   transportId: data.transportId ?? 0,
+
+//   accountName: data.accountName ?? '',
+//   address: data.address ?? '',
+//   zipCode: data.zipCode ?? '',
+//   email: data.email ?? '',
+//   phone: data.phone ?? '',
+//   gst: data.gst ?? '',
+//   pan: data.pan ?? '',
+//   adharNo: data.adharNo ?? '',
+//   contectName: data.contectName ?? '',
+//   contectNo: data.contectNo ?? '',
+
+//   bankName: data.bankName ?? '',
+//   ifscCode: data.ifscCode ?? '',
+//   creditDay: data.creditDay ?? 0,
+//   regdType: data.regdType ?? '',
+//   registrationTypeId:data.registrationTypeId ?? '',
+
+//   isTcsCompulsary: data.isTcsCompulsary ?? false,
+//   tdsApplicabe: data.tdsApplicabe ?? false,
+//   isItTransport: data.isItTransport ?? false,
+
+//   transportMode: data.transportMode ?? '',
+//   transportRate: data.transportRate ?? 0,
+//   tcsLimit: data.tcsLimit ?? 0,
+
+//   cityId: data.cityId ?? null,
+//   tanNo: data.tanNo ?? '',
+//   comments:data.comments ?? '',
+//   opBalance: data.opBalance ?? 0,
+//   openingBalanceType: data.openingBalanceType ?? 'Cr',
+//   clsBalance: data.clsBalance ?? 0,
+//   closingBalanceType: data.closingBalanceType ?? 'Cr',
+
+//   agentAndAreaName: data.agentAndAreaName ?? '',
+//   openingBalance: data.openingBalance ?? '',
+//   closingBalance: data.closingBalance ?? '',
+
+//   state: data.state ?? 0,
+//   gstVatReturn: data.gstVatReturn ?? false,
+//   maintBillWise: data.maintBillWise ?? false,
+
+//   eComNo: data.eComNo ?? '',
+//   expHsnCode: data.expHsnCode ?? '',
+//   cinNo: data.cinNo ?? '',
+//   ieCodeNo: data.ieCodeNo ?? '',
+
+//   creditLimit: data.creditLimit ?? '',
+//   inttRate: data.inttRate ?? '',
+//   basicLimit: data.basicLimit ?? '',
+//   taxFormName: data.taxFormName ?? '',
+//   tradeType: data.tradeType ?? '',
+
+//   agentId: data.agentId ?? 0,
+//   gstVat: data.gstVat ?? 0
+// });
+
+
+
+//           console.log('FORM AFTER PATCH:', this.addEditForm.value);
+//         }
+
+//         this.showSpiner = false;
+//         this.cdr.detectChanges();
+//       },
+//       error: (err) => {
+//         console.error(err);
+//         this.showSpiner = false;
+//         this.cdr.detectChanges();
+//       }
+//     });
+// }
+
 updateData(): void {
+
   this.showSpiner = true;
 
-  this.http.getAllDataId(ApiUrl.getDataForEditAccount,this.categoryId)
+  this.http
+    .getAllDataId(
+      ApiUrl.getDataForEditAccount,
+      this.categoryId
+    )
     .subscribe({
+
       next: (res: any) => {
+
         console.log('API RESPONSE:', res);
 
-        // Make sure the API call was successful and data exists
         if (res?.success && res.data) {
-          const data = res.data; // extract actual group object
-console.log('Form City:', this.addEditForm.get('cityId')?.value);
-      this.addEditForm.patchValue({
-  id: data.id ?? 0,
-  companyId: data.companyId ?? this.companyId,
-  groupId: data.groupId ?? 0,
-  stateUser: data.stateUser ?? '',
-  transportId: data.transportId ?? 0,
 
-  accountName: data.accountName ?? '',
-  address: data.address ?? '',
-  zipCode: data.zipCode ?? '',
-  email: data.email ?? '',
-  phone: data.phone ?? '',
-  gst: data.gst ?? '',
-  pan: data.pan ?? '',
-  adharNo: data.adharNo ?? '',
-  contectName: data.contectName ?? '',
-  contectNo: data.contectNo ?? '',
+          const data = res.data;
 
-  bankName: data.bankName ?? '',
-  ifscCode: data.ifscCode ?? '',
-  creditDay: data.creditDay ?? 0,
-  regdType: data.regdType ?? '',
-  registrationTypeId:data.registrationTypeId ?? '',
-
-  isTcsCompulsary: data.isTcsCompulsary ?? false,
-  tdsApplicabe: data.tdsApplicabe ?? false,
-  isItTransport: data.isItTransport ?? false,
-
-  transportMode: data.transportMode ?? '',
-  transportRate: data.transportRate ?? 0,
-  tcsLimit: data.tcsLimit ?? 0,
-
-  cityId: data.cityId ?? null,
-  tanNo: data.tanNo ?? '',
-  comments:data.comments ?? '',
-  opBalance: data.opBalance ?? 0,
-  openingBalanceType: data.openingBalanceType ?? 'Cr',
-  clsBalance: data.clsBalance ?? 0,
-  closingBalanceType: data.closingBalanceType ?? 'Cr',
-
-  agentAndAreaName: data.agentAndAreaName ?? '',
-  openingBalance: data.openingBalance ?? '',
-  closingBalance: data.closingBalance ?? '',
-
-  state: data.state ?? 0,
-  gstVatReturn: data.gstVatReturn ?? false,
-  maintBillWise: data.maintBillWise ?? false,
-
-  eComNo: data.eComNo ?? '',
-  expHsnCode: data.expHsnCode ?? '',
-  cinNo: data.cinNo ?? '',
-  ieCodeNo: data.ieCodeNo ?? '',
-
-  creditLimit: data.creditLimit ?? '',
-  inttRate: data.inttRate ?? '',
-  basicLimit: data.basicLimit ?? '',
-  taxFormName: data.taxFormName ?? '',
-  tradeType: data.tradeType ?? '',
-
-  agentId: data.agentId ?? 0,
-  gstVat: data.gstVat ?? 0
-});
+          console.log('EDIT ACCOUNT DATA:', data);
+          console.log('GST VAT RETURN:', data.gstVatReturn);
+          console.log('GST VAT ID FROM API:', data.gstVat);
 
 
+          // ============================================
+          // GST/VAT ID
+          // IMPORTANT:
+          // mat-option value is number (gst.id)
+          // so convert API value to number
+          // ============================================
 
-          console.log('FORM AFTER PATCH:', this.addEditForm.value);
+          const gstVatId =
+            data.gstVat != null &&
+            data.gstVat !== ''
+              ? Number(data.gstVat)
+              : 0;
+
+
+          console.log(
+            'GST VAT ID FOR FORM:',
+            gstVatId
+          );
+
+
+          // ============================================
+          // PATCH FORM
+          // ============================================
+
+          this.addEditForm.patchValue({
+
+            id: data.id ?? 0,
+
+            companyId:
+              data.companyId ??
+              this.companyId,
+
+            groupId:
+              data.groupId ??
+              0,
+
+            stateUser:
+              data.stateUser ??
+              '',
+
+            transportId:
+              data.transportId ??
+              0,
+
+
+            accountName:
+              data.accountName ??
+              '',
+
+            address:
+              data.address ??
+              '',
+
+            zipCode:
+              data.zipCode ??
+              '',
+
+            email:
+              data.email ??
+              '',
+
+            phone:
+              data.phone ??
+              '',
+
+            gst:
+              data.gst ??
+              '',
+
+            pan:
+              data.pan ??
+              '',
+
+            adharNo:
+              data.adharNo ??
+              '',
+
+            contectName:
+              data.contectName ??
+              '',
+
+            contectNo:
+              data.contectNo ??
+              '',
+
+
+            bankName:
+              data.bankName ??
+              '',
+
+            ifscCode:
+              data.ifscCode ??
+              '',
+
+            creditDay:
+              data.creditDay ??
+              0,
+
+            regdType:
+              data.regdType ??
+              '',
+
+            registrationTypeId:
+              data.registrationTypeId ??
+              0,
+
+
+            isTcsCompulsary:
+              data.isTcsCompulsary ??
+              false,
+
+            tdsApplicabe:
+              data.tdsApplicabe ??
+              false,
+
+            isItTransport:
+              data.isItTransport ??
+              false,
+
+
+            transportMode:
+              data.transportMode ??
+              '',
+
+            transportRate:
+              data.transportRate ??
+              0,
+
+            tcsLimit:
+              data.tcsLimit ??
+              0,
+
+
+            cityId:
+              data.cityId ??
+              null,
+
+            tanNo:
+              data.tanNo ??
+              '',
+
+            comments:
+              data.comments ??
+              '',
+
+
+            opBalance:
+              data.opBalance ??
+              0,
+
+            openingBalanceType:
+              data.openingBalanceType ??
+              'Cr',
+
+            clsBalance:
+              data.clsBalance ??
+              0,
+
+            closingBalanceType:
+              data.closingBalanceType ??
+              'Cr',
+
+
+            agentAndAreaName:
+              data.agentAndAreaName ??
+              '',
+
+            openingBalance:
+              data.openingBalance ??
+              '',
+
+            closingBalance:
+              data.closingBalance ??
+              '',
+
+
+            state:
+              data.state ??
+              0,
+
+
+            gstVatReturn:
+              data.gstVatReturn ??
+              false,
+
+            maintBillWise:
+              data.maintBillWise ??
+              false,
+
+
+            eComNo:
+              data.eComNo ??
+              '',
+
+            expHsnCode:
+              data.expHsnCode ??
+              '',
+
+            cinNo:
+              data.cinNo ??
+              '',
+
+            ieCodeNo:
+              data.ieCodeNo ??
+              '',
+
+
+            creditLimit:
+              data.creditLimit ??
+              '',
+
+            inttRate:
+              data.inttRate ??
+              '',
+
+            basicLimit:
+              data.basicLimit ??
+              '',
+
+            taxFormName:
+              data.taxFormName ??
+              '',
+
+            tradeType:
+              data.tradeType ??
+              '',
+
+
+            agentId:
+              data.agentId ??
+              0,
+
+
+            // ========================================
+            // IMPORTANT
+            // GST HEADING
+            // ========================================
+
+            gstVat:
+              gstVatId
+
+          });
+
+
+          console.log(
+            'FORM AFTER PATCH:',
+            this.addEditForm.value
+          );
+
+
+          console.log(
+            'FORM GST VAT:',
+            this.addEditForm.get('gstVat')?.value
+          );
+
+
+          // ============================================
+          // FORCE CHANGE DETECTION
+          // ============================================
+
+          this.cdr.detectChanges();
+
         }
 
         this.showSpiner = false;
-        this.cdr.detectChanges();
+
       },
+
+
       error: (err) => {
-        console.error(err);
+
+        console.error(
+          'GET ACCOUNT EDIT ERROR:',
+          err
+        );
+
         this.showSpiner = false;
+
         this.cdr.detectChanges();
+
       }
+
     });
+
 }
 handleOpeningBalanceValidation() {
   const opBalanceCtrl = this.addEditForm.get('opBalance');

@@ -20,6 +20,7 @@ showSpinner = true;
 companyId:any;
 permission:any;
 searchText: string = '';
+private isAccountDialogOpening = false;
 alphabets: string[] = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
 listOfData: any[] = [];        // filtered data (shown)
@@ -179,12 +180,22 @@ resetFilter() {
   this.selectedRowIndex = -1;
 }
 openSelectedAccount() {
+    if (this.isAccountDialogOpening) {
+    return;
+  }
+
   if (this.listOfData.length === 1) {
     this.addEditData(this.listOfData[0]);
   }
 }
 
 addEditData(data?: any) {
+    if (this.isAccountDialogOpening) {
+    return;
+  }
+
+  this.isAccountDialogOpening = true;
+
   const dialogRef = this.dialog.open(AddEditAccount, {
     width: '95vw',
     maxWidth: '1500px',
@@ -193,6 +204,10 @@ addEditData(data?: any) {
   });
 
   dialogRef.afterClosed().subscribe(result => {
+      // Allow opening again after dialog is completely closed
+    this.isAccountDialogOpening = false;
+
+    console.log('ACCOUNT DIALOG RESULT:', result);
     if (result) {
        this.getAllData(); // reload list automatically
     }

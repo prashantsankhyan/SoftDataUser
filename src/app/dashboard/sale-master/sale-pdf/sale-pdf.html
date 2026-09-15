@@ -12,53 +12,202 @@
 
     <!-- ORIGINAL COPY -->
     <div class="invoice">
-        <div class="center title">TAX INVOICE</div>
-        <div class="copy-title">Original for Buyer</div>
-         <div class="copy-title">{{screenConfig?.whatWeDoInSale}}</div>
+       
 
-      <table class="no-border">
+     <!-- ================= INVOICE HEADER ================= -->
+
+<div class="invoice-header">
+
+  <!-- TOP ROW -->
+  <table class="header-top">
     <tr>
-        <!-- LEFT -->
-        <td class="left">
-            <div class="company">{{ header.companyName }}</div>
-            ({{ header.stateCode }}-{{ header.stateName }})
-        </td>
 
-        <!-- CENTER -->
-        <td class="center">
-            <b>Ship To:</b> {{ header.shipToName }}
-             <b>Phone:</b> {{ header.shipToPhone}}
-            
-        </td>
+      <!-- GST LEFT -->
+      <td class="header-gst">
+        <b>GST No.:</b>
+        {{ header.gstNo }}
+      </td>
 
-        <!-- RIGHT -->
-        <td class="right">
-            <b>Invoice No:</b> {{ header.invoiceNo }}<br>
-            <b>Date:</b> {{ header.invoiceDate | date:'dd/MM/yyyy' }}
-        </td>
+      <!-- TITLE CENTER -->
+      <td class="header-title">
+        <div class="tax-title">TAX INVOICE</div>
+        <div>Original for Buyer</div>
+        <div>{{ screenConfig?.whatWeDoInSale }}</div>
+      </td>
+
+      <!-- PHONE / EMAIL RIGHT -->
+      <td class="header-contact">
+        <div>
+          <b>Phone:</b> {{ header.companyPhone }}
+        </div>
+        <div>
+          <b>E-mail:</b> {{ header.companyEmail }}
+        </div>
+      </td>
+
     </tr>
-</table>
+  </table>
 
-        <!-- Party & Transport -->
-        <table class="no-border"> 
-            <tr>
-                <td width="60%" style="border-top: 1px solid black;">
-                    <b>Bill To:</b><br>
-                    {{header.shipToName}}<br>
-                    ADD1<br>
-                    {{header.cityName}}<br>
-                    STATE:  ({{header.stateCode}}-{{header.stateName}})<br>
-                    Phone:  {{header.companyPhone}}
-                </td>
-                <td width="60%" style="border-top: 1px solid black;border-left: 1px solid black;">
-                    <b>Order No:</b>{{header.orderNo}}<br>
-                    <b>GR/RR No:</b>{{header.grNo}}<br>
-                    <b>Transport:</b>{{header.transportName}}<br>
-                    <b>Vehicle:</b><br>
-                    <b>Due Date:</b> {{header.shippingBillNo}}
-                </td>
-            </tr>
-        </table>
+
+  <!-- COMPANY NAME -->
+  <div class="company-header">
+
+    <div class="company-name">
+      {{ header.companyName }}
+    </div>
+
+    <div class="company-address">
+      {{ header.companyAddress }}
+    </div>
+
+    <div class="company-address">
+      {{ header.cityName }}
+      {{ header.stateCode ? '-' + header.stateCode : '' }}
+    </div>
+
+    <div class="company-address">
+      {{ header.stateName }}
+    </div>
+
+  </div>
+
+
+  <!-- BILL TO / SHIP TO / INVOICE DETAILS -->
+  <table class="party-header">
+
+    <tr>
+
+      <!-- BILL TO -->
+      <td class="party-box bill-box">
+
+        <div class="box-title">
+          Detail of Receiver (Billed to)
+        </div>
+
+        <div class="party-content">
+
+          <b>{{ header.partyName }}</b><br>
+
+          {{ header.partyAddress }}<br>
+           {{ header.partyZipCode }}<br>
+
+          {{ header.partyCity }}<br>
+
+          <b>Place of Supply:</b>
+          {{ header.partyStateCode }}-{{ header.partyState }}<br>
+
+          <b>GSTIN:</b>
+          {{ header.partyGst }} &nbsp;&nbsp;
+
+          <b>PAN:</b>
+          {{ header.partyPan }}<br>
+
+          <b>Phone:</b>
+          {{ header.partyContectNo }}
+
+        </div>
+
+      </td>
+
+
+      <!-- SHIP TO -->
+      <td class="party-box ship-box">
+
+        <div class="box-title">
+          Detail of Consignee (Shipped to)
+        </div>
+
+        <div class="party-content">
+
+          <b>{{ header.shipToName }}</b><br>
+
+          {{ header.shipToAddress }}<br>
+
+          {{ header.shipToCity }}<br>
+
+          <b>Place of Delivery:</b>
+          {{ header.shipToStateCode }}-{{ header.shipToStateName }}<br>
+
+          <b>GSTIN:</b>
+          {{ header.shipToGst }} &nbsp;&nbsp;
+
+          <b>PAN:</b>
+          {{ header.shipToPan }}<br>
+
+          <b>Phone:</b>
+          {{ header.shipToContectNo }}
+
+        </div>
+
+      </td>
+
+
+      <!-- INVOICE DETAILS -->
+      <td class="invoice-details">
+
+        <div>
+          <b>Invoice No.</b>
+          <span>{{ header.invoiceNo }}</span>
+        </div>
+
+        <div>
+          <b>Date</b>
+          <span>
+            {{ header.invoiceDate | date:'dd/MM/yyyy' }}
+          </span>
+        </div>
+
+        <div>
+          <b>Order No.</b>
+          <span>{{ header.orderNo }}</span>
+        </div>
+
+        <div>
+          <b>Cr.Days</b>
+          <span>{{ header.crDays }}</span>
+        </div>
+
+        <div>
+          <b>Due Date</b>
+          <span>
+            {{ header.shippingBillNo }}
+          </span>
+        </div>
+
+        <div>
+          <b>Transport</b>
+          <span>{{ header.transportName }}</span>
+          <span>{{ header.transportNameManual }}</span>
+          
+        </div>
+
+        <div>
+          <b>GST No.</b>
+          <span>{{ header.shipToGstin }}</span>
+        </div>
+
+        <div>
+          <b>GR. No.</b>
+          <span>{{ header.grNo }}</span>
+        </div>
+
+        <div>
+          <b>Vehicle</b>
+          <span>{{ header.vehicleNo }}</span>
+        </div>
+
+        <div>
+          <b>Freight</b>
+          <span>{{ header.freight }}</span>
+        </div>
+
+      </td>
+
+    </tr>
+
+  </table>
+
+</div>
 
         <!-- Item Table -->
         <table class="no-line-table" >
