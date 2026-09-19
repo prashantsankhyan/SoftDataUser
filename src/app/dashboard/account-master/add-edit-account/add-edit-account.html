@@ -86,6 +86,7 @@
 <mat-select
     #groupSelect
     formControlName="groupId"
+    (selectionChange)="onGroupChange($event.value)"
     (openedChange)="onOpened('group', $event)"
      (closed)="onGroupClosed(groupSelect)">
 

@@ -288,11 +288,12 @@ addEditData(data?: any) {
 
 addEditDataWithChanges(data?: any) {
   const dialogRef = this.dialog.open(AddEditSaleWithChanges, {
-    width: '99vw',
-    maxWidth: '2000px',
-    maxHeight: '95vh',
-    
-    disableClose: false, // allow close on outside click
+ width: '99vw',
+  maxWidth: '2000px',
+  height: '99vh',
+  maxHeight: '99vh',
+  disableClose: false,
+  panelClass: 'invoice-dialog',
     data: data || null
   });
 

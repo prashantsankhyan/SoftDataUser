@@ -30,7 +30,7 @@
 
   </div>
 </div>
- <mat-dialog-content style="margin-top: -10px;">
+ <mat-dialog-content >
   <form [formGroup]="addEditForm"  >
 
     <!-- ===== HEADER INFO ===== -->
@@ -236,12 +236,7 @@
  formControlName="shippingBillNo" (blur)="formatDateInput($event)"   />
       </div>
 
-      <div class="col-md-2">
-       <div style="text-align: center;margin-top: 20px;">
-<input type="checkbox" id="invoiceToggle" class="popup-toggle" (change)="togglePopup()" />
-<label for="invoiceToggle" class="popup-link">Click For More Detail</label>
- </div>
-      </div>
+   
 
      
 
@@ -249,139 +244,138 @@
 
 
 
-<!-- Click link -->
+<div class="row  compact-details" *ngIf="screenConfig?.showMoreDetailsSale">
+   <div class="col-md-2">
+    <label class="form-label">Pvt. Mark</label>
+    <input type="text" class="form-control" formControlName="pvtMark">
+  </div>
+  <div class="col-md-2">
+    <label class="form-label">Dated</label>
+    <input type="text" class="form-control" formControlName="dated">
+  </div>
+   <div class="col-md-2">
+    <label class="form-label">Vehicle</label>
+    <input type="text" class="form-control" formControlName="vehicle">
+  </div>
+   <div class="col-md-2">
+    <label class="form-label">Packages</label>
+    <input type="text" class="form-control" formControlName="packages">
+  </div>
+
+  <div class="col-md-2">
+    <label class="form-label">Order No</label>
+    <input type="text" class="form-control" formControlName="orderNo">
+  </div>
+
+  <div class="col-md-2">
+    <label class="form-label">Packing No</label>
+    <input type="text" class="form-control" formControlName="packingNo">
+  </div>
+
+  <div class="col-md-2">
+    <label class="form-label">Credit Days</label>
+    <input type="text" class="form-control" formControlName="creditDays">
+  </div>
+
+ 
+
+  <div class="col-md-1">
+    <label class="form-label">Form No</label>
+    <input type="text" class="form-control" formControlName="formNo">
+  </div>
+
+  <div class="col-md-1">
+    <label class="form-label">Weight</label>
+    <input type="text" class="form-control" formControlName="weight">
+  </div>
+
+  <div class="col-md-2">
+    <label class="form-label">Docu. Thru</label>
+    <input type="text" class="form-control" formControlName="docuThru">
+  </div>
+
+  <div class="col-md-2">
+    <label class="form-label">Station</label>
+    <input type="text" class="form-control" formControlName="station">
+  </div>
+
+  <div class="col-md-1">
+    <label class="form-label">RGP No</label>
+    <input type="text" class="form-control" formControlName="rgpNo">
+  </div>
+
+  
+
+  <div class="col-md-1">
+    <label class="form-label">Freight</label>
+    <input type="text" class="form-control" formControlName="freight">
+  </div>
+
+ 
+
+ 
+
+ 
+
+  <div class="col-md-2">
+    <label class="form-label">Ecom GSTIN</label>
+    <input type="text" class="form-control" formControlName="ecomGSTIN">
+  </div>
+
+  <div class="col-md-2">
+    <label class="form-label">E-Way No</label>
+    <input type="text" class="form-control" formControlName="ewayNo">
+  </div>
+
+  <div class="col-md-2">
+    <label class="form-label">Shipping Bill No</label>
+    <input type="text" class="form-control" formControlName="shBNo">
+  </div>
+   <div class="col-md-1">
+    <label class="form-label">Due Date</label>
+    <input type="text" class="form-control" formControlName="dueDate">
+  </div>
+
+  <div class="col-md-1">
+    <label class="form-label">Ship Date</label>
+    <input type="text" class="form-control" formControlName="shipDate">
+  </div>
+
+  <div class="col-md-2">
+    <label class="form-label">Ship Part No</label>
+    <input type="text" class="form-control" formControlName="shipPartNo">
+  </div>
+
+  <div class="col-md-2">
+    <label class="form-label">Port Loading</label>
+    <input type="text" class="form-control" formControlName="portLoading">
+  </div>
+
+  <div class="col-md-1">
+    <label class="form-label">Port Discharge</label>
+    <input type="text" class="form-control" formControlName="portDischarge">
+  </div>
+
+  <div class="col-md-1">
+    <label class="form-label">Final Destination</label>
+    <input type="text" class="form-control" formControlName="finalDestination">
+  </div>
+
+
+</div>
+
+
 
 
     
-   <div class="popup-overlay" [class.active]="isPopupOpen">
-  <div class="popup-content">
+
 
      
 
    
 
-    <div class="row g-3">
-
-      <div class="col-sm-3">
-        <label class="form-label">Order No</label>
-        <input type="text" class="form-control" formControlName="orderNo">
-      </div>
-       <div class="col-sm-3">
-        <label class="form-label">Packing No</label>
-        <input type="text" class="form-control" formControlName="packingNo">
-      </div>
-  <div class="col-sm-3">
-        <label class="form-label">Credit Days</label>
-        <input type="text" class="form-control" formControlName="creditDays">
-      </div>
-      <div class="col-sm-3">
-        <label class="form-label">Vehicle</label>
-        <input type="text" class="form-control" formControlName="vehicle">
-      </div>
-
-      <div class="col-sm-3">
-        <label class="form-label">Form No</label>
-        <input type="text" class="form-control" formControlName="formNo">
-      </div>
-
-      <div class="col-sm-3">
-        <label class="form-label">Weight</label>
-        <input type="text" class="form-control" formControlName="weight">
-      </div>
-
-    
-
-     
-
-      <div class="col-sm-3">
-        <label class="form-label">Docu. Thru</label>
-        <input type="text" class="form-control" formControlName="docuThru">
-      </div>
-
-      <div class="col-sm-3">
-        <label class="form-label">Station</label>
-        <input type="text" class="form-control" formControlName="station">
-      </div>
-
-      <div class="col-sm-3">
-        <label class="form-label">RGP No</label>
-        <input type="text" class="form-control" formControlName="rgpNo">
-      </div>
-
-      <div class="col-sm-3">
-        <label class="form-label">Dated</label>
-        <input type="text" class="form-control" formControlName="dated">
-      </div>
-
-      <div class="col-sm-3">
-        <label class="form-label">Freight</label>
-        <input type="text" class="form-control" formControlName="freight">
-      </div>
-
-      <div class="col-sm-3">
-        <label class="form-label">Packages</label>
-        <input type="text" class="form-control" formControlName="packages">
-      </div>
-
-      <div class="col-sm-3">
-        <label class="form-label">Pvt. Mark</label>
-        <input type="text" class="form-control" formControlName="pvtMark">
-      </div>
-
-      <div class="col-sm-3">
-        <label class="form-label">Due Date</label>
-        <input type="text" class="form-control" formControlName="dueDate">
-      </div>
-
-      <div class="col-sm-3">
-        <label class="form-label">Ecom GSTIN</label>
-        <input type="text" class="form-control" formControlName="ecomGSTIN">
-      </div>
-
-      <div class="col-sm-3">
-        <label class="form-label">E-Way No</label>
-        <input type="text" class="form-control" formControlName="ewayNo">
-      </div>
-
-      <div class="col-sm-3">
-        <label class="form-label">Shipping Bill No</label>
-        <input type="text" class="form-control" formControlName="shBNo">
-      </div>
-
-      <div class="col-sm-3">
-        <label class="form-label">Ship Date</label>
-        <input type="text" class="form-control" formControlName="shipDate">
-      </div>
-
-      <div class="col-sm-3">
-        <label class="form-label">Ship Part No</label>
-        <input type="text" class="form-control" formControlName="shipPartNo">
-      </div>
-
-      <div class="col-sm-3">
-        <label class="form-label">Port Loading</label>
-        <input type="text" class="form-control" formControlName="portLoading">
-      </div>
-
-      <div class="col-sm-3">
-        <label class="form-label">Port Discharge</label>
-        <input type="text" class="form-control" formControlName="portDischarge">
-      </div>
-
-      <div class="col-sm-3">
-        <label class="form-label">Final Destination</label>
-        <input type="text" class="form-control" formControlName="finalDestination">
-      </div>
-       <div class="col-sm-3" style="margin-top: 30px;">
-      <label for="invoiceToggle" class="popup-close mt-4">❌</label>
-      </div>
-     
-
-
-    </div>
-
-  </div>
-</div>
+  
+  
 
 
    
@@ -415,6 +409,7 @@
           <th>Qty</th>
           <th>Unit</th>
           <th>Rate</th>
+          <th>Value</th>
 
           <th *ngIf="screenConfig?.mRateSale">M.Rate</th>
           <th *ngIf="screenConfig?.discPercentSale">Disc %</th>
@@ -679,10 +674,21 @@
 
           <!-- RATE -->
           <td >
+            
+             
+            
             <input type="number"
                    class="form-control compact-input text-end"  formControlName="rate" 
                 (focus)="clearRateZeroOnFocus(i, 'rate')"
   (focusout)="onRateFocusOut(i)"
+                   >
+                    
+          </td>
+          <td>
+             <input type="number" 
+                   class="form-control compact-input text-end"  formControlName="includedRate" 
+               readonly
+    tabindex="-1"
                    >
           </td>
 
@@ -853,261 +859,299 @@
 
   </div>
 </div>
+<div class="invoice-summary-section">
 
-<div class="">
-  
+  <!-- ================= TAX SUMMARY ================= -->
+  <div class="summary-card tax-card">
 
- 
-
-    <!-- GST Section -->
-    <div class="row">
-      <div class="col-sm-4">
-        <div class="row">
-          <div  class="col-sm-6">
-        <label class="form-label">Central GST</label>
-        <div class="row">
-           <!-- <div class="col-sm-4">
-           <tr *ngFor="let row of saleInvoiceDetails.controls; let i = index">
-           <td>
-            {{ getTaxRate(row.get('taxableValueId')?.value, 'central') }}%
-         </td>
-           </tr>
-          </div> -->
-          <div class="col-sm-8">
-          <input
-          type="number"
-          class="form-control text-end format"
-          formControlName="centralGst" readonly
-           tabindex="-1" 
-        />
-          </div>
-
-
-        </div>
-       
-         
-          </div>
-             <div class="col-sm-6">
-         <label class="form-label">Local GST</label>
-         <div class="row">
-          <!-- <div class="col-sm-4">
-            <tr *ngFor="let row of saleInvoiceDetails.controls; let i = index">
-         <td>
-          {{ getTaxRate(row.get('taxableValueId')?.value, 'local') }}%
-         </td>
-          </tr>
-          </div> -->
-            <div class="col-sm-8">
-            <input
-          type="number"
-          class="form-control text-end format"
-          formControlName="localGst"
-           readonly
-            tabindex="-1"
-        />
-          </div>
-
-         </div>
-      
-        
-          </div>
-          <div class="col-sm-6">
-             <label class="form-label">TCS</label>
-             <div class="row">
-              <!-- <div class="col-sm-4">
-                  <tr *ngFor="let row of saleInvoiceDetails.controls; let i = index">
-                    <td>
-                    {{ getTaxRate(row.get('taxableValueId')?.value, 'tcs') }}%
-                    </td>
-                     </tr>
-
-              </div> -->
-              <div class="col-sm-8">
-         <input
-          type="number"
-          class="form-control text-end format"
-          formControlName="tcs"
-           readonly
-           tabindex="-1"
-        />
-              </div>
-
-             </div>
-        
-          
-          </div>
-          <div class="col-sm-6">
-            
-  <label class="form-label">Swach Bharat</label>
-  <div class="row">
-    <!-- <div class="col-sm-4">
- <tr *ngFor="let row of saleInvoiceDetails.controls; let i = index">
-  <td>
-    {{ getTaxRate(row.get('taxableValueId')?.value, 'swach') }}%
-  </td>
-</tr>
-    </div> -->
-    <div class="col-sm-8">
-   <input
-          type="number"
-          class="form-control text-end format"
-          formControlName="swachBharat"
-           readonly
-  tabindex="-1"
-        />
+    <div class="summary-card-header">
+      <div class="summary-title">
+        <i class="fas fa-percent"></i>
+        <span>Tax Summary</span>
+      </div>
     </div>
 
-            </div>
-     
+    <div class="summary-card-body">
 
-           
-          </div>
-
-        </div>
-
-      </div>
-      <div class="col-sm-4">
-        <div class="row">
- <div class="col-sm-6">
- <label class="form-label">Value</label>
+      <div class="summary-field">
+        <label>Central GST</label>
         <input
-         #valueInput
+          type="number"
+          class="form-control text-end format readonly-field"
+          formControlName="centralGst"
+          readonly
+          tabindex="-1"
+        />
+      </div>
+
+      <div class="summary-field">
+        <label>Local GST</label>
+        <input
+          type="number"
+          class="form-control text-end format readonly-field"
+          formControlName="localGst"
+          readonly
+          tabindex="-1"
+        />
+      </div>
+
+      <div class="summary-field">
+        <label>TCS</label>
+        <input
+          type="number"
+          class="form-control text-end format readonly-field"
+          formControlName="tcs"
+          readonly
+          tabindex="-1"
+        />
+      </div>
+
+      <div class="summary-field">
+        <label>Swach Bharat</label>
+        <input
+          type="number"
+          class="form-control text-end format readonly-field"
+          formControlName="swachBharat"
+          readonly
+          tabindex="-1"
+        />
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ================= ADDITIONAL CHARGES ================= -->
+  <div class="summary-card charges-card">
+
+    <div class="summary-card-header">
+      <div class="summary-title">
+        <i class="fas fa-plus-circle"></i>
+        <span>Additional Charges</span>
+      </div>
+    </div>
+
+    <div class="summary-card-body charges-grid">
+
+      <!-- Value -->
+      <div class="summary-field">
+        <label>Value</label>
+        <input
+          #valueInput
           type="number"
           class="form-control text-end format"
           formControlName="value"
           (focus)="clearZero('value')"
-  (blur)="restoreZero('value')"
-  (keydown.enter)="restoreZero('value')"
+          (blur)="restoreZero('value')"
+          (keydown.enter)="restoreZero('value')"
         />
+      </div>
+
+      <!-- Other Charge -->
+      <div
+        class="summary-field"
+        *ngIf="(addEditForm.get('value')?.value || 0) > 0"
+      >
+        <label>Other Charge</label>
+
+        <mat-form-field appearance="outline" class="w-100 summary-select">
+          <mat-select
+            #otherChargeSelect
+            formControlName="otherCharge"
+            (selectionChange)="onOtherChargeSelected()"
+            (closed)="focusValue1()"
+            [disabled]="addEditForm.get('value')?.value == 0"
+            [attr.tabindex]="getTabIndexBasedOnValue()"
+          >
+
+            <mat-option
+              *ngFor="let c of otherValueAccount"
+              [value]="c.id"
+            >
+              {{ c.accountName }}
+            </mat-option>
+
+          </mat-select>
+        </mat-form-field>
+
+        <div
+          class="text-danger validation-text"
+          *ngIf="
+            addEditForm.get('otherCharge')?.touched &&
+            addEditForm.get('otherCharge')?.invalid
+          "
+        >
+          Please select
         </div>
+      </div>
 
-        <div class="col-sm-6"  *ngIf="(addEditForm.get('value')?.value || 0) > 0">
-            <label class="form-label">Other Charge</label>
-        <!-- <select class="form-control format" formControlName="otherCharge" 
-         (keydown)="onOtherChargeTab($event)"
-        [disabled]="addEditForm.get('value')?.value == 0" [attr.tabindex]="getTabIndexBasedOnValue()">
-           
-             <option  value="0"  >Select Other Charge</option>
-            <option *ngFor="let a of otherValueAccount" [value]="a.id">
-              {{a.accountName }}
-            </option>
-          </select> -->
 
-           <mat-form-field appearance="outline"  class="w-100 city-field">
-  <mat-select
-    #otherChargeSelect
-    formControlName="otherCharge"
-    (selectionChange)="onOtherChargeSelected()"
-     (closed)="focusValue1()"
-    [disabled]="addEditForm.get('value')?.value == 0"
-    [attr.tabindex]="getTabIndexBasedOnValue()">
+      <!-- Value 1 -->
+      <div class="summary-field">
+        <label>Value 1</label>
 
-    <!-- <mat-option [value]="''">
-      Select Heading
-    </mat-option> -->
-
-    <mat-option *ngFor="let c of otherValueAccount" [value]="c.id">
-      {{ c.accountName }}
-    </mat-option>
-
-  </mat-select>
-</mat-form-field>
-         <div class="text-danger" *ngIf="addEditForm.get('otherCharge')?.touched && addEditForm.get('otherCharge')?.invalid">
-  Please select 
-</div>
-        </div>
-         <div class="col-sm-6">
- <label class="form-label">Value1</label>
         <input
           type="number"
           class="form-control text-end format"
           formControlName="value1"
-            (focus)="clearZero('value1')"
-  (blur)="restoreZero('value1')"
-   (keydown.enter)="onValue1Enter()"
+          (focus)="clearZero('value1')"
+          (blur)="restoreZero('value1')"
+          (keydown.enter)="onValue1Enter()"
         />
-        </div>
-         <div class="col-sm-6"  *ngIf="(addEditForm.get('value1')?.value || 0) > 0">
-            <label class="form-label">Other Charge1</label>
-       
-           <!-- <select class="form-control format" formControlName="otherCharge1"  (keydown)="onOtherCharge1Tab($event)"  [disabled]="addEditForm.get('value1')?.value == 0" [attr.tabindex]="getTabIndexBasedOnValue1()">
-           
-             <option  value="0"  selected="">Select Other Charge 1</option>
-            <option *ngFor="let a of otherValueAccount" [value]="a.id">
-              {{a.accountName }}
-            </option>
-          </select> -->
- <mat-form-field appearance="outline"  class="w-100 city-field">
-            <mat-select
-    #otherChargeSelect1
-    formControlName="otherCharge1"
-    (selectionChange)="onOtherCharge1Selected()"
-     (keydown.enter)="onOtherCharge1Enter()"
-    [disabled]="addEditForm.get('value1')?.value == 0"
-    [attr.tabindex]="getTabIndexBasedOnValue1()">
-
-    <!-- <mat-option [value]="''">
-      Select Heading
-    </mat-option> -->
-
-    <mat-option *ngFor="let c of otherValueAccount" [value]="c.id">
-      {{ c.accountName }}
-    </mat-option>
-
-  </mat-select>
-  </mat-form-field>
-          <div class="text-danger" *ngIf="addEditForm.get('otherCharge1')?.touched && addEditForm.get('otherCharge1')?.invalid">
-  Please select 
-</div>
-        </div>
-        </div>
-   
-      
       </div>
 
-      <div class="col-md-4">
-        <div class="row">
-         <div class="col-md-6 col-sm-6">
 
+      <!-- Other Charge 1 -->
+      <div
+        class="summary-field"
+        *ngIf="(addEditForm.get('value1')?.value || 0) > 0"
+      >
+        <label>Other Charge 1</label>
+
+        <mat-form-field appearance="outline" class="w-100 summary-select">
+          <mat-select
+            #otherChargeSelect1
+            formControlName="otherCharge1"
+            (selectionChange)="onOtherCharge1Selected()"
+            (keydown.enter)="onOtherCharge1Enter()"
+            [disabled]="addEditForm.get('value1')?.value == 0"
+            [attr.tabindex]="getTabIndexBasedOnValue1()"
+          >
+
+            <mat-option
+              *ngFor="let c of otherValueAccount"
+              [value]="c.id"
+            >
+              {{ c.accountName }}
+            </mat-option>
+
+          </mat-select>
+        </mat-form-field>
+
+        <div
+          class="text-danger validation-text"
+          *ngIf="
+            addEditForm.get('otherCharge1')?.touched &&
+            addEditForm.get('otherCharge1')?.invalid
+          "
+        >
+          Please select
         </div>
-        <div class="col-md-6 col-sm-6">
-        <label class="form-label fw-bold">Sub Total</label>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ================= BILL DETAILS ================= -->
+  <div class="summary-card bill-card">
+
+    <div class="summary-card-header">
+      <div class="summary-title">
+        <i class="fas fa-file-invoice"></i>
+        <span>Bill Details</span>
+      </div>
+    </div>
+
+    <div class="summary-card-body bill-grid">
+
+      <div class="summary-field">
+        <label>Bill No</label>
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Bill No"
+        />
+      </div>
+
+      <div class="summary-field">
+        <label>Bill Date</label>
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Bill Date"
+        />
+      </div>
+
+      <div class="summary-field">
+        <label>Bill Amount</label>
         <input
           type="number"
-          class="form-control text-end fw-bold border-primary format"
+          class="form-control text-end format"
+          placeholder="0.00"
+        />
+      </div>
+
+      <div class="summary-field">
+        <label>Tax Amount</label>
+        <input
+          type="number"
+          class="form-control text-end format"
+          placeholder="0.00"
+        />
+      </div>
+
+      <div class="summary-field">
+        <label>Freight</label>
+        <input
+          type="number"
+          class="form-control text-end format"
+          placeholder="0.00"
+        />
+      </div>
+
+      <div class="summary-field">
+        <label>Advance</label>
+        <input
+          type="number"
+          class="form-control text-end format"
+          placeholder="0.00"
+        />
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ================= FINAL TOTAL ================= -->
+  <div class="summary-card total-card">
+
+    <div class="summary-card-header">
+      <div class="summary-title">
+        <i class="fas fa-calculator"></i>
+        <span>Invoice Total</span>
+      </div>
+    </div>
+
+    <div class="total-body">
+
+      <div class="total-row">
+        <span>Sub Total</span>
+
+        <input
+          type="number"
+          class="form-control text-end format total-input"
           formControlName="subTotal"
-            tabindex="-1"
+          tabindex="-1"
           readonly
         />
       </div>
-      <div class="col-md-6 col-sm-6">
 
-        </div>
-        <div class="col-md-6 col-sm-6">
-        <label class="form-label fw-bold">Round Total</label>
+      <div class="total-row grand-total">
+        <span>Round Total</span>
+
         <input
           type="number"
-          class="form-control text-end fw-bold border-primary format"
+          class="form-control text-end format total-input"
           formControlName="roundAndTotal"
-            tabindex="-1"
+          tabindex="-1"
           readonly
         />
       </div>
-        </div>
-       
-       
-      </div>
 
-    
-     
-
-    
-   
     </div>
 
-   <div class="row justify-content-end mt-4">
-      
-    </div>
+  </div>
 
 </div>
 

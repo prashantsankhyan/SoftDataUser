@@ -235,8 +235,8 @@ onGroupClosed(select: MatSelect) {
 openingBalanceTypeRef!: ElementRef<HTMLSelectElement>;
 @ViewChild('accountNameRef')
 accountNameRef!: ElementRef<HTMLInputElement>;
-@ViewChild('openingBalanceRef')
-openingBalanceRef!: ElementRef<HTMLInputElement>;
+
+@ViewChild('openingBalanceRefs')openingBalanceRefs!: ElementRef<HTMLInputElement>;
 
 isSaving = false;
 searchCtrl = new FormControl('');
@@ -586,7 +586,7 @@ handleKeyboardShortcuts(event: KeyboardEvent) {
   }
 }
 
-@ViewChild('openingBalanceRefs')openingBalanceRefs!: ElementRef<HTMLInputElement>;
+
 focusOpeningBalance(event: KeyboardEvent) {
 
   const gstVatReturn =
@@ -1034,6 +1034,53 @@ getGroupMaster() {
     });
 }
 
+
+onGroupChange(groupId: number): void {
+
+  // Find selected group
+  const selectedGroup = this.listOfGorupMaster.find(
+    (x: any) => x.groupId === Number(groupId)
+  );
+
+  // Groups where GST/VAT Return must be No
+  const restrictedGroups = [
+    'SUNDRY CREDITORS',
+    'SUNDRY DEBTORS',
+    'DUTIES & TAXES'
+  ];
+
+  // Check selected group
+  const groupName = selectedGroup?.groupName
+    ?.trim()
+    .toUpperCase();
+
+  const isRestricted = restrictedGroups.includes(groupName);
+
+  // GST/VAT Return form control
+  const gstControl = this.addEditForm.get('gstVatReturn');
+
+  if (isRestricted) {
+
+    // Automatically select "No"
+    gstControl?.setValue(false, { emitEvent: false });
+
+    // Disable Yes/No radio buttons
+    gstControl?.disable({ emitEvent: false });
+
+    // Focus Opening Balance
+    setTimeout(() => {
+      if (this.openingBalanceRefs?.nativeElement) {
+        this.openingBalanceRefs.nativeElement.focus();
+        this.openingBalanceRefs.nativeElement.select();
+      }
+    }, 100);
+
+  } else {
+
+    // Allow Yes/No selection for other groups
+    gstControl?.enable({ emitEvent: false });
+  }
+}
 
 getAllUnit() {
   this.http

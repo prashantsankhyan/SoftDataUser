@@ -1400,6 +1400,7 @@ applySaleScreenConfig() {
     this.toggle(row, 'discAmt', cfg?.discountSale);
     // this.toggle(row, 'remarks', cfg?.remarksSale);
 
+    this.toggle(row,'showMoreDetailsSale',cfg?.showMoreDetailsSale)
     this.toggle(row, 'art', cfg?.artSale);
     this.toggle(row, 'size', cfg?.sizeSale);
     this.toggle(row, 'color', cfg?.colorSale);
@@ -2545,6 +2546,7 @@ createSaleInvoiceDetail(): FormGroup {
     taxPercent: [0],
     subTaxPercent: [0],
     rowTotal: [0],
+    includedRate:[],
      grossRowTotal: [0],
     taxCalculated: [false],
     taxTableRowSubTotal: [0]
@@ -3707,8 +3709,16 @@ onRateFocusOut(index: number): void {
   const qty =
     Number(row.get('qty')?.value) || 0;
 
+
+
+
   const enteredRate =
     Number(row.get('rate')?.value) || 0;
+
+
+    row.patchValue({
+  includedRate: enteredRate
+},);
 
   // Nothing entered
   if (qty <= 0 || enteredRate <= 0) {
