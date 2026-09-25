@@ -1709,3 +1709,18 @@ formControlName[roundAndTotal] {
   }
 
 }
+
+/* Disabled item: click band, lekin text full brightness */
+.mat-mdc-option.item-disabled-red,
+.mat-mdc-option.item-disabled-red .mdc-list-item__primary-text,
+.mat-mdc-option.item-disabled-red .item-table-row,
+.mat-mdc-option.item-disabled-red .item-table-row * {
+  opacity: 1 !important;
+  color: #c00000 !important;
+  -webkit-text-fill-color: #c00000 !important;
+}
+
+.mat-mdc-option.item-disabled-red {
+  --mat-option-disabled-state-label-text-color: #c00000;
+  --mdc-list-list-item-disabled-label-text-opacity: 1;
+}

@@ -21,7 +21,7 @@ import { AddEditUnitMaster } from '../../unit-master/add-edit-unit-master/add-ed
 import { SalePdf } from '../sale-pdf/sale-pdf';
 import { MatSelect } from '@angular/material/select';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatTooltip, MatTooltipModule } from '@angular/material/tooltip';
 import { ConfirmItemDelete } from '../confirm-item-delete/confirm-item-delete';
 
 @Component({
@@ -199,6 +199,8 @@ deleteButtons!: QueryList<ElementRef<HTMLButtonElement>>;
 addButtons!: QueryList<ElementRef<HTMLButtonElement>>;
 @ViewChild('valueInput')
 valueInput!: ElementRef<HTMLInputElement>;
+@ViewChild('billNo', { static: false })
+billNoInput!: ElementRef<HTMLInputElement>;
 @ViewChild('value1Input')
 value1Input!: ElementRef<HTMLInputElement>;
 @ViewChild('saveButton') saveButton!: ElementRef<HTMLButtonElement>;
@@ -209,6 +211,8 @@ addNewButton!: ElementRef<HTMLButtonElement>;
 invoiceDateInput!: ElementRef<HTMLInputElement>;
 @ViewChildren('taxSelect')
 taxSelects!: QueryList<MatSelect>;
+@ViewChild('advanceInput')
+advanceInput!: ElementRef<HTMLInputElement>;
  isSaving = false;
  showSpiner = true;
   submit = false ;
@@ -1274,48 +1278,208 @@ getSaleShortCode(typeOfSale: string): string {
     .substring(0, 2)
     .toUpperCase();
 }
+formatDateInput(event: Event): void {
 
-formatDateInput(event: any) {
-  const input = event.target as HTMLInputElement;
-  let rawValue = input.value.trim();
+  const input =
+    event.target as HTMLInputElement;
 
-  // 1️⃣ If user entered MM-dd-yyyy manually
-  const manualMatch = rawValue.match(/^(\d{2})-(\d{2})-(\d{4})$/);
-  if (manualMatch) {
-    const [_, month, day, year] = manualMatch;
-    const date = new Date(`${year}-${month}-${day}`);
+  const rawValue =
+    input.value.trim();
 
-    if (!isNaN(date.getTime())) {
-      // valid manual date → keep it
-      input.value = rawValue;
-      this.updateFormControl(input, rawValue);
-      return;
-    }
+
+  // Existing formatted date edit करने दें
+  if (rawValue.includes('-')) {
+
+    const cleaned =
+      rawValue
+        .replace(/[^\d-]/g, '')
+        .substring(0, 10);
+
+    input.value = cleaned;
+
+    this.updateFormControl(
+      input,
+      cleaned
+    );
+
+    return;
   }
 
-  // 2️⃣ If user entered digits only (like 20250205)
-  let digits = rawValue.replace(/\D/g, "");
-  if (digits.length >= 6) {
-    const year = digits.substring(0, 4);
-    const month = digits.substring(4, 6);
-    const day = digits.substring(6) || '01';
 
-    const date = new Date(`${year}-${month}-${day}`);
+  const digits =
+    rawValue
+      .replace(/\D/g, '')
+      .substring(0, 8);
 
-    if (!isNaN(date.getTime())) {
-      const formatted = this.formatDateForInput(date);
+
+  // ==========================================
+  // 8 DIGITS: DDMMYYYY
+  // Example: 04042026 → 04-04-2026
+  // ==========================================
+
+  if (digits.length === 8) {
+
+    const day =
+      digits.substring(0, 2);
+
+    const month =
+      digits.substring(2, 4);
+
+    const year =
+      digits.substring(4, 8);
+
+    const formatted =
+      `${day}-${month}-${year}`;
+
+    input.value = formatted;
+
+    this.updateFormControl(
+      input,
+      formatted
+    );
+
+    return;
+  }
+
+
+  // ==========================================
+  // 6 DIGITS: DMYYYY
+  // Example: 442026 → 04-04-2026
+  // ==========================================
+
+  if (digits.length === 6) {
+
+    const day =
+      digits.substring(0, 1);
+
+    const month =
+      digits.substring(1, 2);
+
+    const year =
+      digits.substring(2, 6);
+
+    /*
+      04042026 type करते समय पहले 6 digits
+      "040420" होंगे। Year 0420 invalid है,
+      इसलिए उस समय format नहीं होगा।
+    */
+    if (Number(year) >= 1900) {
+
+      const formatted =
+        `${day.padStart(2, '0')}-` +
+        `${month.padStart(2, '0')}-` +
+        `${year}`;
+
       input.value = formatted;
-      this.updateFormControl(input, formatted);
+
+      this.updateFormControl(
+        input,
+        formatted
+      );
+
       return;
     }
   }
 
-  // 3️⃣ Invalid → use current date
-  const today = this.formatDateForInput(new Date());
-  input.value = today;
-  this.updateFormControl(input, today);
-}
 
+  // अधूरी value को वैसा ही रहने दें
+  input.value = digits;
+
+  this.updateFormControl(
+    input,
+    digits
+  );
+}
+validateDateInput(event: Event): void {
+
+  const input =
+    event.target as HTMLInputElement;
+
+  const value =
+    input.value.trim();
+
+  // Empty रहने देना हो तो
+  if (!value) {
+    this.updateFormControl(input, '');
+    return;
+  }
+
+  const match =
+    value.match(
+      /^(\d{2})-(\d{2})-(\d{4})$/
+    );
+
+  if (!match) {
+    this.setTodayDate(input);
+    return;
+  }
+
+  const day =
+    Number(match[1]);
+
+  const month =
+    Number(match[2]);
+
+  const year =
+    Number(match[3]);
+
+  if (!this.isValidDate(day, month, year)) {
+    this.setTodayDate(input);
+    return;
+  }
+
+
+  const formatted =
+    `${String(day).padStart(2, '0')}-` +
+    `${String(month).padStart(2, '0')}-` +
+    `${year}`;
+
+  input.value = formatted;
+
+  this.updateFormControl(
+    input,
+    formatted
+  );
+}
+private isValidDate(
+  day: number,
+  month: number,
+  year: number
+): boolean {
+
+  if (
+    year < 1900 ||
+    month < 1 ||
+    month > 12 ||
+    day < 1
+  ) {
+    return false;
+  }
+
+  const daysInMonth =
+    new Date(year, month, 0).getDate();
+
+  return day <= daysInMonth;
+}
+private setTodayDate(
+  input: HTMLInputElement
+): void {
+
+  const today =
+    new Date();
+
+  const formatted =
+    `${String(today.getDate()).padStart(2, '0')}-` +
+    `${String(today.getMonth() + 1).padStart(2, '0')}-` +
+    `${today.getFullYear()}`;
+
+  input.value = formatted;
+
+  this.updateFormControl(
+    input,
+    formatted
+  );
+}
 private updateFormControl(input: HTMLInputElement, value: string) {
   const controlName = input.getAttribute('formControlName');
   if (controlName) {
@@ -1388,26 +1552,81 @@ getTabIndexBasedOnValue1(): number {
       this.cdr.detectChanges();
     });
 }
-applySaleScreenConfig() {
+applySaleScreenConfig(): void {
+
   const cfg = this.screenConfig;
 
+  // ==========================================
+  // SALE INVOICE DETAIL ROW SETTINGS
+  // ==========================================
+
   this.saleInvoiceDetails.controls.forEach(row => {
+
     this.toggle(row, 'barcode', cfg?.barcodeSale);
+
     this.toggle(row, 'hsn', cfg?.hsnsale);
-      // ✅ FIX HERE
+
     this.toggle(row, 'mRate', cfg?.mRateSale);
+
     this.toggle(row, 'discPer', cfg?.discPercentSale);
+
     this.toggle(row, 'discAmt', cfg?.discountSale);
+
     // this.toggle(row, 'remarks', cfg?.remarksSale);
 
-    this.toggle(row,'showMoreDetailsSale',cfg?.showMoreDetailsSale)
+    this.toggle(
+      row,
+      'showMoreDetailsSale',
+      cfg?.showMoreDetailsSale
+    );
+
     this.toggle(row, 'art', cfg?.artSale);
+
     this.toggle(row, 'size', cfg?.sizeSale);
+
     this.toggle(row, 'color', cfg?.colorSale);
+
     this.toggle(row, 'pack1', cfg?.pack1Sale);
+
     this.toggle(row, 'pack2', cfg?.pack2Sale);
-     this.toggle(row, 'pack2', cfg?.pack2Sale);
-  
+
+  });
+
+
+  // ==========================================
+  // BILL DETAILS
+  // These controls belong to addEditForm
+  // ==========================================
+
+  const billControls = [
+    'billNo',
+    'billDate',
+    'billAmount',
+    'billTaxAmount',
+    'billFreight',
+    'advance'
+  ];
+
+  billControls.forEach(controlName => {
+
+    const control = this.addEditForm.get(controlName);
+
+    if (!control) {
+      return;
+    }
+
+    if (cfg?.billDetailsSale === false) {
+
+      // FALSE → DISABLE
+      control.disable({ emitEvent: false });
+
+    } else {
+
+      // TRUE → ENABLE
+      control.enable({ emitEvent: false });
+
+    }
+
   });
 }
 canSelectItem(item: any): boolean {
@@ -2050,6 +2269,7 @@ updateData(): void {
         centralGst: d.CentralGst,
         localGst: d.LocalGst,
         tcs: d.Tcs,
+
         swachBharat: d.SwachBharat,
 
         otherCharge: d.OtherCharge,
@@ -2057,6 +2277,12 @@ updateData(): void {
         otherCharge1: d.OtherCharge1,
         value1: d.Value1,
         extraAmount: d.ExtraAmount,
+        billNo:d.BillNo,
+        billDate:d.BillDate,
+        billAmount:d.BillAmount,
+        billTaxAmount:d.BillTaxAmount,
+        billFreight:d.BillFreight,
+        advance:d.Advance,
 
         entrBy: d.EntrBy,
         entryDate: this.safeDate(d.EntryDate)
@@ -2099,7 +2325,7 @@ this.filteredItems = {};
     row.TaxableValueId != null
       ? Number(row.TaxableValueId)
       : null,
-
+includedRate:row.IncludedRate,
           accountId: row.AccountId,
           taxPercent: row.TaxPercent,
           rowTotal: row.RowTotal,
@@ -2386,7 +2612,76 @@ onOtherCharge1Selected(): void {
     this.saveButton.nativeElement.focus();
   }, 0);
 }
+currentTaxRowIndex: number = 0;
+setCurrentTaxRow(index: number): void {
+  this.currentTaxRowIndex = index;
 
+  console.log(
+    'CURRENT TAX ROW:',
+    this.currentTaxRowIndex
+  );
+}
+
+showRemarksTooltip(
+  tooltip: MatTooltip,
+  value: unknown
+): void {
+
+  const remarks =
+    String(value ?? '').trim();
+
+  setTimeout(() => {
+
+    if (remarks) {
+      tooltip.show();
+    } else {
+      tooltip.hide();
+    }
+
+  }, 0);
+}
+
+goBackFromValue(event: Event): void {
+
+  event.preventDefault();
+  event.stopPropagation();
+
+  // Directly check screenConfig
+  if (this.screenConfig?.billDetailsSale === true) {
+
+    setTimeout(() => {
+
+      const advanceInput =
+        this.advanceInput?.nativeElement;
+
+      if (!advanceInput) {
+        return;
+      }
+
+      advanceInput.focus();
+      advanceInput.select();
+
+    }, 0);
+
+    return;
+  }
+
+  // Bill Details false होने पर Tax select पर जाए
+  this.focusTaxSelect();
+}
+focusTaxSelect(): void {
+
+  const taxSelectList = this.taxSelects.toArray();
+
+  const taxSelect =
+    taxSelectList[this.currentTaxRowIndex];
+
+  if (!taxSelect) {
+    return;
+  }
+
+  taxSelect.focus();
+}
 
 makeForm() {
   this.addEditForm = this.fb.group({
@@ -2403,6 +2698,12 @@ claimDate: [new Date()],
   accountId: ['',Validators.required],
   transport: [''],
    TransportNameManual: [''],
+     billNo:[''],
+   billDate:[''],
+   billAmount:[0],
+   billTaxAmount:[0],
+   billFreight:[''],
+   advance:[0],
   shippingBillNo: [''],
   grNo: [''],
   orderNo: [''],
@@ -2623,6 +2924,122 @@ this.taxSearchCtrls[index].valueChanges.subscribe(value => {
 
 
 
+// handleAddRowKeyDown(
+//   event: KeyboardEvent,
+//   index: number
+// ): void {
+
+//   // =====================================================
+//   // SHIFT
+//   // =====================================================
+
+//   if (event.key === 'Shift') {
+
+//     event.preventDefault();
+
+//     // Focus your Value/Tax box
+//     this.valueInput.nativeElement.focus();
+
+//     return;
+//   }
+
+//   // =====================================================
+//   // ARROW LEFT
+//   // Add Button -> Tax Dropdown
+//   // =====================================================
+
+//   // =====================================================
+// // ARROW LEFT
+// // Add Button -> Tax Dropdown
+// // =====================================================
+
+// if (event.key === 'ArrowLeft') {
+
+//   event.preventDefault();
+//   event.stopPropagation();
+
+//   console.log(
+//     'ARROW LEFT -> TAX DROPDOWN, ROW:',
+//     index
+//   );
+
+//   // ===================================================
+//   // GET TAX SELECTS
+//   // ===================================================
+
+//   const taxSelectList =
+//     this.taxSelects.toArray();
+
+//   console.log(
+//     'ARROW LEFT TAX SELECT COUNT:',
+//     taxSelectList.length
+//   );
+
+//   // ===================================================
+//   // GET TAX SELECT FOR CURRENT ROW
+//   // ===================================================
+
+//   const taxSelect =
+//     taxSelectList[index];
+
+//   if (!taxSelect) {
+
+//     console.log(
+//       'ARROW LEFT: TAX SELECT NOT FOUND FOR ROW:',
+//       index
+//     );
+
+//     return;
+//   }
+
+//   console.log(
+//     'ARROW LEFT TAX SELECT:',
+//     taxSelect
+//   );
+
+//   // ===================================================
+//   // FOCUS TAX DROPDOWN
+//   // ===================================================
+
+//   setTimeout(() => {
+
+//     taxSelect.focus();
+
+//     console.log(
+//       'ARROW LEFT FINAL ACTIVE:',
+//       document.activeElement
+//     );
+
+//   }, 50);
+
+//   return;
+// }
+
+//   // =====================================================
+//   // NORMAL ENTER -> ADD ROW
+//   // =====================================================
+
+//   if (event.key === 'Enter') {
+
+//     event.preventDefault();
+
+//     this.handleAddRow(index);
+
+//     // Focus first control of the new row
+//     setTimeout(() => {
+
+//       const nextItem =
+//         document.getElementById(
+//           'itemSelect' + (index + 1)
+//         );
+
+//       nextItem?.focus();
+
+//     }, 0);
+
+//     return;
+//   }
+// }
 handleAddRowKeyDown(
   event: KeyboardEvent,
   index: number
@@ -2635,87 +3052,58 @@ handleAddRowKeyDown(
   if (event.key === 'Shift') {
 
     event.preventDefault();
+    event.stopPropagation();
 
-    // Focus your Value/Tax box
-    this.valueInput.nativeElement.focus();
+    const showMore =
+      this.screenConfig?.billDetailsSale === true;
+
+    if (showMore) {
+
+      // TRUE → BILL NO
+      setTimeout(() => {
+        this.billNoInput?.nativeElement.focus();
+      }, 0);
+
+    } else {
+
+      // FALSE → VALUE
+      setTimeout(() => {
+        this.valueInput?.nativeElement.focus();
+      }, 0);
+
+    }
 
     return;
   }
 
   // =====================================================
   // ARROW LEFT
-  // Add Button -> Tax Dropdown
   // =====================================================
 
-  // =====================================================
-// ARROW LEFT
-// Add Button -> Tax Dropdown
-// =====================================================
+  if (event.key === 'ArrowLeft') {
 
-if (event.key === 'ArrowLeft') {
+    event.preventDefault();
+    event.stopPropagation();
 
-  event.preventDefault();
-  event.stopPropagation();
+    const taxSelectList =
+      this.taxSelects.toArray();
 
-  console.log(
-    'ARROW LEFT -> TAX DROPDOWN, ROW:',
-    index
-  );
+    const taxSelect =
+      taxSelectList[index];
 
-  // ===================================================
-  // GET TAX SELECTS
-  // ===================================================
+    if (!taxSelect) {
+      return;
+    }
 
-  const taxSelectList =
-    this.taxSelects.toArray();
-
-  console.log(
-    'ARROW LEFT TAX SELECT COUNT:',
-    taxSelectList.length
-  );
-
-  // ===================================================
-  // GET TAX SELECT FOR CURRENT ROW
-  // ===================================================
-
-  const taxSelect =
-    taxSelectList[index];
-
-  if (!taxSelect) {
-
-    console.log(
-      'ARROW LEFT: TAX SELECT NOT FOUND FOR ROW:',
-      index
-    );
+    setTimeout(() => {
+      taxSelect.focus();
+    }, 50);
 
     return;
   }
 
-  console.log(
-    'ARROW LEFT TAX SELECT:',
-    taxSelect
-  );
-
-  // ===================================================
-  // FOCUS TAX DROPDOWN
-  // ===================================================
-
-  setTimeout(() => {
-
-    taxSelect.focus();
-
-    console.log(
-      'ARROW LEFT FINAL ACTIVE:',
-      document.activeElement
-    );
-
-  }, 50);
-
-  return;
-}
-
   // =====================================================
-  // NORMAL ENTER -> ADD ROW
+  // ENTER → ADD ROW
   // =====================================================
 
   if (event.key === 'Enter') {
@@ -2724,7 +3112,6 @@ if (event.key === 'ArrowLeft') {
 
     this.handleAddRow(index);
 
-    // Focus first control of the new row
     setTimeout(() => {
 
       const nextItem =
@@ -3714,10 +4101,16 @@ onRateFocusOut(index: number): void {
 
   const enteredRate =
     Number(row.get('rate')?.value) || 0;
+    
+    row.get('rate')?.setValue(
+  enteredRate.toFixed(2),
+  
+  { emitEvent: false }
+);
 
 
     row.patchValue({
-  includedRate: enteredRate
+  includedRate: enteredRate.toFixed(2)
 },);
 
   // Nothing entered
@@ -3754,7 +4147,7 @@ onRateFocusOut(index: number): void {
       Number(discountAmount.toFixed(2)),
 
     rowTotal:
-      Number(newGrossAmount.toFixed(2)),
+      newGrossAmount.toFixed(2),
 
     grossRowTotal:
       Number(newGrossAmount.toFixed(2)),
@@ -3965,70 +4358,116 @@ recalculateTax(
 
 
 
-recalculateSubTotal() {
+// recalculateSubTotal() {
 
+//   let rowsTotal = 0;
+
+//   this.saleInvoiceDetails.controls.forEach((row: any) => {
+
+//     const rowTotal =
+//       Number(row.get('rowTotal')?.value) || 0;
+
+//     const taxId =
+//       Number(row.get('taxableValueId')?.value) || 0;
+
+//     let taxAmount = 0;
+
+//     if (taxId) {
+
+//       const tax = this.listOfTaxTableData.find(
+//         x => x.id === taxId
+//       );
+
+//       if (tax) {
+
+//         const taxPercent =
+//           Number(tax.totalax) || 0;
+
+//         // Tax calculated on original Qty × Rate
+//         const qty =
+//           Number(row.get('qty')?.value) || 0;
+
+//         const rate =
+//           Number(row.get('rate')?.value) || 0;
+
+//         const baseAmount = qty * rate;
+
+//         taxAmount = (baseAmount * taxPercent) / 100;
+//       }
+//     }
+
+//     // rowTotal + tax
+//     const rowSubTotal = rowTotal + taxAmount;
+
+//     rowsTotal += rowSubTotal;
+//   });
+
+//   const value =
+//     Number(this.addEditForm.get('value')?.value) || 0;
+
+//   const value1 =
+//     Number(this.addEditForm.get('value1')?.value) || 0;
+
+//   let subTotal = rowsTotal + value + value1;
+
+//   subTotal =
+//     Math.round((subTotal + Number.EPSILON) * 100) / 100;
+
+//   const roundAndTotal =
+//     this.calculateRoundOff(subTotal);
+
+//   this.addEditForm.patchValue({
+//     subTotal: subTotal,
+//     roundAndTotal: roundAndTotal
+//   }, {
+//     emitEvent: false
+//   });
+// }
+
+recalculateSubTotal(): void {
   let rowsTotal = 0;
 
   this.saleInvoiceDetails.controls.forEach((row: any) => {
-
-    const rowTotal =
-      Number(row.get('rowTotal')?.value) || 0;
-
-    const taxId =
-      Number(row.get('taxableValueId')?.value) || 0;
+    const rowTotal = Number(row.get('rowTotal')?.value) || 0;
+    const taxId = Number(row.get('taxableValueId')?.value) || 0;
 
     let taxAmount = 0;
 
     if (taxId) {
-
       const tax = this.listOfTaxTableData.find(
-        x => x.id === taxId
+        x => Number(x.id) === taxId
       );
 
       if (tax) {
+        const qty = Number(row.get('qty')?.value) || 0;
+        const rate = Number(row.get('rate')?.value) || 0;
+        const taxPercent = Number(tax.totalax) || 0;
 
-        const taxPercent =
-          Number(tax.totalax) || 0;
-
-        // Tax calculated on original Qty × Rate
-        const qty =
-          Number(row.get('qty')?.value) || 0;
-
-        const rate =
-          Number(row.get('rate')?.value) || 0;
-
-        const baseAmount = qty * rate;
-
-        taxAmount = (baseAmount * taxPercent) / 100;
+        taxAmount = (qty * rate * taxPercent) / 100;
       }
     }
 
-    // rowTotal + tax
-    const rowSubTotal = rowTotal + taxAmount;
-
-    rowsTotal += rowSubTotal;
+    rowsTotal += rowTotal + taxAmount;
   });
 
-  const value =
-    Number(this.addEditForm.get('value')?.value) || 0;
+  const value = Number(this.addEditForm.get('value')?.value) || 0;
+  const value1 = Number(this.addEditForm.get('value1')?.value) || 0;
+  const billTaxAmount =
+    Number(this.addEditForm.get('billTaxAmount')?.value) || 0;
+  const billFreight =
+    Number(this.addEditForm.get('billFreight')?.value) || 0;
+  const advance =
+    Number(this.addEditForm.get('advance')?.value) || 0;
 
-  const value1 =
-    Number(this.addEditForm.get('value1')?.value) || 0;
-
-  let subTotal = rowsTotal + value + value1;
-
-  subTotal =
-    Math.round((subTotal + Number.EPSILON) * 100) / 100;
-
-  const roundAndTotal =
-    this.calculateRoundOff(subTotal);
+  const subTotal = Math.round(
+    (rowsTotal + value + value1 + billTaxAmount + billFreight
+      - advance + Number.EPSILON) * 100
+  ) / 100;
 
   this.addEditForm.patchValue({
-    subTotal: subTotal,
-    roundAndTotal: roundAndTotal
-  }, {
-    emitEvent: false
-  });
+    subTotal,
+    roundAndTotal: this.calculateRoundOff(subTotal)
+  }, { emitEvent: false });
 }
 onRowTotalBlur(index: number) {
 
@@ -4607,10 +5046,12 @@ onSubmit(): void {
   this.submit = true;
   
 for (let i = 0; i < this.saleInvoiceDetails.length; i++) {
+  
   const row = this.saleInvoiceDetails.at(i) as FormGroup;
 
   const qty = Number(row.get('qty')?.value || 0);
   const rowTotal = Number(row.get('rowTotal')?.value || 0);
+  
 
   if (qty === 0 && rowTotal === 0) {
      this.snackBar.open(
@@ -4636,7 +5077,10 @@ for (let i = 0; i < this.saleInvoiceDetails.length; i++) {
     ...formValue,
 
     invoiceDate: this.formatDateForSave(formValue.invoiceDate),
-
+    billTaxAmount: Number(formValue.billTaxAmount) || 0,
+  billFreight: String(formValue.billFreight ?? '0'),
+  advance: Number(formValue.advance) || 0,
+ 
     saleInvoiceDetails: formValue.saleInvoiceDetails.map((row: any) => ({
       ...row,
       qty: row.qty ? Number(row.qty) : 0

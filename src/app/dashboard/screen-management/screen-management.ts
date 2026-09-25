@@ -56,6 +56,7 @@ export class ScreenManagement {
       pack1Sale: false,
       pack2Sale: false,
       mRateSale: false,
+      billDetailsSale:false,
 
       remarksPurchase: false,
       hsnPurchase: false,
@@ -76,6 +77,7 @@ export class ScreenManagement {
       saleOfNegativeStock: false,
 showMoreDetailsSale: false,
 showMoreDetailsPurchase: false,
+billDetailsPurchase:false,
     });
   }
 

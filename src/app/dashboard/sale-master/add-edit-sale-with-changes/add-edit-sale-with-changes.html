@@ -226,16 +226,51 @@
           <input type="text" class="form-control format" formControlName="TransportNameManual" />
       </div>
       
-      <div class="col-md-2">
+      <div class="col-md-1 mt-1">
         <label class="form-label">GR No</label>
         <input type="text" class="form-control format" formControlName="grNo" />
       </div>
-      <div class="col-md-2">
+      <div class="col-md-1 mt-1">
         <label class="form-label">Gr Date</label>
-        <input   type="text" class="form-control format"   id="shippingBillNo"
- formControlName="shippingBillNo" (blur)="formatDateInput($event)"   />
+        <input   type="text" class="form-control format"  
+ formControlName="shippingBillNo" (input)="formatDateInput($event)"
+  (blur)="validateDateInput($event)"   />
       </div>
+   <div class="col-md-1 mt-1">
+    <label class="form-label">Vehicle</label>
+    <input type="text" class="form-control" formControlName="vehicle">
+  </div>
 
+   <div class="col-md-1 mt-1">
+    <label class="form-label">Pvt. Mark</label>
+    <input type="text" class="form-control" formControlName="pvtMark">
+  </div>
+  <div class="col-md-1 mt-1">
+    <label class="form-label">Dated</label>
+    <input type="text" class="form-control" formControlName="dated"  (input)="formatDateInput($event)"
+  (blur)="validateDateInput($event)">
+  </div>
+<div class="col-md-1 mt-1">
+    <label class="form-label">Weight</label>
+    <input type="text" class="form-control" formControlName="weight">
+  </div>
+
+   <div class="col-md-1 mt-1">
+    <label class="form-label">Packing No</label>
+    <input type="text" class="form-control" formControlName="packingNo">
+  </div>
+      <div class="col-md-1 mt-1">
+    <label class="form-label">Order No</label>
+    <input type="text" class="form-control" formControlName="orderNo">
+  </div>
+  <div class="col-md-1 mt-1">
+    <label class="form-label">Packages</label>
+    <input type="text" class="form-control" formControlName="packages">
+  </div>
+  <div class="col-md-1 mt-1">
+    <label class="form-label">Form No</label>
+    <input type="text" class="form-control" id="shippingBillNo" formControlName="formNo">
+  </div>
    
 
      
@@ -245,32 +280,13 @@
 
 
 <div class="row  compact-details" *ngIf="screenConfig?.showMoreDetailsSale">
-   <div class="col-md-2">
-    <label class="form-label">Pvt. Mark</label>
-    <input type="text" class="form-control" formControlName="pvtMark">
-  </div>
-  <div class="col-md-2">
-    <label class="form-label">Dated</label>
-    <input type="text" class="form-control" formControlName="dated">
-  </div>
-   <div class="col-md-2">
-    <label class="form-label">Vehicle</label>
-    <input type="text" class="form-control" formControlName="vehicle">
-  </div>
-   <div class="col-md-2">
-    <label class="form-label">Packages</label>
-    <input type="text" class="form-control" formControlName="packages">
-  </div>
+  
+  
+ 
+ 
 
-  <div class="col-md-2">
-    <label class="form-label">Order No</label>
-    <input type="text" class="form-control" formControlName="orderNo">
-  </div>
+ 
 
-  <div class="col-md-2">
-    <label class="form-label">Packing No</label>
-    <input type="text" class="form-control" formControlName="packingNo">
-  </div>
 
   <div class="col-md-2">
     <label class="form-label">Credit Days</label>
@@ -279,15 +295,7 @@
 
  
 
-  <div class="col-md-1">
-    <label class="form-label">Form No</label>
-    <input type="text" class="form-control" formControlName="formNo">
-  </div>
-
-  <div class="col-md-1">
-    <label class="form-label">Weight</label>
-    <input type="text" class="form-control" formControlName="weight">
-  </div>
+  
 
   <div class="col-md-2">
     <label class="form-label">Docu. Thru</label>
@@ -546,6 +554,8 @@
     [value]="u.itemId"
     class="item-option"
      [disabled]="!canSelectItem(u)"
+      [class.item-disabled-red]="!canSelectItem(u)"
+      
   >
 
     <div class="item-table-row">
@@ -603,12 +613,45 @@
                    formControlName="hsn"  (keydown)="onRemarksLeftArrow($event, i)"   (keydown.shift)="removeRowAndFocus(i)"
  >
           </td>
-            <td >
+            <!-- <td >
             <input type="text"
                    class="form-control compact-input"
-                   formControlName="remarks"   (keydown)="onRemarksLeftArrow($event, i)"
+                   formControlName="remarks"
+                    [matTooltip]="detail.get('remarks')?.value || ''"
+    [matTooltipDisabled]="!detail.get('remarks')?.value?.trim()"
+    matTooltipPosition="above"
+    [matTooltipShowDelay]="10"   (keydown)="onRemarksLeftArrow($event, i)"
  (keydown)="onRemarksKeyDown($event, i)">
-          </td>
+          </td> -->
+          <td>
+  <input
+    type="text"
+    class="form-control compact-input"
+    formControlName="remarks"
+
+    #remarksTooltip="matTooltip"
+
+    [matTooltip]="detail.get('remarks')?.value || ''"
+    [matTooltipDisabled]="
+      !detail.get('remarks')?.value?.trim()
+    "
+    matTooltipPosition="above"
+    [matTooltipShowDelay]="10"
+    [matTooltipHideDelay]="500"
+
+    (input)="showRemarksTooltip(
+      remarksTooltip,
+      detail.get('remarks')?.value
+    )"
+
+    (blur)="remarksTooltip.hide()"
+
+    (keydown)="
+      onRemarksLeftArrow($event, i);
+      onRemarksKeyDown($event, i)
+    "
+  />
+</td>
 
           <!-- DYNAMIC FIELDS -->
           <td *ngIf="screenConfig?.barcodeSale">
@@ -739,10 +782,11 @@
       <mat-select
         #taxSelect
         formControlName="taxableValueId"
+        (focus)="setCurrentTaxRow(i)"
         (openedChange)="onOpened('tax', $event)"
         (selectionChange)="onTaxChange(i)"
         (closed)="onTaxClosed(taxSelect, i)"
-        
+         
         >
 
       <mat-option>
@@ -750,6 +794,7 @@
           [formControl]="taxSearchCtrls[i]"
           placeholderLabel="Search Tax"
           noEntriesFoundLabel="No matching tax"
+          
            >
         </ngx-mat-select-search>
       </mat-option>
@@ -919,9 +964,100 @@
 
     </div>
   </div>
+   
 
+  <div class="summary-card bill-card">
 
-  <!-- ================= ADDITIONAL CHARGES ================= -->
+    <div class="summary-card-header">
+      <div class="summary-title">
+        <i class="fas fa-file-invoice"></i>
+        <span>Bill Details</span>
+      </div>
+    </div>
+
+    <div class="summary-card-body bill-grid">
+
+      <div class="summary-field">
+        <label>Bill No</label>
+        <input
+         #billNo
+          type="text"
+          class="form-control"
+           formControlName="billNo"
+          placeholder="Bill No"
+          (keydown.arrowleft)="focusTaxSelect()"
+        />
+      </div>
+
+      <div class="summary-field">
+        <label>Bill Date</label>
+        <input
+          type="text"
+          class="form-control"
+          formControlName="billDate"
+          placeholder="Bill Date"
+          (input)="formatDateInput($event)"
+  (blur)="validateDateInput($event)"
+          
+        />
+      </div>
+
+      <div class="summary-field">
+        <label>Bill Amount</label>
+        <input
+          type="number"
+          class="form-control text-end format"
+            (focus)="clearZero('billAmount')"
+          (blur)="restoreZero('billAmount')"
+           formControlName="billAmount"
+          placeholder="0.00"
+        />
+      </div>
+
+      <div class="summary-field">
+        <label>Tax Amount</label>
+        <input
+          type="number"
+          class="form-control text-end format"
+           formControlName="billTaxAmount"
+            (focus)="clearZero('billTaxAmount')"
+          (blur)="restoreZero('billTaxAmount')"
+           (input)="recalculateSubTotal()"
+          placeholder="0.00"
+        />
+      </div>
+
+      <div class="summary-field">
+        <label>Freight</label>
+        <input
+          type="number"
+          class="form-control text-end format"
+           formControlName="billFreight"
+            (focus)="clearZero('billFreight')"
+             (input)="recalculateSubTotal()"
+          (blur)="restoreZero('billFreight')"
+          
+          placeholder="0.00"
+        />
+      </div>
+
+      <div class="summary-field">
+        <label>Advance</label>
+        <input
+        #advanceInput
+          type="number"
+          class="form-control text-end format"
+            (focus)="clearZero('advance')"
+          (blur)="restoreZero('advance')"
+           (input)="recalculateSubTotal()"
+           formControlName="advance"
+          placeholder="0.00"
+        />
+      </div>
+
+    </div>
+  </div>
+
   <div class="summary-card charges-card">
 
     <div class="summary-card-header">
@@ -931,19 +1067,21 @@
       </div>
     </div>
 
+
     <div class="summary-card-body charges-grid">
 
       <!-- Value -->
       <div class="summary-field">
         <label>Value</label>
         <input
-          #valueInput
+           #valueInput
           type="number"
           class="form-control text-end format"
           formControlName="value"
           (focus)="clearZero('value')"
           (blur)="restoreZero('value')"
           (keydown.enter)="restoreZero('value')"
+           (keydown.arrowleft)="goBackFromValue($event)"
         />
       </div>
 
@@ -1042,75 +1180,12 @@
     </div>
   </div>
 
+  <!-- ================= ADDITIONAL CHARGES ================= -->
+ 
+
 
   <!-- ================= BILL DETAILS ================= -->
-  <div class="summary-card bill-card">
-
-    <div class="summary-card-header">
-      <div class="summary-title">
-        <i class="fas fa-file-invoice"></i>
-        <span>Bill Details</span>
-      </div>
-    </div>
-
-    <div class="summary-card-body bill-grid">
-
-      <div class="summary-field">
-        <label>Bill No</label>
-        <input
-          type="text"
-          class="form-control"
-          placeholder="Bill No"
-        />
-      </div>
-
-      <div class="summary-field">
-        <label>Bill Date</label>
-        <input
-          type="text"
-          class="form-control"
-          placeholder="Bill Date"
-        />
-      </div>
-
-      <div class="summary-field">
-        <label>Bill Amount</label>
-        <input
-          type="number"
-          class="form-control text-end format"
-          placeholder="0.00"
-        />
-      </div>
-
-      <div class="summary-field">
-        <label>Tax Amount</label>
-        <input
-          type="number"
-          class="form-control text-end format"
-          placeholder="0.00"
-        />
-      </div>
-
-      <div class="summary-field">
-        <label>Freight</label>
-        <input
-          type="number"
-          class="form-control text-end format"
-          placeholder="0.00"
-        />
-      </div>
-
-      <div class="summary-field">
-        <label>Advance</label>
-        <input
-          type="number"
-          class="form-control text-end format"
-          placeholder="0.00"
-        />
-      </div>
-
-    </div>
-  </div>
+ 
 
 
   <!-- ================= FINAL TOTAL ================= -->
