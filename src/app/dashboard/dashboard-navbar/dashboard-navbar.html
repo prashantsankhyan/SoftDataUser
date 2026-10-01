@@ -161,7 +161,7 @@
           <div id="content"  >
 
               <!-- Topbar -->
-              <nav class="navbar navbar-expand navbar-light  topbar static-top shadow" style='background-image: url("https://www.toptal.com/designers/subtlepatterns/uploads/dot-grid.png");' >
+              <nav class="navbar navbar-expand navbar-light  topbar static-top shadow"  >
 
                   <!-- Sidebar Toggle (Topbar) -->
                   <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3" >
@@ -170,10 +170,36 @@
 
      <button
   type="button"
-  routerLink="./sale"
+  routerLink="./accountMaster"
   routerLinkActive="active-navbar"
-  class="navbar-btn"
+  class="navbar-btn ml-2"
 >
+  Account Master
+</button>
+
+  <button
+  type="button"
+  routerLink="./itemMaster"
+  routerLinkActive="active-navbar"
+  class="navbar-btn ml-2"
+>
+  Item
+</button>
+  <button
+  type="button"
+  routerLink='./screen'
+  routerLinkActive="active-navbar"
+  class="navbar-btn ml-2"
+>
+  Configration
+</button>
+  
+ 
+<button
+  type="button"
+  class="navbar-btn ml-2"
+  [class.active-navbar]="router.url.startsWith('/dashboard/sale')"
+  (click)="openPageInNewTab('dashboard/sale')">
   Sale
 </button>
    <button

@@ -226,52 +226,21 @@
           <input type="text" class="form-control format" formControlName="TransportNameManual" />
       </div>
       
-      <div class="col-md-1 mt-1">
+      <div class="col-md-2 mt-1">
         <label class="form-label">GR No</label>
         <input type="text" class="form-control format" formControlName="grNo" />
       </div>
-      <div class="col-md-1 mt-1">
+      <div class="col-md-2 mt-1">
         <label class="form-label">Gr Date</label>
         <input   type="text" class="form-control format"   
  formControlName="shippingBillNo" (input)="formatDateInput($event)"
   (blur)="validateDateInput($event)"   />
       </div>
-       <div class="col-md-1 mt-1">
+       <div class="col-md-2 mt-1">
     <label class="form-label">Vehicle</label>
-    <input type="text" class="form-control" formControlName="vehicle">
+    <input type="text" class="form-control format" id="shippingBillNo" formControlName="vehicle">
   </div>
 
-   <div class="col-md-1 mt-1">
-    <label class="form-label">Pvt. Mark</label>
-    <input type="text" class="form-control" formControlName="pvtMark">
-  </div>
-  <div class="col-md-1 mt-1">
-    <label class="form-label">Dated</label>
-    <input type="text" class="form-control" formControlName="dated"  (input)="formatDateInput($event)"
-  (blur)="validateDateInput($event)">
-  </div>
-<div class="col-md-1 mt-1">
-    <label class="form-label">Weight</label>
-    <input type="text" class="form-control" formControlName="weight">
-  </div>
-
-   <div class="col-md-1 mt-1">
-    <label class="form-label">Packing No</label>
-    <input type="text" class="form-control" formControlName="packingNo">
-  </div>
-      <div class="col-md-1 mt-1">
-    <label class="form-label">Order No</label>
-    <input type="text" class="form-control" formControlName="orderNo">
-  </div>
-  <div class="col-md-1 mt-1">
-    <label class="form-label">Packages</label>
-    <input type="text" class="form-control" formControlName="packages">
-  </div>
-  <div class="col-md-1 mt-1">
-    <label class="form-label">Form No</label>
-    <input type="text" class="form-control" id="shippingBillNo" formControlName="formNo">
-  </div>
-   
 
      
 
@@ -287,8 +256,41 @@
 
  
 
+     <div class="col-md-1 ">
+    <label class="form-label">Order No</label>
+    <input type="text" class="form-control" formControlName="orderNo">
+  </div>
+    <div class="col-md-1 ">
+    <label class="form-label">Dated</label>
+    <input type="text" class="form-control" formControlName="dated"  (input)="formatDateInput($event)"
+  (blur)="validateDateInput($event)">
+  </div>
+   <div class="col-md-1">
+    <label class="form-label">Pvt. Mark</label>
+    <input type="text" class="form-control" formControlName="pvtMark">
+  </div>
 
-  <div class="col-md-2">
+<div class="col-md-1 ">
+    <label class="form-label">Weight</label>
+    <input type="text" class="form-control" formControlName="weight">
+  </div>
+
+   <div class="col-md-1 ">
+    <label class="form-label">Packing No</label>
+    <input type="text" class="form-control" formControlName="packingNo">
+  </div>
+   
+  <div class="col-md-1">
+    <label class="form-label">Packages</label>
+    <input type="text" class="form-control" formControlName="packages">
+  </div>
+  <div class="col-md-1">
+    <label class="form-label">Form No</label>
+    <input type="text" class="form-control"  formControlName="formNo">
+  </div>
+   
+
+  <div class="col-md-1">
     <label class="form-label">Credit Days</label>
     <input type="text" class="form-control" formControlName="creditDays">
   </div>
@@ -297,12 +299,12 @@
 
   
 
-  <div class="col-md-2">
+  <div class="col-md-1">
     <label class="form-label">Docu. Thru</label>
     <input type="text" class="form-control" formControlName="docuThru">
   </div>
 
-  <div class="col-md-2">
+  <div class="col-md-1">
     <label class="form-label">Station</label>
     <input type="text" class="form-control" formControlName="station">
   </div>
@@ -325,46 +327,46 @@
 
  
 
-  <div class="col-md-2">
+  <div class="col-md-1 mt-1">
     <label class="form-label">Ecom GSTIN</label>
     <input type="text" class="form-control" formControlName="ecomGSTIN">
   </div>
 
-  <div class="col-md-2">
+  <div class="col-md-1 mt-1">
     <label class="form-label">E-Way No</label>
     <input type="text" class="form-control" formControlName="ewayNo">
   </div>
 
-  <div class="col-md-2">
+  <div class="col-md-2 mt-1">
     <label class="form-label">Shipping Bill No</label>
     <input type="text" class="form-control" formControlName="shBNo">
   </div>
-   <div class="col-md-1">
+   <div class="col-md-1 mt-1">
     <label class="form-label">Due Date</label>
     <input type="text" class="form-control" formControlName="dueDate">
   </div>
 
-  <div class="col-md-1">
+  <div class="col-md-1 mt-1">
     <label class="form-label">Ship Date</label>
     <input type="text" class="form-control" formControlName="shipDate">
   </div>
 
-  <div class="col-md-2">
+  <div class="col-md-2 mt-1">
     <label class="form-label">Ship Part No</label>
     <input type="text" class="form-control" formControlName="shipPartNo">
   </div>
 
-  <div class="col-md-2">
+  <div class="col-md-1 mt-1">
     <label class="form-label">Port Loading</label>
     <input type="text" class="form-control" formControlName="portLoading">
   </div>
 
-  <div class="col-md-1">
+  <div class="col-md-1 mt-1">
     <label class="form-label">Port Discharge</label>
     <input type="text" class="form-control" formControlName="portDischarge">
   </div>
 
-  <div class="col-md-1">
+  <div class="col-md-2 mt-1">
     <label class="form-label">Final Destination</label>
     <input type="text" class="form-control" formControlName="finalDestination">
   </div>
@@ -396,7 +398,7 @@
       <thead>
         <tr>
           <th class="sticky-col item-column">Item</th>
-<th *ngIf="screenConfig?.hsnsale">HSN</th>
+<th style="width: 90px;" *ngIf="screenConfig?.hsnSale">HSN</th>
     <th >Remarks</th>
           <th *ngIf="screenConfig?.barcodeSale">Barcode</th>
           <!-- <th *ngIf="screenConfig?.remarksSale">Remarks</th> -->
@@ -408,15 +410,15 @@
           <th *ngIf="screenConfig?.pack1Sale">Pack1</th>
           <th *ngIf="screenConfig?.pack2Sale">Pack2</th>
 
-          <th>Qty</th>
-          <th>Unit</th>
-          <th>Rate</th>
+          <th style="width: 90px;">Qty</th>
+          <th style="width: 70px;">Unit</th>
+          <th style="width: 130px;">Rate</th>
 
-          <th *ngIf="screenConfig?.mRateSale">M.Rate</th>
-          <th *ngIf="screenConfig?.discPercentSale">Disc %</th>
-          <th *ngIf="screenConfig?.discountSale">Disc Amt</th>
+          <th style="width: 130px;" *ngIf="screenConfig?.mRateSale">M.Rate</th>
+          <th  style="width: 90px;"*ngIf="screenConfig?.discPercentSale">Disc %</th>
+          <th style="width: 120px;" *ngIf="screenConfig?.discountSale">Disc Amt</th>
 
-          <th >Taxable Amt</th>
+          <th style="width: 130px;">Taxable Amt</th>
           <th class="item-column2">Account</th>
           <th class="action-column">+</th>
           <th class="action-column">-</th>
@@ -546,7 +548,7 @@
     *ngFor="let u of filteredItems[i]"
     [value]="u.itemId"
     class="item-option"
-     [disabled]="!canSelectItem(u)"
+      (click)="onItemOptionClick($event, u, i)"
   >
 
     <div class="item-table-row">
@@ -597,7 +599,7 @@
   Item is required
 </small>
           </td>
-           <td *ngIf="screenConfig?.hsnsale" >
+           <td *ngIf="screenConfig?.hsnSale" >
             <input type="text"
                    class="form-control compact-input"
                    formControlName="hsn"  (keydown)="onRemarksLeftArrow($event, i)"   (keydown.shift)="removeRowAndFocus(i)"
@@ -696,6 +698,7 @@
           <td >
             <input type="number"
                    class="form-control compact-input text-end"  formControlName="rate" 
+                   
                 (focus)="clearRateZeroOnFocus(i, 'rate')"
   (blur)="restoreZeroOnBlur(i, 'rate')"
                    >
@@ -828,7 +831,7 @@
 
       <td *ngIf="screenConfig?.remarksSale"></td>
 
-      <td *ngIf="screenConfig?.hsnsale" class="col-small"></td>
+      <td *ngIf="screenConfig?.hsnSale" class="col-small"></td>
 
       <td *ngIf="screenConfig?.artSale"></td>
 
@@ -930,16 +933,16 @@
 
   
   <!-- ================= BILL DETAILS ================= -->
-  <div class="summary-card bill-card">
+  <div class="summary-card bill-card" >
 
-    <div class="summary-card-header">
+    <div class="summary-card-header" *ngIf="screenConfig?.billDetailsSale">
       <div class="summary-title">
         <i class="fas fa-file-invoice"></i>
         <span>Bill Details</span>
       </div>
     </div>
 
-    <div class="summary-card-body bill-grid">
+    <div class="summary-card-body bill-grid" *ngIf="screenConfig?.billDetailsSale">
 
       <div class="summary-field">
         <label>Bill No</label>

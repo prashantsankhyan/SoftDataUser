@@ -1158,3 +1158,33 @@ body {
 
   box-shadow: 0 2px 6px rgba(13, 110, 253, 0.25);
 }
+
+.navbar-btn {
+  border: none;
+  background: transparent;
+  color: rgba(0, 0, 0, 0.589);
+  background-color: white !important;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.navbar-btn:hover {
+  background: white;
+  color: black;
+}
+
+/* ACTIVE ROUTE */
+.navbar-btn.active-navbar {
+  background: white !important;
+  color: #4e73df !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* Optional active hover */
+.navbar-btn.active-navbar:hover {
+  background: #101832;
+  color: #4e73df !important;
+}

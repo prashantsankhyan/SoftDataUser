@@ -1606,7 +1606,7 @@ applySaleScreenConfig(): void {
 
     this.toggle(row, 'barcode', cfg?.barcodeSale);
 
-    this.toggle(row, 'hsn', cfg?.hsnsale);
+    this.toggle(row, 'hsn', cfg?.hsnSale);
 
     this.toggle(row, 'mRate', cfg?.mRateSale);
 
@@ -2011,69 +2011,164 @@ getHighlightedPartsItems(text: string, search: string) {
     after: text.substring(index + search.length)
   };
 }
+onItemOptionClick(event: MouseEvent, item: any, index: number): void {
+
+  if (!this.canSelectItem(item)) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    return;
+  }
+
+  // canSelectItem = true
+  // normal selection hone do
+}
+// onItemChange(index: number) {
+  
+//   const row = this.saleInvoiceDetails.at(index) as FormGroup;
+//   const itemId = row.get('itemId')?.value;
+  
+
+//   if (!itemId) return;
+
+//   const selectedItem = this.listOfAllItem.find(
+//     x => x.itemId === Number(itemId)
+//   );
+ 
+//   if (!selectedItem) return;
+
+//   // row.patchValue({
+//   //   barcode: selectedItem.itemBarCodeOrPartNo || '',
+//   //   hsn: selectedItem.hsn || '',
+//   //   rate: selectedItem.saleRate || 0,
+//   //   mRate: selectedItem.mrpRate || 0,
+//   //   taxPercent: selectedItem.taxRate || 0,
+//   //   unit :selectedItem.unitInt || 0,
+//   //   taxableValueId:
+//   // selectedItem.cgstSgstSale > 0
+//   //   ? selectedItem.cgstSgstSale
+//   //   : selectedItem.igstSaleName > 0
+//   //   ? selectedItem.igstSaleName
+//   //   : null
+   
+//   // });
+//  const taxId =
+//   selectedItem.cgstSgstSale > 0
+//     ? Number(selectedItem.cgstSgstSale)
+//     : selectedItem.igstSaleName > 0
+//     ? Number(selectedItem.igstSaleName)
+//     : null;
+// this.filteredTaxes[index] = [...this.listOfTaxTableData];
+
+// row.patchValue({
+//   barcode: selectedItem.itemBarCodeOrPartNo || '',
+//   // qty:selectedItem.quantity || '',
+//   hsn: selectedItem.hsn || '',
+//   // rate: selectedItem.saleRate || 0,
+//   rate: Number(selectedItem.saleRate || 0).toFixed(2),
+//   mRate: selectedItem.mrpRate || 0,
+//   taxPercent: selectedItem.taxRate || 0,
+//   unit: selectedItem.unitInt || 0
+// });
+
+// setTimeout(() => {
+//   row.get('taxableValueId')?.setValue(taxId);
+//   this.cdr.detectChanges();
+//   this.onTaxChange(index);
+// }, 0);
+ 
+  
+//     this.formatQty(index);
+    
+//      this.onTaxChange(index);
+     
+//      setTimeout(() => {
+//     this.onRowTotalBlur(index);
+//   }, 0);
+  
+// }
+
 
 onItemChange(index: number) {
-  
+
   const row = this.saleInvoiceDetails.at(index) as FormGroup;
   const itemId = row.get('itemId')?.value;
-  
 
   if (!itemId) return;
 
   const selectedItem = this.listOfAllItem.find(
     x => x.itemId === Number(itemId)
   );
- 
+
   if (!selectedItem) return;
 
-  // row.patchValue({
-  //   barcode: selectedItem.itemBarCodeOrPartNo || '',
-  //   hsn: selectedItem.hsn || '',
-  //   rate: selectedItem.saleRate || 0,
-  //   mRate: selectedItem.mrpRate || 0,
-  //   taxPercent: selectedItem.taxRate || 0,
-  //   unit :selectedItem.unitInt || 0,
-  //   taxableValueId:
-  // selectedItem.cgstSgstSale > 0
-  //   ? selectedItem.cgstSgstSale
-  //   : selectedItem.igstSaleName > 0
-  //   ? selectedItem.igstSaleName
-  //   : null
-   
-  // });
- const taxId =
-  selectedItem.cgstSgstSale > 0
-    ? Number(selectedItem.cgstSgstSale)
-    : selectedItem.igstSaleName > 0
-    ? Number(selectedItem.igstSaleName)
-    : null;
-this.filteredTaxes[index] = [...this.listOfTaxTableData];
+  // ==========================================
+  // PREVENT SELECTION OF RESTRICTED ITEM
+  // ==========================================
+  if (!this.canSelectItem(selectedItem)) {
 
-row.patchValue({
-  barcode: selectedItem.itemBarCodeOrPartNo || '',
-  // qty:selectedItem.quantity || '',
-  hsn: selectedItem.hsn || '',
-  rate: selectedItem.saleRate || 0,
-  mRate: selectedItem.mrpRate || 0,
-  taxPercent: selectedItem.taxRate || 0,
-  unit: selectedItem.unitInt || 0
-});
+    // Previous item/value ko clear kar do
+    row.patchValue({
+      itemId: null
+    }, { emitEvent: false });
 
-setTimeout(() => {
-  row.get('taxableValueId')?.setValue(taxId);
-  this.cdr.detectChanges();
+    return;
+  }
+
+  // ==========================================
+  // TAX
+  // ==========================================
+
+  const taxId =
+    selectedItem.cgstSgstSale > 0
+      ? Number(selectedItem.cgstSgstSale)
+      : selectedItem.igstSaleName > 0
+        ? Number(selectedItem.igstSaleName)
+        : null;
+
+  this.filteredTaxes[index] = [...this.listOfTaxTableData];
+
+  // ==========================================
+  // ITEM DETAILS
+  // ==========================================
+
+  row.patchValue({
+    barcode: selectedItem.itemBarCodeOrPartNo || '',
+    hsn: selectedItem.hsn || '',
+    rate: Number(selectedItem.saleRate || 0).toFixed(2),
+    mRate: selectedItem.mrpRate || 0,
+    taxPercent: selectedItem.taxRate || 0,
+    unit: selectedItem.unitInt || 0
+  });
+
+  // ==========================================
+  // TAX CHANGE
+  // ==========================================
+
+  setTimeout(() => {
+
+    row.get('taxableValueId')?.setValue(taxId);
+
+    this.cdr.detectChanges();
+
+    this.onTaxChange(index);
+
+  }, 0);
+
+  // ==========================================
+  // QTY FORMAT
+  // ==========================================
+
+  this.formatQty(index);
+
   this.onTaxChange(index);
-}, 0);
- 
-  
-    this.formatQty(index);
-    
-     this.onTaxChange(index);
-     
-     setTimeout(() => {
+
+  // ==========================================
+  // ROW TOTAL
+  // ==========================================
+
+  setTimeout(() => {
     this.onRowTotalBlur(index);
   }, 0);
-  
 }
 formatQty(index: number) {
   const row = this.saleInvoiceDetails.at(index) as FormGroup;
@@ -3329,6 +3424,43 @@ removeInvoiceDetailRow(index: number) {
 //     this.valueInput?.nativeElement.focus();
 //   });
 // }
+// removeRowAndFocus(index: number) {
+
+//   const row = this.saleInvoiceDetails.at(index) as FormGroup;
+
+//   if (!row) {
+//     return;
+//   }
+
+//   const qty = Number(row.get('qty')?.value ?? 0);
+//   const rowTotal = Number(row.get('rowTotal')?.value ?? 0);
+
+//   console.log('Qty:', qty);
+//   console.log('Row Total:', rowTotal);
+
+//   // Empty row -> delete directly
+//   if (qty === 0 && rowTotal === 0) {
+//    console.log('Deleting directly - dialog should NOT open');
+//     this.removeRowAndFocus1(index);
+
+//     setTimeout(() => {
+//       this.valueInput?.nativeElement.focus();
+//     });
+
+//     return;
+//   }
+
+ 
+
+//    this.snackBar.open('You cannot delete this row.', 'Close', {
+//       duration: 3000,
+//       horizontalPosition: 'center',
+//       verticalPosition: 'top'
+//     });
+
+
+// }
+
 removeRowAndFocus(index: number) {
 
   const row = this.saleInvoiceDetails.at(index) as FormGroup;
@@ -3345,25 +3477,35 @@ removeRowAndFocus(index: number) {
 
   // Empty row -> delete directly
   if (qty === 0 && rowTotal === 0) {
-   console.log('Deleting directly - dialog should NOT open');
+
+    console.log('Deleting directly - dialog should NOT open');
+
     this.removeRowAndFocus1(index);
 
     setTimeout(() => {
-      this.valueInput?.nativeElement.focus();
+
+      if (this.screenConfig?.billDetailsSale === true) {
+
+        // TRUE → BILL NO
+        this.billNoInput?.nativeElement.focus();
+
+      } else {
+
+        // FALSE → VALUE
+        this.valueInput?.nativeElement.focus();
+
+      }
+
     });
 
     return;
   }
 
- 
-
-   this.snackBar.open('You cannot delete this row.', 'Close', {
-      duration: 3000,
-      horizontalPosition: 'center',
-      verticalPosition: 'top'
-    });
-
-
+  this.snackBar.open('You cannot delete this row.', 'Close', {
+    duration: 3000,
+    horizontalPosition: 'center',
+    verticalPosition: 'top'
+  });
 }
 listenRowCalculation(row: FormGroup) {
 
@@ -3582,10 +3724,15 @@ recalculateSubTotal() {
   const roundAndTotal = this.calculateRoundOff(subTotal);
 
   this.addEditForm.patchValue(
-    { subTotal,
-      roundAndTotal
-     },
-    { emitEvent: false }
+    // { subTotal,
+    //   roundAndTotal
+    //  },
+    // { emitEvent: false }
+     {
+    subTotal: Number(subTotal).toFixed(2),
+    roundAndTotal: Number(roundAndTotal).toFixed(2)
+  },
+  { emitEvent: false }
   );
 }
 onRowTotalBlur(index: number) {
@@ -4001,26 +4148,51 @@ onEnterNext(event: Event): void {
   }
 }
 
+// clearZero(controlName: string): void {
+//     const control = this.addEditForm.get(controlName);
+
+//     if (!control) return;
+
+//     if (Number(control.value) === 0) {
+//       control.setValue('');
+//     }
+//   }
 clearZero(controlName: string): void {
-    const control = this.addEditForm.get(controlName);
+  const control = this.addEditForm.get(controlName);
 
-    if (!control) return;
-
-    if (Number(control.value) === 0) {
-      control.setValue('');
-    }
+  if (control?.value === '0.00' || control?.value === 0) {
+    control.setValue('', { emitEvent: false });
   }
+}
 
 
+  // restoreZero(controlName: string): void {
+  //   const control = this.addEditForm.get(controlName);
+
+  //   if (!control) return;
+
+  //   if (control.value === '' || control.value == null) {
+  //     control.setValue(0);
+  //   }
+  // }
   restoreZero(controlName: string): void {
-    const control = this.addEditForm.get(controlName);
+  const control = this.addEditForm.get(controlName);
 
-    if (!control) return;
+  if (!control) return;
 
-    if (control.value === '' || control.value == null) {
-      control.setValue(0);
-    }
+  const value = control.value;
+
+  if (value === '' || value === null || value === undefined) {
+    control.setValue('0.00', { emitEvent: false });
+    return;
   }
+
+  const num = Number(value);
+
+  if (!isNaN(num)) {
+    control.setValue(num.toFixed(2), { emitEvent: false });
+  }
+}
 
 // onSubmit(): void {
 //   this.submit = true;

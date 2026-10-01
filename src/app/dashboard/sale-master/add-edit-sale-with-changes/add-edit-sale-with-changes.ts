@@ -1968,121 +1968,214 @@ getHighlightedPartsItems(text: string, search: string) {
     after: text.substring(index + search.length)
   };
 }
+onItemOptionClick(event: MouseEvent, item: any, index: number): void {
 
+  if (!this.canSelectItem(item)) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    return;
+  }
+
+  // canSelectItem = true
+  // normal selection hone do
+}
+
+// onItemChange(index: number) {
+
+//   const row = this.saleInvoiceDetails.at(index) as FormGroup;
+
+//   const itemId = Number(row.get('itemId')?.value);
+
+//   if (!itemId) {
+//     return;
+//   }
+
+//   const selectedItem = this.listOfAllItem.find(
+//     x => Number(x.itemId) === itemId
+//   );
+
+//   if (!selectedItem) {
+//     return;
+//   }
+
+
+//   // =====================================================
+//   // GET ITEM TAX
+//   // =====================================================
+
+//   const taxId =
+//     Number(selectedItem.cgstSgstSale) > 0
+//       ? Number(selectedItem.cgstSgstSale)
+//       : Number(selectedItem.igstSaleName) > 0
+//         ? Number(selectedItem.igstSaleName)
+//         : null;
+
+
+//   // =====================================================
+//   // TAX LIST
+//   // =====================================================
+
+//   this.filteredTaxes[index] = [
+//     ...this.listOfTaxTableData
+//   ];
+
+
+//   // =====================================================
+//   // SET ITEM DETAILS
+//   // =====================================================
+
+//   row.patchValue({
+
+//     barcode: selectedItem.itemBarCodeOrPartNo || '',
+
+//     hsn: selectedItem.hsn || '',
+
+//     rate: Number(selectedItem.saleRate) || 0,
+
+//     mRate: Number(selectedItem.mrpRate) || 0,
+
+//     taxPercent: Number(selectedItem.taxRate) || 0,
+
+//     unit: selectedItem.unitInt || 0
+
+//   }, {
+//     emitEvent: false
+//   });
+
+
+//   // =====================================================
+//   // SET ITEM TAX
+//   // =====================================================
+
+//   row.get('taxableValueId')?.setValue(
+//     taxId,
+//     {
+//       emitEvent: false
+//     }
+//   );
+
+
+//   // =====================================================
+//   // FORMAT QTY
+//   // =====================================================
+
+//   this.formatQty(index);
+
+
+//   // =====================================================
+//   // TAX CALCULATION
+//   // =====================================================
+//   // If item already contains tax,
+//   // calculate tax immediately.
+//   //
+//   // If item has NO tax, do nothing here.
+//   // User can select tax manually from mat-select,
+//   // which calls onTaxChange().
+//   // =====================================================
+
+//   if (taxId !== null && taxId > 0) {
+
+//     this.onTaxChange(index);
+
+//   }
+
+
+//   // =====================================================
+//   // ROW TOTAL
+//   // =====================================================
+//   // Do NOT call onRowTotalBlur() here.
+//   //
+//   // Calling it here can cause:
+//   // onTaxChange()
+//   //      +
+//   // onRowTotalBlur()
+//   //      +
+//   // recalculateTax()
+//   //
+//   // resulting in duplicate tax calculation.
+//   // =====================================================
+// }
 onItemChange(index: number) {
 
   const row = this.saleInvoiceDetails.at(index) as FormGroup;
+  const itemId = row.get('itemId')?.value;
 
-  const itemId = Number(row.get('itemId')?.value);
-
-  if (!itemId) {
-    return;
-  }
+  if (!itemId) return;
 
   const selectedItem = this.listOfAllItem.find(
-    x => Number(x.itemId) === itemId
+    x => x.itemId === Number(itemId)
   );
 
-  if (!selectedItem) {
+  if (!selectedItem) return;
+
+  // ==========================================
+  // PREVENT SELECTION OF RESTRICTED ITEM
+  // ==========================================
+  if (!this.canSelectItem(selectedItem)) {
+
+    // Previous item/value ko clear kar do
+    row.patchValue({
+      itemId: null
+    }, { emitEvent: false });
+
     return;
   }
 
-
-  // =====================================================
-  // GET ITEM TAX
-  // =====================================================
+  // ==========================================
+  // TAX
+  // ==========================================
 
   const taxId =
-    Number(selectedItem.cgstSgstSale) > 0
+    selectedItem.cgstSgstSale > 0
       ? Number(selectedItem.cgstSgstSale)
-      : Number(selectedItem.igstSaleName) > 0
+      : selectedItem.igstSaleName > 0
         ? Number(selectedItem.igstSaleName)
         : null;
 
+  this.filteredTaxes[index] = [...this.listOfTaxTableData];
 
-  // =====================================================
-  // TAX LIST
-  // =====================================================
-
-  this.filteredTaxes[index] = [
-    ...this.listOfTaxTableData
-  ];
-
-
-  // =====================================================
-  // SET ITEM DETAILS
-  // =====================================================
+  // ==========================================
+  // ITEM DETAILS
+  // ==========================================
 
   row.patchValue({
-
     barcode: selectedItem.itemBarCodeOrPartNo || '',
-
     hsn: selectedItem.hsn || '',
-
-    rate: Number(selectedItem.saleRate) || 0,
-
-    mRate: Number(selectedItem.mrpRate) || 0,
-
-    taxPercent: Number(selectedItem.taxRate) || 0,
-
+    rate: Number(selectedItem.saleRate || 0).toFixed(2),
+    mRate: selectedItem.mrpRate || 0,
+    taxPercent: selectedItem.taxRate || 0,
     unit: selectedItem.unitInt || 0
-
-  }, {
-    emitEvent: false
   });
 
+  // ==========================================
+  // TAX CHANGE
+  // ==========================================
 
-  // =====================================================
-  // SET ITEM TAX
-  // =====================================================
+  setTimeout(() => {
 
-  row.get('taxableValueId')?.setValue(
-    taxId,
-    {
-      emitEvent: false
-    }
-  );
+    row.get('taxableValueId')?.setValue(taxId);
 
-
-  // =====================================================
-  // FORMAT QTY
-  // =====================================================
-
-  this.formatQty(index);
-
-
-  // =====================================================
-  // TAX CALCULATION
-  // =====================================================
-  // If item already contains tax,
-  // calculate tax immediately.
-  //
-  // If item has NO tax, do nothing here.
-  // User can select tax manually from mat-select,
-  // which calls onTaxChange().
-  // =====================================================
-
-  if (taxId !== null && taxId > 0) {
+    this.cdr.detectChanges();
 
     this.onTaxChange(index);
 
-  }
+  }, 0);
 
+  // ==========================================
+  // QTY FORMAT
+  // ==========================================
 
-  // =====================================================
+  this.formatQty(index);
+
+  this.onTaxChange(index);
+
+  // ==========================================
   // ROW TOTAL
-  // =====================================================
-  // Do NOT call onRowTotalBlur() here.
-  //
-  // Calling it here can cause:
-  // onTaxChange()
-  //      +
-  // onRowTotalBlur()
-  //      +
-  // recalculateTax()
-  //
-  // resulting in duplicate tax calculation.
-  // =====================================================
+  // ==========================================
+
+  setTimeout(() => {
+    this.onRowTotalBlur(index);
+  }, 0);
 }
 formatQty(index: number) {
   const row = this.saleInvoiceDetails.at(index) as FormGroup;
@@ -3421,13 +3514,24 @@ removeRowAndFocus(index: number) {
    console.log('Deleting directly - dialog should NOT open');
     this.removeRowAndFocus1(index);
 
-    setTimeout(() => {
-      this.valueInput?.nativeElement.focus();
+  setTimeout(() => {
+
+      if (this.screenConfig?.billDetailsSale === true) {
+
+        // TRUE → BILL NO
+        this.billNoInput?.nativeElement.focus();
+
+      } else {
+
+        // FALSE → VALUE
+        this.valueInput?.nativeElement.focus();
+
+      }
+
     });
 
     return;
   }
-
  
 
    this.snackBar.open('You cannot delete this row.', 'Close', {

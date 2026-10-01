@@ -26,7 +26,9 @@ AccountId:any;
   isNameDropdownOpen: boolean = false;
   isTransactionDropdownOpen: boolean = false;
   isLedgerTransaction: boolean = false;
-  constructor(private router: Router,private el: ElementRef, private renderer: Renderer2,) {
+  constructor(public router: Router,
+  private el: ElementRef,
+  private renderer: Renderer2) {
     
    }
 
@@ -95,6 +97,10 @@ toggleDropdownAnothrMenu() {
   }
  
   }
+openPageInNewTab(route: string): void {
+  const url = window.location.origin + '/#/' + route;
+  window.open(url, '_blank');
+}
   logout() {
    
     const userData = {
