@@ -1,0 +1,48 @@
+.confirm-dialog {
+  padding: 28px;
+  text-align: center;
+  min-width: 360px;
+}
+
+.dialog-icon {
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 15px;
+  border-radius: 50%;
+  background: #e8f0fe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  mat-icon {
+    color: #1976d2;
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+  }
+}
+
+h2 {
+  margin: 0 0 10px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 25px;
+
+  button {
+    min-width: 110px;
+    height: 40px;
+  }
+}

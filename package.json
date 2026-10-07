@@ -35,6 +35,8 @@
     "bootstrap": "^5.3.8",
     "exceljs": "^4.4.0",
     "file-saver": "^2.0.5",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^4.2.1",
     "ngx-mat-select-search": "^8.0.6",
     "ngx-print": "^21.2.0",
     "rxjs": "~7.8.0",

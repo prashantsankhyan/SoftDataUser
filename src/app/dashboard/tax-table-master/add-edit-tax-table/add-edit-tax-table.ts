@@ -969,7 +969,7 @@ getAllData(): void {
           'PURCHASE ACCOUNTS',
           'DIRECT EXPENSES',
           'INDIRECT EXPENSES',
-          'DIRECT INCOME',
+          'DIRECT  INCOME',
           'INDIRECT INCOME',
           'FIXED ASSETS'
 

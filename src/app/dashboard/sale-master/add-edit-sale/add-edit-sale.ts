@@ -266,6 +266,7 @@ showAddNewOption = false;
 
 private itemArrowLeftBack = false;
 private itemEnterNavigation = false;
+whatsappNumber: string = '';
   constructor(@Inject(MAT_DIALOG_DATA) public data:any,private fb: FormBuilder,private titleCase: TitleCasePipe ,private http:AllApiService,private cRouter:ActivatedRoute,
   private router: Router,private ngZone: NgZone,public dialog: MatDialog,
   private snackBar: MatSnackBar,
@@ -1946,6 +1947,20 @@ onAccountChange(event: any) {
   );
 
   if (selectedAccount) {
+    const phone = selectedAccount.phone || '';
+
+    console.log('Account Phone:', phone);
+
+    const whatsappNumber =
+      this.getWhatsAppNumber(phone);
+
+    console.log(
+      'WhatsApp Number:',
+      whatsappNumber
+    );
+
+    this.whatsappNumber = whatsappNumber;
+
 
     const transportId = selectedAccount.transportId || 0;
 
@@ -1955,6 +1970,46 @@ onAccountChange(event: any) {
 
   }
 
+}
+
+
+
+getWhatsAppNumber(phone: string): string {
+
+  if (!phone) {
+    return '';
+  }
+
+  phone = phone
+    .replace(/\s/g, '')
+    .replace(/-/g, '')
+    .replace(/\+/g, '');
+
+  // 8437100595
+  if (phone.length === 10) {
+    return '91' + phone;
+  }
+
+  // 08437100595
+  if (phone.startsWith('0') && phone.length === 11) {
+    return '91' + phone.substring(1);
+  }
+
+  // Already international format
+  return phone;
+}
+
+sendPdfToWhatsApp() {
+
+  if (!this.whatsappNumber) {
+    alert('WhatsApp number not found.');
+    return;
+  }
+
+  console.log(
+    'Sending WhatsApp to:',
+    this.whatsappNumber
+  );
 }
 getHighlightedParts(text: string) {
   const search = (this.searchCtrl.value || '').trim();
@@ -2373,6 +2428,7 @@ this.filteredItems = {};
           remarks: row.Remarks,
           hsn: row.HSN,
           artNo: row.ArtNo,
+           size:row.Size,
           unit: row.Unit,
           qty: row.Qty,
           rate: row.Rate,
@@ -4767,7 +4823,10 @@ addUnitShorcut(data?: any) {
 //     });
 // }
 
-
+onAddNewOverlayClick(): void {
+  this.showAddNewOption = false;
+  this.openPdfModel();
+}
 openPdfModel() {
   const saleInvoiceId =
     this.addEditForm.get('saleInvoiceId')?.value;

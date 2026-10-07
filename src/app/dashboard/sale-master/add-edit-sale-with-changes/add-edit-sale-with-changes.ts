@@ -384,6 +384,7 @@ onOpened(type: string, opened: boolean,index?: number) {
   this.saleInvoiceDetails.controls.forEach((_, index) => {
 
     this.filteredItems[index] = [...this.listOfAllItem];
+    console.log('FILTERED ITEM:', this.filteredItems[index][0]);
 
     this.itemSearchCtrls[index]?.setValue('', {
       emitEvent: false
@@ -2406,6 +2407,7 @@ this.filteredItems = {};
           itemId: row.ItemId,
           remarks: row.Remarks,
           hsn: row.HSN,
+          size:row.Size,
           artNo: row.ArtNo,
           unit: row.Unit,
           qty: row.Qty,
@@ -4568,10 +4570,14 @@ recalculateSubTotal(): void {
       - advance + Number.EPSILON) * 100
   ) / 100;
 
+  // this.addEditForm.patchValue({
+  //   subTotal,
+  //   roundAndTotal: this.calculateRoundOff(subTotal)
+  // }, { emitEvent: false });
   this.addEditForm.patchValue({
-    subTotal,
-    roundAndTotal: this.calculateRoundOff(subTotal)
-  }, { emitEvent: false });
+  subTotal: subTotal.toFixed(2),
+  roundAndTotal: this.calculateRoundOff(subTotal).toFixed(2)
+}, { emitEvent: false });
 }
 onRowTotalBlur(index: number) {
 
@@ -5048,25 +5054,41 @@ onEnterNext(event: Event): void {
 }
 
 clearZero(controlName: string): void {
-    const control = this.addEditForm.get(controlName);
+  const control = this.addEditForm.get(controlName);
 
-    if (!control) return;
-
-    if (Number(control.value) === 0) {
-      control.setValue('');
-    }
+  if (control?.value === '0.00' || control?.value === 0) {
+    control.setValue('', { emitEvent: false });
   }
+}
 
 
+  // restoreZero(controlName: string): void {
+  //   const control = this.addEditForm.get(controlName);
+
+  //   if (!control) return;
+
+  //   if (control.value === '' || control.value == null) {
+  //     control.setValue(0);
+  //   }
+  // }
   restoreZero(controlName: string): void {
-    const control = this.addEditForm.get(controlName);
+  const control = this.addEditForm.get(controlName);
 
-    if (!control) return;
+  if (!control) return;
 
-    if (control.value === '' || control.value == null) {
-      control.setValue(0);
-    }
+  const value = control.value;
+
+  if (value === '' || value === null || value === undefined) {
+    control.setValue('0.00', { emitEvent: false });
+    return;
   }
+
+  const num = Number(value);
+
+  if (!isNaN(num)) {
+    control.setValue(num.toFixed(2), { emitEvent: false });
+  }
+}
 
 // onSubmit(): void {
 //   this.submit = true;
@@ -5643,7 +5665,10 @@ addUnitShorcut(data?: any) {
 //       );
 //     });
 // }
-
+onAddNewOverlayClick(): void {
+  this.showAddNewOption = false;
+  this.openPdfModel();
+}
 
 openPdfModel() {
   const saleInvoiceId =

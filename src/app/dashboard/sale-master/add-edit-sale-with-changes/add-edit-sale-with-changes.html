@@ -7,7 +7,7 @@
  <div
   *ngIf="showAddNewOption"
   class="add-new-overlay"
-  (click)="showAddNewOption = false">
+ (click)="onAddNewOverlayClick()">
 
   <div
     class="add-new-box"
@@ -510,7 +510,7 @@
   #itemSelect
   [id]="'itemSelect' + i"
   formControlName="itemId"
-  [panelWidth]="'515px'"
+  [panelWidth]="'590px'"
   (openedChange)="onOpened('item', $event)"
   (closed)="onItemClosed(itemSelect, i)"
   (selectionChange)="onItemChange(i)"
@@ -539,11 +539,12 @@
   <!-- TABLE HEADER -->
   <div class="item-table-header">
     <div>ITEM NAME</div>
-    <div>HSM </div>
-    <div  class="text-center"> BALANCE QTY</div>
-    <div  class="text-center"> PURCHASE RATE</div>
-    <div  class="text-center">SATE RATE</div>
-     <div  class="text-center">MRP </div>
+    <div style="text-align: center;">HSN </div>
+    <div  style="text-align: center;"> BALANCE QTY</div>
+   
+    <div style="text-align: center;">SALE RATE</div>
+     <div style="text-align: center;">MRP </div>
+      <div style="text-align: right;"> PURCHASE RATE</div>
    
   </div>
 
@@ -563,25 +564,28 @@
         {{ u.itemName }}
       </div>
 
-      <div>
+      <div style="text-align: center;">
         {{ u.hsn || '-' }}
       </div>
-      <div class="text-center">
+      <div style="text-align: center;">
   {{ u.closingQty != null
       ? (u.closingQty | number: '1.' + (u.decimal || '0') + '-' + (u.decimal || '0'))
       : '-' }}
 </div>
 
-      <div  class="text-center">
-         
-        {{ (+u.lastPurchaseRate || 0) | currency:'INR':'symbol':'1.2-2' }}
-      </div>
+     
 
-      <div class="text-center">
+      <div style="text-align: center;">
         {{ (+u.saleRate || 0) | currency:'INR':'symbol':'1.2-2' }}
       </div>
-       <div class="text-center">
-        {{ (+u.mrpRate || 0) | currency:'INR':'symbol':'1.2-2' }}
+     <div style="text-align: center;">
+  {{ u.mrpRate != null
+      ? (u.mrpRate | currency:'INR':'symbol':'1.2-2')
+      : '-' }}
+</div>
+ <div   style="text-align: right;">
+         
+        {{ (+u.lastPurchaseRate || 0) | currency:'INR':'symbol':'1.2-2' }}
       </div>
       
 
@@ -1006,9 +1010,10 @@
         <input
           type="number"
           class="form-control text-end format"
-            (focus)="clearZero('billAmount')"
-          (blur)="restoreZero('billAmount')"
            formControlName="billAmount"
+             (focus)="clearZero('billAmount')"
+          (blur)="restoreZero('billAmount')"
+          placeholder="0.00"
           placeholder="0.00"
         />
       </div>
@@ -1020,8 +1025,9 @@
           class="form-control text-end format"
            formControlName="billTaxAmount"
             (focus)="clearZero('billTaxAmount')"
-          (blur)="restoreZero('billTaxAmount')"
+        
            (input)="recalculateSubTotal()"
+             (blur)="restoreZero('billTaxAmount')"
           placeholder="0.00"
         />
       </div>

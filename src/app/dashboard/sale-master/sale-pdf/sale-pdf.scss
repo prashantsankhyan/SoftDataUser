@@ -113,13 +113,13 @@
   border-collapse: collapse;
 }
 
-.no-line-table,
-.no-line-table td {
-     border-left: 1px solid black;
-  border-right: 1px solid black;
-   border-top: none;
-  border-bottom: none;
-}
+// .no-line-table,
+// .no-line-table td {
+//      border-left: 1px solid black;
+//   border-right: 1px solid black;
+//    border-top: none;
+//   border-bottom: none;
+// }
 
 .no-line-table0 tr {
   border: none !important;
@@ -235,7 +235,7 @@
 }
 
 .party-header td {
-  border: 1px solid #000;
+  // border: 1px solid #000;
   vertical-align: top;
 }
 

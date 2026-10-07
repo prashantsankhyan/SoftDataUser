@@ -9,6 +9,7 @@ import { ApiUrl } from '../../_core/apiUrl';
 import { DeleteSale } from './delete-sale/delete-sale';
 import { AddEditSale } from './add-edit-sale/add-edit-sale';
 import { AddEditSaleWithChanges } from './add-edit-sale-with-changes/add-edit-sale-with-changes';
+import { ConfirmIncludeExclude } from './confirm-include-exclude/confirm-include-exclude';
 
 @Component({
   selector: 'app-sale-master',
@@ -46,11 +47,40 @@ ngOnInit(): void {
   // Load toggle from backend
   this.loadToggleValue();
 
-  // Listen toggle change
-this.permissionForm
+  // Confirm when the user changes Include / Exclude
+ this.permissionForm
   .get('excludedOrIncluded')
-  ?.valueChanges.subscribe(() => {
-    this.callAddEditSalePermission();
+  ?.valueChanges.subscribe((value: boolean) => {
+
+    const dialogRef = this.dialog.open(ConfirmIncludeExclude, {
+      width: '420px',
+      maxWidth: '95vw',
+      disableClose: true,
+      data: {
+        value: value
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+
+      if (confirmed) {
+
+        // User confirmed the change
+        this.callAddEditSalePermission();
+
+      } else {
+
+        // Cancel → restore previous value
+        this.permissionForm
+          .get('excludedOrIncluded')
+          ?.setValue(!value, {
+            emitEvent: false
+          });
+
+      }
+
+    });
+
   });
 }
 
@@ -142,8 +172,7 @@ getAllData() {
    LOAD PERMISSION FILTERED DATA
 ====================================================== */
 
-callAddEditSalePermission() {
-
+callAddEditSalePermission(): void {
   const body = {
     companyId: this.companyId,
     excludedOrIncluded:
@@ -152,10 +181,13 @@ callAddEditSalePermission() {
 
   this.api
     .postData(ApiUrl.permissionIncludeAndExclude, body)
-    .subscribe(() => {
-
-      // after saving toggle setting
-      this.refreshList();
+    .subscribe({
+      next: () => {
+        this.refreshList();
+      },
+      error: (err) => {
+        console.error('Failed to update Include/Exclude setting:', err);
+      }
     });
 }
 
@@ -305,6 +337,33 @@ addEditDataWithChanges(data?: any) {
     dialogRef.backdropClick().subscribe(() => {
     this.refreshList();
   });
+}
+editSale(row: any): void {
+
+  const details = row?.details ?? [];
+
+  const hasIncludedRate = details.some((detail: any) => {
+    const includedRate = Number(detail?.includedRate ?? 0);
+    return includedRate > 0;
+  });
+
+  console.log('Invoice:', row?.invoiceNo);
+  console.log('Details:', details);
+  console.log('Has Included Rate:', hasIncludedRate);
+
+  if (hasIncludedRate) {
+
+    // INCLUDE
+    console.log('Opening INCLUDE edit');
+    this.addEditDataWithChanges(row);
+
+  } else {
+
+    // EXCLUDE
+    console.log('Opening EXCLUDE edit');
+    this.addEditData(row);
+
+  }
 }
 
 deleteData(row: any) {

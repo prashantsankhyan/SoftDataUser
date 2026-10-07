@@ -1,4 +1,5 @@
 <div class="container-fluid">
+  
 
   <div class="row mb-3 align-items-center">
     <div class="col-md-6">
@@ -15,30 +16,63 @@
 
 
 
-    <div class="col-md-6 text-end">
-    <form [formGroup]="permissionForm">
-  <mat-slide-toggle formControlName="excludedOrIncluded">
-    Include / Exclude
-  </mat-slide-toggle>
-</form>
-     
+<div class="col-md-6 text-end">
+<form [formGroup]="permissionForm">
 
-      <button 
-  class="btn btn-primary" 
-  *ngIf="isExcluded"
-  (click)="addEditData()">
-  + ADD Exclude
-</button>
+  <div class="permission-control">
 
-<button 
-  class="btn btn-primary" (click)="addEditDataWithChanges()"
-  *ngIf="!isExcluded"
-  >
-  + ADD Include
-</button>
-      
+    <div class="permission-info">
+
+      <div class="permission-icon">
+        <mat-icon>tune</mat-icon>
+      </div>
+
+      <div class="permission-text">
+        <span class="permission-title">
+          Sale Permission
+        </span>
+
+        <span class="permission-subtitle">
+          {{ isExcluded ? 'Exclude Mode' : 'Include Mode' }}
+        </span>
+      </div>
 
     </div>
+
+    <div class="permission-action">
+
+      <mat-slide-toggle
+        formControlName="excludedOrIncluded"
+        [formGroup]="permissionForm">
+      </mat-slide-toggle>
+
+      <button
+        type="button"
+        class="add-permission-btn"
+        *ngIf="isExcluded"
+        (click)="addEditData()">
+
+        <mat-icon>add</mat-icon>
+        <span>Add Exclude</span>
+
+      </button>
+
+      <button
+        type="button"
+        class="add-permission-btn"
+        *ngIf="!isExcluded"
+        (click)="addEditDataWithChanges()">
+
+        <mat-icon>add</mat-icon>
+        <span>Add Include</span>
+
+      </button>
+
+    </div>
+
+  </div>
+</form>
+</div>
   </div>
 
     <div class="mb-3">
@@ -99,26 +133,21 @@
                {{row.roundAndTotal | number:'1.2-2'}}
             </td>
 
-            <td style="text-align: right;">
-              <button
-               *ngIf="isExcluded"
-                class="btn btn-sm btn-outline-primary me-1"
-                (click)="addEditData(row)">
-                <i class="bi bi-pencil"></i>
-              </button>
-               <button
-               *ngIf="!isExcluded"
-                class="btn btn-sm btn-outline-primary me-1"
-                (click)="addEditDataWithChanges(row)">
-                <i class="bi bi-pencil"></i> 
-              </button>
+          <td style="text-align: right;">
 
-              <button
-                class="btn btn-sm btn-outline-danger"
-                (click)="deleteData(row)">
-                <i class="bi bi-trash"></i>
-              </button>
-            </td>
+  <button 
+    class="btn btn-sm btn-outline-primary me-1" 
+    (click)="editSale(row)">
+    <i class="bi bi-pencil"></i>
+  </button>
+
+  <button 
+    class="btn btn-sm btn-outline-danger" 
+    (click)="deleteData(row)">
+    <i class="bi bi-trash"></i>
+  </button>
+
+</td>
           </tr>
 
           <!-- Expanded Details -->

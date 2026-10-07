@@ -731,12 +731,13 @@ form > .row:first-child::before {
   display: grid;
 
   grid-template-columns:
-    130px
-    50px
-    80px
+    120px
+    60px
     90px
+   
     90px
-    70px;
+    75px
+     90px;
 
   gap: 8px;
 
@@ -762,9 +763,9 @@ form > .row:first-child::before {
 
   color: #ffffff;
 
-  font-size: 9px;
+  font-size: 10px;
 
-  font-weight: 700;
+  font-weight: 500;
 
   text-transform: uppercase;
 }
@@ -774,11 +775,12 @@ form > .row:first-child::before {
 
   min-height: 42px;
 
-  padding: 4px 0;
+ 
 
   color: #172033;
 
-  font-size: 10px;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 
@@ -808,7 +810,7 @@ form > .row:first-child::before {
 
   white-space: nowrap;
 
-  font-weight: 600;
+  font-weight: 500;
 }
 
 

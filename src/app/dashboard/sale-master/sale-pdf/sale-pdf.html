@@ -213,8 +213,8 @@
         <table class="no-line-table" >
             <thead>
               <tr  >
-    <th rowspan="2" style="border-left: 1px solid white;border-right: 1px solid white;">Sr.</th>
-    <th rowspan="2"class="text-center">Description</th>
+    <th rowspan="2" >Sr.</th>
+    <th rowspan="2"class="text-left">Description</th>
      <th rowspan="2"class="text-center"*ngIf="showBarcode" >barcode</th>
     
      <th rowspan="2" *ngIf="showRemarks">Remakrs</th>
@@ -243,10 +243,10 @@
             <tbody>
                 <tr *ngFor ="let data of details;let i = index">
                     <td style="border-left: 1px solid white;">{{ i + 1 }}</td>
-                    <td style="text-align: center;">{{data.itemName}}</td>
+                    <td style="text-align: left;">{{data.itemName}}</td>
                      <td *ngIf="showBarcode">{{data.barcode}}</td>
                     <td *ngIf="showRemarks">{{data.remarks}}</td>
-                    <td *ngIf="showHsn">{{data.hsn}}</td>
+                    <td *ngIf="showHsn" style="width: 80px;">{{data.hsn}}</td>
                     <td *ngIf="showColor">{{data.color}}</td>
                     <td *ngIf="showArt">{{data.artNo}}</td>
                     <td *ngIf="showPack1">{{data.pack1}}</td>
@@ -255,19 +255,19 @@
                     
                     
                    
-                   <td class="text-end">{{ data.qty | number:'1.3-3' }}</td>
-<td class="text-end">{{ data.rate | number:'1.2-2' }}</td>
-<td class="text-end" *ngIf="showDiscPer">{{ data.discPer | number:'1.2-2' }}</td>
-<td class="text-end">
+                   <td class="text-end" style="width: 60px;">{{ data.qty | number:'1.3-3' }}</td>
+<td class="text-end" style="width: 100px;">{{ data.rate | number:'1.2-2' }}</td>
+<td class="text-end" style="width: 100px;" *ngIf="showDiscPer">{{ data.discPer | number:'1.2-2' }}</td>
+<td class="text-end" style="width: 40px;">
   {{ getFirstGstRate(data) | number:'1.2-2' }}
 </td>
-<td class="text-end">
+<td class="text-end" style="width: 40px;">
   {{ getCentralRate(data) | number:'1.2-2' }}
 </td>
-<td class="text-end">
+<td class="text-end" style="width: 40px;">
   {{ getLocalRate(data) | number:'1.2-2' }}
 </td>
-<td class="text-end">{{ data.rowTotal | number:'1.2-2' }}</td>
+<td class="text-end"style="width: 120px;">{{ data.rowTotal | number:'1.2-2' }}</td>
                     
                 </tr>
                 <!-- <tr>
@@ -313,7 +313,7 @@
 
   <!-- Header Row -->
   <tr >
-    <th style="border-left: 1px solid white;">HSN<br>Code</th>
+    <th >HSN<br>Code</th>
     <th>Taxable<br>Amount</th>
     <th>Qty.</th>
     <th>Tax<br>Rate %</th>
@@ -323,7 +323,7 @@
   </tr>
 
 <tr *ngFor="let gst of groupedGstData" >
-  <td style="border-left: 1px solid white;">{{ gst.hsn }}</td>
+  <td >{{ gst.hsn }}</td>
   <td class="right">{{ gst.taxableAmount | number:'1.2-2' }}</td>
   <td class="right">{{ gst.qty | number:'1.3-3' }}</td>
   <td class="right">{{ gst.taxRate | number:'1.2-2' }}</td>
@@ -348,21 +348,54 @@
                 <td class="right" >{{header.centralGst | number:'1.2-2'}}</td>
             </tr>
              <tr>
-                <td style="height: 28px;font-size:smaller">{{header.otherChargeName}}</td>
+                <td class="right" style="height: 28px;font-size:smaller">{{header.otherChargeName}}</td>
                 <td class="right" >{{header.value| number:'1.2-2'}}</td>
             </tr>
              <tr>
                 <td class="right" style="height: 28px;font-size:smaller">{{header.otherCharge1Name}}</td>
                 <td class="right" >{{header.value1 | number:'1.2-2'}}</td>
             </tr>
-             <tr>
-                <td class="right"style="height: 28px;"></td>
-                <td class="right" ></td>
-            </tr>
-             <tr>
-                <td class="right"style="height: 28px;"></td>
-                <td class="right" ></td>
-            </tr>
+          
+<tr>
+  <td class="right" style="height: 28px;">
+    <span *ngIf="header.billTaxAmount > 0 || header.billTaxAmount < -1">
+      Tax Amount
+    </span>
+  </td>
+
+  <td class="right">
+    <span *ngIf="header.billTaxAmount > 0 || header.billTaxAmount < -1">
+      {{ header.billTaxAmount | number:'1.2-2' }}
+    </span>
+  </td>
+</tr>
+  <tr>
+  <td class="right" style="height: 28px;">
+    <span *ngIf="header.billFreight > 0 || header.billFreight < -1">
+     Freight
+    </span>
+  </td>
+
+  <td class="right">
+    <span *ngIf="header.billFreight > 0 || header.billFreight < -1">
+      {{ header.billFreight | number:'1.2-2' }}
+    </span>
+  </td>
+</tr>
+
+<tr>
+  <td class="right" style="height: 28px;">
+    <span *ngIf="header.advance > 0 || header.advance < -1">
+     Advance
+    </span>
+  </td>
+
+  <td class="right">
+    <span *ngIf="header.advance > 0 || header.advance < -1">
+     {{ -(header.advance || 0) | number:'1.2-2' }}
+    </span>
+  </td>
+</tr>
              <tr>
                
             </tr>
